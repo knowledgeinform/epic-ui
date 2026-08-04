@@ -1,0 +1,9 @@
+.savingLabel{
+  font-size: .8em;
+  font-style: italic;
+  color: red;
+}
+
+.mat-mdc-dialog-content {
+  padding-top: 0;
+}

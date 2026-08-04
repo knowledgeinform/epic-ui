@@ -1,0 +1,155 @@
+<ng-container *ngIf="itemType && procedureDetails">
+  <div class="controlBar no-print flex-row gap-10">
+    <a
+      mat-stroked-button
+      [routerLink]="['/', itemType, procedureDetails.id]"
+      [attr.aria-label]="'Return to ' + itemType"
+    >
+      <mat-icon>chevron_left</mat-icon> Back to <span class="capitalize">{{itemType}}</span>
+    </a>
+    <span class="flex"></span>
+    <button
+      mat-stroked-button
+      (click)="downloadAllAttachments()"
+      [attr.aria-label]="'Download all attachments for ' + itemType"
+    >
+      Download All Attachments
+    </button>
+    <button
+      mat-stroked-button
+      (click)="printPage()"
+      [attr.aria-label]="'Print ' + itemType"
+    >
+      Print
+    </button>
+  </div>
+
+  <app-procedure-hazard-banner [procedure]="procedureDetails"></app-procedure-hazard-banner>
+
+  <h1 class="controlBar">{{itemType}} {{procedureDetails.id}}</h1>
+  <p>Printed {{now | date:'short'}}</p>
+</ng-container>
+
+<div
+  class="flex-column"
+  *ngIf="procedureDetails; else loadingTemplate"
+>
+
+
+  <h2>Header</h2>
+
+  <fieldset
+    class="epic-fieldset"
+    *ngIf="procedureDetails"
+  >
+    <legend>Details</legend>
+    <div
+      class="flex-row gap-10"
+    >
+      <mat-form-field class="flex">
+        <mat-label>ID</mat-label>
+        <input
+          matInput
+          readonly
+          value="{{procedureDetails.id}}"
+          aria-readonly="true"
+          [attr.aria-label]="itemType + ' has ID of ' + procedureDetails.id"
+        >
+      </mat-form-field>
+      <mat-form-field class="flex">
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          readonly
+          aria-readonly="true"
+          [attr.aria-label]="itemType + ' has name of ' + run?.name || procedureDetails.procedureDef.name"
+          value="{{run?.name || procedureDetails.procedureDef.name}}"
+        >
+      </mat-form-field>
+    </div>
+    <div class="flex-row">
+      <mat-form-field class="flex-50">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          readonly
+          aria-readonly="true"
+          value="{{run?.description || procedureDetails.procedureDef.description}}"
+          [attr.aria-label]="itemType + ' has description of ' + run?.description || procedureDetails.procedureDef.description"
+        ></textarea>
+      </mat-form-field>
+    </div>
+  </fieldset>
+
+  <app-procedure-hazard
+    [(procedureData)]="procedureDetails"
+    [isLockedFromEditing]="true"
+    [printMode]="true"
+  ></app-procedure-hazard>
+
+  <app-procedureheader
+    [(procedureData)]="originalProcedureDetails"
+    [run]="run ? run : null"
+    [isLockedFromEditing]="true"
+    [printMode]="true"
+  ></app-procedureheader>
+
+
+  <h2>Instruction Information</h2>
+  <app-procedure-instruction-info-container
+    [(procedureData)]="procedureDetails"
+    [isLockedFromEditing]="true"
+    [printMode]="true"
+  ></app-procedure-instruction-info-container>
+
+  <ng-container *ngIf="run">
+
+    <h2>Attachments</h2>
+    <app-upload-file-component
+      [isReadOnly]="true"
+      [(attachments)]="run.attachments"
+      [parentPk]="run.pk"
+      [attachmentType]="AttachmentType.RUN"
+    ></app-upload-file-component>
+
+    <h2>Equipment</h2>
+    <div class="flex">
+      <app-procedure-run-print-equipment-table [equipment]="run.equipmentList"></app-procedure-run-print-equipment-table>
+    </div>
+
+  </ng-container>
+
+  <h2>Steps</h2>
+  <app-procedure-step-group-printable
+    *ngFor="let group of procedureDetails.stepGroupDefs"
+    [stepGroup]="group"
+  ></app-procedure-step-group-printable>
+
+  <h2>Procedure Approvals</h2>
+  <div *ngFor="let approval of originalProcedureDetails.procedureApprovals">
+    <h3 *ngIf="approval.approvalType === ApprovalType.APPROVER">Approver: {{approval.users.displayName}}</h3>
+    <h3 *ngIf="approval.approvalType === ApprovalType.REVIEWER">Reviewer: {{approval.users.displayName}}</h3>
+    <p>Approval Status: <span [style.color]="approval.isApproved | approverIsApprovedColor">{{approval | approverIsApprovedTitle}}</span></p>
+  </div>
+
+  <ng-container *ngIf="run">
+    <h2>Run Closeout Approvals</h2>
+    <div *ngFor="let approval of run.runApprovals">
+      <h3>Approver: {{approval.users.displayName}}</h3>
+      <p>Approval Status: <span [style.color]="approval.isApproved | approverIsApprovedColor">{{approval | approverIsApprovedTitle}}</span></p>
+    </div>
+  </ng-container>
+
+  <ng-template #fetchingPlaceholder>
+    <div>Retrieving procedure...</div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="flex-column justify-center items-center content-center">
+    <mat-spinner></mat-spinner>
+    <p>Loading...</p>
+  </div>
+</ng-template>

@@ -1,0 +1,8 @@
+.scroll {
+  overflow-y:auto;
+  position: sticky;
+}
+
+.center-text {
+  text-align: center;
+}

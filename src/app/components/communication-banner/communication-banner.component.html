@@ -1,0 +1,11 @@
+<div *ngIf="communicationBanner" class="flex-row flex-no-wrap justify-content-center ">
+  <div
+    class="communication-banner"
+    [ngClass]="
+         {'background-info': communicationBanner.messageType === CommunicationBannerMessageType.INFO,
+         'background-warning': communicationBanner.messageType === CommunicationBannerMessageType.WARNING,
+         'background-error': communicationBanner.messageType === CommunicationBannerMessageType.ERROR,
+         }">
+    {{ communicationBanner.message }}
+  </div>
+</div>

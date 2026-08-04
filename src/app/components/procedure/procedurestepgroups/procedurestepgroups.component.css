@@ -1,0 +1,94 @@
+mat-expansion-panel {
+  border: solid 1px #00506B;
+}
+
+::ng-deep .group-panel-content .mat-expansion-panel-body {
+  padding-right: 0;
+}
+
+.groupDescription {
+  right: 10px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.sectionHeader {
+  padding-left: 5px;
+  font-weight: bold;
+  font-style: italic;
+  /*height: 10vh;*/
+}
+.step-group-icon-align {
+  align-self: center;
+}
+
+.step-group-section-box {
+  padding: 5px 5px 5px 0;
+  color: rgba(0, 0, 0, 0.87);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.step-section-box {
+  padding: 5px 5px 5px 0;
+  color: rgba(0, 0, 0, 0.87);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.section-list.cdk-drop-list-dragging .step-group-section-box:not(.cdk-drag-placeholder) {
+  transition: transform 500ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.section-list.cdk-drop-list-dragging .step-section-box:not(.cdk-drag-placeholder) {
+  transition: transform 500ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.add-step-button {
+  margin: 5px 0px;
+}
+
+.section-placeholder {
+  background: #ccc;
+  border: dotted 3px #999;
+  border-radius: 5px;
+  min-height: 60px;
+  transition: transform 500ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.group-panel-content{
+  background-color: #dfdfdf;
+  border: 2px solid #3f51b5;
+}
+
+.steps-container {
+  min-height: 50px;
+}
+
+.overrideDisableStyle {
+  color: rgba(0, 0, 0, 10) !important;
+  align-items: center;
+}
+
+.overrideHeaderStyle {
+  padding-left: 0;
+}
+
+.dragHandle {
+  cursor: move;
+  opacity: .3;
+  /*color: #343434;*/
+}
+
+.step-group-icon {
+  align-self: center;
+  padding-left: 15px
+}

@@ -1,0 +1,333 @@
+<button
+  mat-button
+  id="createTable"
+  *ngIf="!currentTable && showEditingControls"
+  (click)="createTable()"
+  matTooltip="Create a new table from scratch"
+>Create Table
+</button>
+<button
+  mat-button
+  id="pasteTable"
+  *ngIf="!currentTable && showEditingControls"
+  (click)="pasteTable()"
+  matTooltip="Insert a copied table"
+>Paste Table
+</button>
+
+<div
+  class="paste-table-container flex-row justify-start items-stretch content-stretch cross-axis-max-100"
+  *ngIf="isPasted"
+>
+  <div class="flex-column">
+    <span>Before pasting your table, make sure that it does not contain merged cells or newline characters - these may cause errors in the table formatting.</span>
+    <mat-form-field (paste)="onPaste($event)">
+    <mat-label>Paste table here</mat-label>
+    <textarea
+      matInput
+      [(ngModel)]="pastedContent"
+    ></textarea>
+    </mat-form-field>
+  </div>
+</div>
+
+
+<div
+  class="flex-row justify-center items-stretch content-stretch cross-axis-max-100"
+>
+  <div class="flex-column">
+    <div *ngIf="showEditingControls" class="flex-row justify-start items-start content-start">
+      <mat-toolbar color="primary">
+        <mat-toolbar-row>
+          <button mat-icon-button (click)="undoLastChange()" [disabled]="tableUndoStack.length === 0">
+            <mat-icon class="white-icon" aria-label="Undo last table edit" matTooltip="Undo">undo</mat-icon>
+          </button>
+          <button mat-icon-button (click)="redoLastChange()" [disabled]="tableRedoStack.length === 0">
+            <mat-icon class="white-icon" aria-label="Redo last table edit" matTooltip="Redo">redo</mat-icon>
+          </button>
+          <mat-icon aria-hidden="false" aria-label="Delete Table" color="warn"
+                    matTooltip="Delete table" (click)="deleteTable()">delete
+          </mat-icon>
+
+          <ng-container *ngIf="!richTextEditorEnabled">
+            <mat-icon class="white-icon" aria-hidden="false" aria-label="Enable text styling options for table cells"
+                      matTooltip="Edit text" (click)="enableRichTextEditor()">text_format
+            </mat-icon>
+          </ng-container>
+
+          <ng-container *ngIf="richTextEditorEnabled">
+            <mat-icon class="white-icon" aria-hidden="false" aria-label="Disable text styling options for table cells"
+                      matTooltip="Edit cell attributes" (click)="disableRichTextEditor()">table_view
+            </mat-icon>
+          </ng-container>
+        </mat-toolbar-row>
+      </mat-toolbar>
+    </div>
+    <ng-container *ngIf="currentTable && formGroup && showEditingControls">
+      <div class="flex-column justify-center items-center content-center">
+        <ng-container *ngIf="!richTextEditorEnabled">
+          <p><b>To format cell text, select the Edit Text button in the toolbar to switch to text edit mode.
+            To edit cell attributes, you can SHIFT+Click or CTRL+Click to select more than one cell at a time.
+            Right-Click on cells to see more options.</b></p>
+        </ng-container>
+
+        <ng-container *ngIf="richTextEditorEnabled">
+          <p><b>To use text styling options, please highlight the text to be modified.
+            A popup containing rich text options will appear.
+            To modify cell attributes, click on the table button in the toolbar to switch to cell attribute edit
+            mode.</b></p>
+        </ng-container>
+      </div>
+    </ng-container>
+
+      <div class="scrollTable">
+
+        <table
+          #inputTableElement
+          id="{{tableId}}"
+          class='inputTable full-width'
+          [class.attribute-edit-mode]="!richTextEditorEnabled"
+          *ngIf="currentTable && formGroup"
+        >
+          <tr class="full-width row-height"
+              *ngFor="let row of currentTable.stepTableRows; let rowIndex = index; trackBy: trackRowById">
+            <!-- Header row -->
+            <!-- TODO: Reconsider having header row use different template; it has A LOT in common with body rows. -->
+            <ng-container *ngIf="row.rowNumber === 0; else tableBody">
+              <ng-container *ngFor="let cell of row.stepTableCells; trackBy: trackCellByCellContents">
+                <ng-container
+                  *ngIf="(!readOnly  && !disableForSaving  && showEditingControls) || (cell.editable && fillable && !readOnly); else nonEditableCell">
+                  <th class='highlightable-cell width-fit-content'
+                      [attr.row-index]="row.rowNumber"
+                      [attr.col-index]="cell.cellIndex"
+                      [class.is-editableRequired]="cell.editable===true && !cell.optional"
+                      [class.is-editableOptional]="cell.editable && cell.optional"
+                      (contextmenu)="!richTextEditorEnabled ? onContextMenu($event) : null"
+                      (click)="!richTextEditorEnabled ? multiSelect($event) : null"
+                      [class.invalid]="!richTextEditorEnabled ? formGroup.get(cell.pk?.toString())?.invalid : null"
+                      (keydown)="navigateCells($event)"
+                      (mouseenter)="cell.summerNoteEnabled = true">
+                    <ng-container *ngIf="richTextEditorEnabled && cell.summerNoteEnabled; else viewTHSummernoteOnly">
+                      <app-summernote-editor
+                        [text]="cell.nonEditableValue"
+                        (textChange)="receiveTextChange($event, cell)"
+                        (keydownProxy)="navigateCells($event)"
+                        [disableHints]="true"
+                        [airMode]="true"
+                        [isProcedureDraft]="procedureData.editType === EditType.ORIGINAL || redliningEnabled">
+                      </app-summernote-editor>
+                    </ng-container>
+                    <ng-template #viewTHSummernoteOnly>
+                      <div [innerHTML]="cell.nonEditableValue"></div>
+                    </ng-template>
+                  </th>
+                </ng-container>
+                <ng-template #nonEditableCell>
+                  <th class="width-fit-content"
+                      [attr.row-index]="row.rowNumber"
+                      [attr.col-index]="cell.cellIndex"
+                      tabindex="0"
+                      [class.is-editableRequired]="cell.editable===true && !cell.optional"
+                      [class.is-editableOptional]="cell.editable && cell.optional"
+                      (contextmenu)="onContextMenu($event)"
+                      (click)="((!cell.editable && !fillable) && !readOnly) ? multiSelect($event) : null"
+                      [class.invalid]="formGroup.get(cell.pk?.toString())?.invalid"
+                      (keydown)="navigateCells($event)"
+                      [innerHTML]="cell.nonEditableValue">
+                  </th>
+                </ng-template>
+              </ng-container>
+            </ng-container>
+
+            <!-- All other table rows -->
+            <ng-template #tableBody>
+              <ng-container *ngFor="let cell of row.stepTableCells; trackBy: trackCellByCellContents">
+                <ng-container *ngIf="(!readOnly && !disableForSaving && showEditingControls)
+                      || (cell.editable && fillable && !readOnly); else nonEditableCell">
+                  <td
+                    [style.min-width]="'50px'"
+                    [attr.row-index]="row.rowNumber"
+                    [attr.col-index]="cell.cellIndex"
+                    tabindex="0"
+                    [class.is-editableRequired]="cell.editable===true && !cell.optional"
+                    [class.is-editableOptional]="cell.editable && cell.optional"
+                    (contextmenu)="!richTextEditorEnabled ? onContextMenu($event) : null"
+                    (click)="!richTextEditorEnabled ? multiSelect($event) : null"
+                    [class.invalid]="formGroup.get(cell.pk?.toString())?.invalid"
+                    (keydown)="navigateCells($event)"
+                    (mouseenter)="cell.summerNoteEnabled = true">
+                    <ng-container *ngIf="richTextEditorEnabled && cell.summerNoteEnabled; else viewSummernoteOnly">
+                      <app-summernote-editor
+                        [text]="cell.nonEditableValue"
+                        (textChange)="receiveTextChange($event, cell)"
+                        (keydownProxy)="navigateCells($event)"
+                        [disableHints]="true"
+                        [airMode]="true"
+                        [isProcedureDraft]="procedureData.editType === EditType.ORIGINAL || redliningEnabled">
+                      </app-summernote-editor>
+                    </ng-container>
+                    <ng-template #viewSummernoteOnly>
+                      <div [innerHTML]="cell.nonEditableValue"></div>
+                    </ng-template>
+                  </td>
+                </ng-container>
+                <ng-template #nonEditableCell>
+                  <td
+                    [attr.row-index]="row.rowNumber"
+                    [attr.col-index]="cell.cellIndex"
+                    tabindex="0"
+                    [class.is-editableRequired]="cell.editable===true && !cell.optional"
+                    [class.is-editableOptional]="cell.editable && cell.optional"
+                    (contextmenu)="onContextMenu($event)"
+                    (click)="((!cell.editable && !fillable) && !readOnly) ? multiSelect($event) : null"
+                    [class.invalid]="formGroup.get(cell.pk?.toString())?.invalid"
+                    (keydown)="navigateCells($event)"
+                    [innerHTML]="cell.nonEditableValue"
+                  >
+                  </td>
+                </ng-template>
+              </ng-container>
+            </ng-template>
+
+            <!-- Row add/remove controls -->
+            <td
+              *ngIf="!readOnly && !disableForSaving && showEditingControls"
+              class="table-buttons buttonColumnTD"
+            >
+              <button
+                class="addRow"
+                mat-icon-button
+                matTooltip="Add Row Below"
+                (click)="addRow(row.rowNumber)"
+              >
+                <mat-icon>add_circle_outline</mat-icon>
+              </button>
+              <button
+                *ngIf="row.rowNumber > 0"
+                matTooltip="Delete Row"
+                mat-icon-button
+                class="deleteRow"
+                (click)="deleteRow(row.rowNumber)"
+              >
+                <mat-icon>remove_circle_outline</mat-icon>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Column add/remove controls -->
+          <tr *ngIf="!readOnly && !disableForSaving && showEditingControls">
+            <ng-container *ngFor="let cell of currentTable.stepTableRows[0].stepTableCells">
+              <td
+                class="table-buttons buttonRowTD"
+              >
+                <button
+                  class="addColumn"
+                  mat-icon-button
+                  matTooltip="Add Column To Left"
+                  (click)="addColumn(cell.cellIndex)"
+                >
+                  <mat-icon>add_circle_outline</mat-icon>
+                </button>
+                <button
+                  class="deleteColumn"
+                  mat-icon-button
+                  matTooltip="Delete Column"
+                  (click)="deleteColumn(cell.cellIndex)"
+                >
+                  <mat-icon>remove_circle_outline</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <td
+              class="table-buttons  buttonRowTD buttonColumnTD"
+            >
+              <button
+                class="addColumn "
+                mat-icon-button
+                matTooltip="Add Column To Left"
+                (click)="addColumn(currentTable.stepTableRows[0].stepTableCells.length)"
+              >
+                <mat-icon>add_circle_outline</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </table>
+
+      </div>
+      <div *ngIf="!readOnly && !disableForSaving && showEditingControls"
+           class="position-fixed"
+           [style.left]="contextMenuPosition.x"
+           [style.top]="contextMenuPosition.y"
+           [matMenuTriggerFor]="contextMenu"
+      >
+      </div>
+    </div>
+</div>
+
+<mat-menu #contextMenu="matMenu">
+  <ng-template
+    matMenuContent
+    let-item="item"
+  >
+    <button
+      mat-menu-item
+      *ngIf="selectedCells.length == 0 && (!getCellModel(item).editable || getCellModel(item).optional)"
+      (click)="setEditableRequired(item)"
+      matTooltip="Make this cell required if you want to require a user to be able to fill it in during a run."
+    >
+      <mat-icon>edit</mat-icon>
+      <span>Make Editable Required</span>
+    </button>
+    <button
+      mat-menu-item
+      *ngIf="selectedCells.length == 0 && (!getCellModel(item).editable || !getCellModel(item).optional)"
+      (click)="setEditableOptional(item)"
+      matTooltip="Make this cell optional if you want a user to be able to fill it in during a run, but not have it be a required entry."
+    >
+      <mat-icon>edit</mat-icon>
+      <span>Make Editable Optional</span>
+    </button>
+    <button
+      mat-menu-item
+      *ngIf="selectedCells.length == 0 && getCellModel(item).editable"
+      (click)="setUneditable(item)"
+      matTooltip="Make this cell uneditable if you don't want a user to be able to fill it in during a run."
+    >
+      <mat-icon>edit</mat-icon>
+      <span>Make Uneditable</span>
+    </button>
+    <ng-container *ngIf="selectedCells.length > 0">
+      <button
+        mat-menu-item
+        (click)="multiEditable(true, false)"
+        matTooltip="Make all the selected cells required if you want to required a user to fill them in during a run."
+      >
+        <mat-icon>edit</mat-icon>
+        <span>Make Editable Required</span>
+      </button>
+      <button
+        mat-menu-item
+        (click)="multiEditable(true, true)"
+        matTooltip="Make all the selected cells optional if you want a user to be able to fill them in during a run, but not have it be required entry."
+      >
+        <mat-icon>edit</mat-icon>
+        <span>Make Editable Optional</span>
+      </button>
+      <button
+        mat-menu-item
+        (click)="multiEditable(false, false)"
+        matTooltip="Make all the selected cells uneditable if you don't want a user to be able to fill them in during a run."
+      >
+        <mat-icon>edit</mat-icon>
+        <span>Make Uneditable</span>
+      </button>
+    </ng-container>
+    <button
+      mat-menu-item
+      (click)="clearCellContents(item)"
+    >
+      <mat-icon>clear_all</mat-icon>
+      <span>Clear Selected Cell(s)</span>
+    </button>
+  </ng-template>
+</mat-menu>

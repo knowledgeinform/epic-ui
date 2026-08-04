@@ -1,0 +1,63 @@
+<fieldset class="procedures-fieldset">
+  <legend class="procedures-legend">My Favorite Procedures
+    <button mat-icon-button (click)="getDrafts()">
+      <mat-icon color="primary">refresh</mat-icon>
+    </button>
+  </legend>
+  <div class="draftsTableWrapper" *ngIf="drafts.data.length; else errorPlaceholder">
+    <table mat-table [dataSource]="drafts">
+      <ng-container matColumnDef="favBtn">
+        <th class="status-dash" mat-header-cell *matHeaderCellDef></th>
+        <td class="status-dash" mat-cell *matCellDef="let draft" (click)="$event.stopPropagation()">
+          <app-procedure-favorite [procedureDetailsId]="draft.procedureDetailsPk" [(userFavoriteList)]="draft.favoriteUsers" [showFavText]="false"></app-procedure-favorite>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="procedureId">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let draft">{{draft.id}}</td>
+      </ng-container>
+      <ng-container matColumnDef="version">
+        <th mat-header-cell *matHeaderCellDef>Version</th>
+        <td mat-cell *matCellDef="let draft">{{draft.procedureDefVersion}}</td>
+      </ng-container>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Procedure Name</th>
+        <td mat-cell *matCellDef="let draft">{{draft.procedureDefName}}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th class="status-dash" mat-header-cell *matHeaderCellDef>Status</th>
+        <td class="status-dash" mat-cell *matCellDef="let draft" ><mat-icon [style.color]="draft.status | procedureStatusColor" matTooltip="{{ProcedureStatus[draft.status]}}" [matTooltipPosition]="position">{{draft.status | procedureStatusIcon}}</mat-icon></td>
+      </ng-container>
+      <ng-container matColumnDef="runStartBtn">
+        <th class="status-dash" mat-header-cell *matHeaderCellDef></th>
+        <td class="status-dash" mat-cell *matCellDef="let draft" (click)="$event.stopPropagation()">
+          <button mat-raised-button color="primary" (click)="openRunStart(draft.procedureDetailsPk)"
+                  *ngIf="draft.latestReleasedRevision && !offlineService.offline">Start Run</button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns;"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="author(row)" [class.disabled]="!available()"></tr>
+    </table>
+  </div>
+  <div [hidden]="!drafts.data.length">
+    <mat-paginator
+      #draftsPaginator
+      [pageSizeOptions]="[5, 10, 25, 100]"
+      id="draftsPerPage"
+      (page)="setPageSizeCookie($event)"
+      [pageSize]="localStorage.getItem('draftPageSize')"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+  <ng-template #errorPlaceholder>
+    <ng-container *ngIf="fetchError; else emptyPlaceholder">Error retrieving drafts from the server: {{fetchError}}</ng-container>
+  </ng-template>
+  <ng-template #emptyPlaceholder>
+    <ng-container *ngIf="fetchIsDone; else fetchingPlaceholder">You have no saved procedures.</ng-container>
+  </ng-template>
+  <ng-template #fetchingPlaceholder>
+    <ng-container>
+      <div>Retrieving saved procedures...</div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar></ng-container>
+  </ng-template>
+</fieldset>

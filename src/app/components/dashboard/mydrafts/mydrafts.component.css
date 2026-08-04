@@ -1,0 +1,38 @@
+table {
+  width: 100%;
+}
+
+.draftsTableWrapper {
+  padding: 10px;
+}
+
+.procedures-fieldset {
+  border: solid 2px #00506B;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.procedures-legend {
+  color: #00506B;
+  padding: 0px 10px; /* To give a bit of padding on the left and right */
+  font-style: italic;
+  font-size: larger;
+}
+
+.status-dash {
+  text-align: center;
+}
+
+.mat-mdc-row:hover {
+  background-color: #efefef;
+  cursor: pointer;
+  /*font-weight: bold;*/
+}
+
+.mat-mdc-row.disabled:hover {
+  cursor: default !important;
+}
+
+.mat-mdc-row.disabled td {
+  color: grey;
+}

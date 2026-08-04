@@ -1,0 +1,117 @@
+<div class="infinite-scroll-parent">
+  <mat-toolbar class="no-print" color="primary" style="position:sticky;
+             top:0; z-index: 1000">
+    <div class="flex-row">
+      <div class="flex flex-row">
+        <button mat-icon-button aria-lable="Search Icon" class="self-center" (click)="toggle()"><mat-icon>search</mat-icon></button>
+        <mat-form-field class="search-input-mat-form search-bar">
+          <input matInput #searchTerm type="text" style="position: sticky; padding-right: 25px;"
+                 [(ngModel)]="searchText" (keyup)="updateProcedureSearchResults()" aria-label="Search Text" >
+        </mat-form-field></div>
+
+      <div class="flex-row flex justify-end items-center content-center">
+        <div *ngIf="loadingResults">
+          <mat-progress-spinner color="accent" mode="indeterminate" diameter="30" class="left-margin-space"></mat-progress-spinner>
+        </div>
+        <div *ngIf="!loadingResults && numberOfResults != null">
+          <div class="left-margin-space">
+            [{{numberOfResults}}]
+            <span class="lt-md:hidden">{{numberOfResults|searchResultCountText}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </mat-toolbar>
+
+  <mat-accordion>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title class="filter-panel-title">
+          Filters
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <mat-button-toggle-group aria-label="Type Selection" [(ngModel)]="editTypeSelection"
+                               (ngModelChange)="updateEditTypeSelection(group.value)" #group="matButtonToggleGroup">
+        <mat-button-toggle value="ORIGINAL" aria-checked="true">Procedures</mat-button-toggle>
+        <mat-button-toggle value="RUN" aria-checked="false">Runs</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <br><br>
+      <!-- Drop-down filter for Program -->
+      <mat-form-field class="search-field" *ngIf="!loadingFilterData; else fetchingDataPlaceholder" id="filterByProgram" class="search-input-mat-form">
+        <mat-label>Program</mat-label>
+        <mat-select [(ngModel)]="programSelection">
+          <mat-option [value]="-1" id="filterByProgramOp0" > Select... </mat-option>
+          <mat-option *ngFor="let program of data?.programs" [value]="program.pk">
+            {{program.code}}: {{program.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <br>
+      <!-- Drop-down filter for Subsystem -->
+      <mat-form-field class="search-field" *ngIf="!loadingFilterData; else fetchingDataPlaceholder" id="filterBySubsystem" class="search-input-mat-form">
+        <mat-label>Subsystem</mat-label>
+        <mat-select [(ngModel)]="subsystemSelection">
+          <mat-option [value]="-1" id="filterBySubsystemOp0" > Select... </mat-option>
+          <mat-option *ngFor="let subsystem of data?.subsystems" [value]="subsystem.pk">
+            {{subsystem.code}}: {{subsystem.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <br>
+      <!-- Drop-down filter for Phase (Only if filtering by Run) -->
+      <mat-form-field *ngIf="editTypeSelection === 'RUN'" class="search-field" id="filterByTestingPhase" class="search-input-mat-form">
+        <mat-label>Filter by testing phase</mat-label>
+        <mat-select [(ngModel)]="testingPhaseSelection">
+          <mat-option [value]="-1" id="filterByTestingPhaseOp0"> Select... </mat-option>
+          <mat-option *ngFor="let phase of data?.testingPhases" [value]="phase.pk">
+            {{phase.code}}: {{phase.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <br>
+      <div class="filter-button-container">
+        <button mat-raised-button color="primary" (click)="getInitialProcedureSearchResults()"
+                [disabled]="loadingResults">Apply</button>
+        <button mat-raised-button
+                (click)="clearFilterSelections()"
+                [disabled]="loadingResults || editTypeSelection === 'ORIGINAL' && programSelection ===
+                undefined && subsystemSelection === undefined && testingPhaseSelection === undefined"
+        >Clear Filters</button>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <ng-template #fetchingDataPlaceholder>
+    <div>Loading Selections...</div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+
+  <mat-divider></mat-divider>
+
+  <div *ngIf="loadingResults">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+
+  <app-global-search-infinite-scroll
+    [editType]="editType"
+    [numOfResults]="numberOfResults"
+    [searchText]="searchText"
+    [programSelection]="programSelection"
+    [subsystemSelection]="subsystemSelection"
+    [testingPhaseSelection]="testingPhaseSelection"
+    [searchStatus]="searchStatusType"
+    [startSearchEvent]="startSearchSubject.asObservable()"
+    [results]="results"
+    [selector]="selector"
+    (selection)="goToSearchResult($event)"
+    [resultsFromParentLoaded]="!loadingResults"
+    ></app-global-search-infinite-scroll>
+</div>
+
+
+

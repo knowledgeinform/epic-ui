@@ -1,0 +1,23 @@
+.report-container {
+  height: 90%;
+  width: 100%;
+}
+
+.report-toolbar {
+  align-items: baseline !important;
+}
+
+.icon-align {
+  align-self: center;
+}
+
+.equipment-container {
+  height: 100%;
+  width: 45%;
+}
+
+.runs-container {
+  height: 100%;
+  width: calc(55% - 10px);
+  padding-left: 10px;
+}

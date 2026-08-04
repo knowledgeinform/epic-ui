@@ -1,0 +1,51 @@
+.loginPage {
+  height: 100vh;
+  background: #bdc3c7 !important; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #2c3e50, #bdc3c7) !important; /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #2c3e50, #bdc3c7) !important; /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.loginDiv {
+  height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loginCard {
+  max-width: 640px;
+  width: 75%;
+  margin: 10px auto;
+  padding: 20px;
+
+  > mat-card-header,
+  > mat-card-content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  > mat-card-header {
+    padding-top: 0;
+  }
+
+  > mat-card-content:first-child {
+    padding-top: 0;
+  }
+
+  > mat-card-content:last-child {
+    padding-bottom: 0;
+  }
+
+  mat-card-actions {
+    display: block;
+    margin-left: -8px;
+    margin-right: -8px;
+    padding: 8px 0;
+    min-height: 0;
+  }
+}
+
+.loginBtn{
+  float:right;
+}
+

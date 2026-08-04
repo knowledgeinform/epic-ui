@@ -1,0 +1,14 @@
+.dialogContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogContent > * {
+  width: 100%;
+}
+
+.savingLabel{
+  font-size: .8em;
+  font-style: italic;
+  color: red;
+}

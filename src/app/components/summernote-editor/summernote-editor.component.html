@@ -1,0 +1,36 @@
+<div (paste)="onPasteText($event)" (copy)="hidePopover($event)" (keyup)="hidePopover($event)" (keydown)="onKeydown($event)">
+  <!-- normal summernote-->
+  <div *ngIf="!airMode">
+    <div [formGroup]="form">
+      <div formControlName="html"
+        [ngxSummernote]="config"
+        [ngxSummernoteDisabled]="disableEditor">
+      </div>
+    </div>
+  </div>
+
+  <!-- summernote in airMode-->
+  <div *ngIf="airMode">
+    <div [formGroup]="form">
+      <div formControlName="html"
+        [ngxSummernote]="configAir"
+        [ngxSummernoteDisabled]="disableEditor">
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!disableHints">
+    <p
+      class="length-hint"
+      [class.length-hint-error]="form.get('html').hasError('maxlength')">
+      {{text | summernoteEditorCountPercentage}}% of max length
+    </p>
+
+    <div class="summernote-editor-error-wrapper">
+    <span class="alert" *ngIf="form.get('html').dirty && form.get('html').invalid && form.get('html').touched">
+      <ng-container *ngIf="form.get('html').hasError('required')">Text is required.</ng-container>
+      <ng-container *ngIf="form.get('html').hasError('maxlength')">Text exceeds max character count.</ng-container>
+    </span>
+    </div>
+  </div>
+</div>

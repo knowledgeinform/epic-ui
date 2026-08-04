@@ -1,0 +1,11 @@
+<ng-container *ngIf="offlineService.offline">
+  <p>EPIC is offline; you cannot download the program export right now.</p>
+</ng-container>
+<ng-container *ngIf="!offlineService.offline">
+  <p *ngIf="fetchIsDone; else fetchingPlaceholder">
+    Program export download in progress. This may take a while; it is OK to navigate away from this screen while the download is in progress, but loading may be slow.</p>
+  <ng-template #fetchingPlaceholder>
+    <div>Retrieving download...</div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+</ng-container>

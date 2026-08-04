@@ -1,0 +1,34 @@
+<ng-container *ngIf="comment">
+
+  <div
+    [ngClass]="comment.commentType === 'BLACK_LINE_COMMENT' ? 'commentBlackDiv': (comment.commentType === 'RED_LINE_COMMENT' ? 'commentRedDiv' : '')"
+  >
+
+    <app-generic-comment-history-display
+      [arrayOfCommentsOrHistories]="[comment]"
+      [addBorder]="false"
+    ></app-generic-comment-history-display>
+
+    <ng-container *ngIf="!comment.procedureChangeType?.acceptsAllSignatures; else templateAcceptAllSignatures">
+      <div class="role-sign-container" *ngFor="let role of comment.procedureChangeType?.requiredRoleApprovals">
+        <label>{{role.name}}</label>
+        <app-sign-comment
+          [readonly]="isReadOnly"
+          [comment]="comment"
+          [role]="role"
+          [signature]="role | getCommentSignatureForRole:comment"
+          [procedureData]="procedureData"
+        ></app-sign-comment>
+      </div>
+    </ng-container>
+    <ng-template #templateAcceptAllSignatures>
+      <app-sign-comment
+        [readonly]="isReadOnly"
+        [comment]="comment"
+        [signature]="comment.blackRedLineSignatures ? comment.blackRedLineSignatures[0] : null"
+        [procedureData]="procedureData"
+      ></app-sign-comment>
+    </ng-template>
+
+  </div>
+</ng-container>

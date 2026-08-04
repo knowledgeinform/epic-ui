@@ -1,0 +1,27 @@
+<!-- Capture content so it can be duplicated. -->
+<ng-template #contentTemplate>
+  <ng-content></ng-content>
+</ng-template>
+
+<ng-container *ngIf="media.isActive('gt-sm')">
+  <button
+    mat-icon-button
+    (click)="doOnClick()"
+    [matTooltip]="description"
+    class="lt-md:hidden"
+    [ngClass]="{'selected': selected}"
+  >
+    <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+  </button>
+</ng-container>
+
+<ng-container *ngIf="media.isActive('lt-md')">
+  <mat-list-item
+    class="gt-sm:hidden flex flex-row justify-start items-center content-center gap-5"
+    (click)="doOnClick()"
+    [ngClass]="{'selected': selected}"
+  >
+    <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+    <span class="list-desc">{{description}}</span>
+  </mat-list-item>
+</ng-container>

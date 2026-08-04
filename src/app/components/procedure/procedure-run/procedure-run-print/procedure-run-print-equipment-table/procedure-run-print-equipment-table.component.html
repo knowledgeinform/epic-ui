@@ -1,0 +1,42 @@
+<table class="step-table equipment-table">
+  <!-- Header. -->
+  <tr>
+    <td>Name</td>
+    <td>Serial No.</td>
+    <td>APL Property Number</td>
+    <td>Calibration Due Date</td>
+    <td>Calibrated On</td>
+  </tr>
+
+  <!-- Existing entries. -->
+  <tr *ngFor="let eq of equipment">
+    <td>{{eq.name}}</td>
+    <td>{{eq.serialNumber}}</td>
+    <td>{{eq.propertyNumber}}</td>
+    <td>{{eq.calibrationDueDate}}</td>
+    <td>{{eq.calibrationDate}}</td>
+  </tr>
+
+  <!-- Extra lines. -->
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>

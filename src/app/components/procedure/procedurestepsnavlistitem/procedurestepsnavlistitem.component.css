@@ -1,0 +1,23 @@
+.nav-tree-invisible {
+  display: none;
+}
+
+.nav-tree ul, li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+.clickable:hover {
+  cursor: pointer;
+}
+
+.group {
+  font-weight: bold;
+  font-style: italic;
+  border-bottom: 1px solid black;
+}
+
+.controlButton {
+  margin: 5px;
+}

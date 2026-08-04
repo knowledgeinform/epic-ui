@@ -1,0 +1,41 @@
+<form
+  #form="ngForm"
+  (submit)="submit()"
+  class="create-user-form"
+>
+
+  <mat-form-field>
+    <mat-label>Display Name</mat-label>
+    <input
+      matInput
+      name="name"
+      [(ngModel)]="user.displayName"
+      required
+    >
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>521</mat-label>
+    <input
+      matInput
+      name="username"
+      [(ngModel)]="user.username"
+      required
+    >
+  </mat-form-field>
+
+  <mat-checkbox
+    name="admin"
+    [(ngModel)]="user.isAdmin"
+  >Admin?</mat-checkbox>
+
+
+  <button
+    mat-stroked-button
+    type="submit"
+    [disabled]="!form.valid"
+  >Submit</button>
+
+  <span class="status">{{status}}</span>
+
+</form>

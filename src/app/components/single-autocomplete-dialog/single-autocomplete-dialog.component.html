@@ -1,0 +1,22 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">{{validator.title}}</h2>
+<div mat-dialog-content>
+  <p>{{validator.instructions}}</p>
+  <form [formGroup]="userForm">
+    <mat-form-field>
+      <mat-label>{{ validator.placeholder }}</mat-label>
+
+      <input id="popupWindowInput" type="text" matInput [formControl]="userControl" formControlName="user" [matAutocomplete]="userAutocomplete">
+      <mat-autocomplete #userAutocomplete="matAutocomplete" [displayWith]="validator.autocompleteDisplay" [autoActiveFirstOption]="true">
+        <mat-option id="autocompleteOptionButton" *ngFor="let user of filteredUsers | async" [value]="user">{{user.displayName}}
+          <div *ngIf="validator.validateSelection(user) as errorMessage" class="existing-approver-warning">{{errorMessage}}</div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="!userControl.valid">{{errorMessage}}</mat-error>
+
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button id="popupWindowCancelButton" mat-raised-button button mat-dialog-close>Cancel</button>
+  <button id="popupWindowOkButton" type="submit" mat-raised-button button color="primary" [mat-dialog-close]="userControl.value" [disabled]="!userForm.valid">Ok</button>
+</div>

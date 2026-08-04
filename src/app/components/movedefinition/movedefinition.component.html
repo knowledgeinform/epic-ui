@@ -1,0 +1,17 @@
+<div class="flex-row justify-center items-stretch content-stretch">
+  <mat-form-field class="form-field">
+    <mat-label>Select a new parent</mat-label>
+    <mat-select [disabled]="disableForSaving" [(value)]="parentSelected" (selectionChange)="displaySiblings($event.value)">
+      <mat-option *ngFor="let option of allOptions" [value]="option">{{option.selectDisplayName}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div class="flex-row justify-center items-stretch content-stretch">
+  <mat-form-field class="form-field" *ngIf="parentSelected">
+    <mat-label>Select {{entityType}} that this {{entityType}} should come after</mat-label>
+    <mat-select [disabled]="disableForSaving" [(value)]="olderSibling" (selectionChange)="emitMovingChange($event)">
+      <mat-option *ngFor="let opt of siblings" [value]="opt">{{opt.selectDisplayName}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+

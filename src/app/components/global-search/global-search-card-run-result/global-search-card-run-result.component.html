@@ -1,0 +1,22 @@
+<mat-card appearance="outlined" (click)="selectDetails(procedureDetails)" matRipple [class.disabled]="offlineService.offline" >
+  <mat-card-title>
+    <mat-icon class="padding-right" [style.color]="procedureDetails.run.status | runStatusColor"
+              matTooltip="{{procedureDetails.run.status}}">
+      {{procedureDetails.run.status | runStatusIcon}}</mat-icon>
+    {{procedureDetails.id}}
+  </mat-card-title>
+  <mat-card-content>
+    <b>Name:</b> {{procedureDetails.run.name}}<br>
+    <b>Author:</b> {{procedureDetails.run.user?.displayName}} <br>
+    <b>Description:</b>
+    <span class="lt-md:hidden">
+        {{procedureDetails.run.description}}<br>
+      <b>Subsystem:</b> {{procedureDetails.procedureDef.subsystem.code}}
+      - {{procedureDetails.procedureDef.subsystem.name}} <br>
+      <b>Testing Phase: </b> {{procedureDetails.run.testingPhase.code}} - {{procedureDetails.run.testingPhase.name}}
+    </span>
+    <span class="gt-sm:hidden">{{procedureDetails.run | RunDescriptionPipe}}<br></span>
+  </mat-card-content>
+</mat-card>
+<br>
+

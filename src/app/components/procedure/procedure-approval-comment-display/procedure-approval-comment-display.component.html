@@ -1,0 +1,25 @@
+<mat-accordion>
+  <mat-expansion-panel *ngFor="let approval of procedureData?.procedureApprovals; let i = index">
+    <mat-expansion-panel-header>
+      <span>
+        <span>
+          <mat-icon class="headerAlignment" [style.color]="approval.isApproved | approverIsApprovedColor"
+                    title="{{approval| approverIsApprovedTitle}}}">{{approval | approverIsApprovedIcon}}</mat-icon>
+          <span class="headerAlignment" matBadge="{{approval.comments?.length > 0 ? approval.comments.length : null}}" matBadgeColor="primary" matBadgeOverlap="false">{{approval.users.displayName}} - {{approval.approvalType}}</span>
+        </span>
+      </span>
+
+    </mat-expansion-panel-header>
+    <div class="panelContent">
+      <app-approver-action [isReadonly]="isReadonly" [(approval)]="procedureData?.procedureApprovals[i]" (procedureDataChange)="updateProcedureData($event)"></app-approver-action>
+      <div class="commentDiv" *ngFor="let comment of approval.comments; let j = index">
+        <app-generic-comment-history-display [addBorder]="false" [arrayOfCommentsOrHistories]="[comment]"></app-generic-comment-history-display>
+        <div class="replyDiv" *ngFor="let reply of comment.replies">
+          <app-generic-comment-history-display [arrayOfCommentsOrHistories]="[reply]" [addBorder]="false"></app-generic-comment-history-display>
+        </div>
+        <app-procedure-approval-comment [isReadonly]="isReadonly" [isReply]="true" [approverUsername]="approval.users.username" [(parent)]="procedureData?.procedureApprovals[i].comments[j]" [procedureData]="procedureData"></app-procedure-approval-comment>
+      </div>
+      <app-procedure-approval-comment [isReadonly]="isReadonly" [isReply]="false" [approverUsername]="approval.users.username" [(parent)]="procedureData?.procedureApprovals[i]" [procedureData]="procedureData"></app-procedure-approval-comment>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

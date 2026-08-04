@@ -1,0 +1,36 @@
+<div class="buttonDiv" id="procedureStepsToolbar">
+  <button id="stepsTab_OpenCloseNavPanelToggle"
+          (click)="toggleSideNav()"
+          class="no-print"
+          mat-icon-button
+          matTooltip="Open/Close Navigation Panel"
+          aria-label="Click here to open or close the navigation panel"
+  >
+    <mat-icon>explore</mat-icon>
+  </button>
+  <button id="stepsTab_ExpandCollapseAllButton" mat-icon-button value="expandAllMainContent"
+          (click)="toggleExpandAllInMainContent()" class="no-print"
+          matTooltip="Expand/Collapse All"
+          aria-label="Click here to expand or collapse all the steps and groups"
+  >
+    <mat-icon>storage</mat-icon>
+  </button>
+  <button id="addGroupButton"
+          mat-icon-button
+          (click)="addStepGroup($event, null)"
+          *ngIf="redliningEnabled || (!isLockedFromEditing && !run)"
+          matTooltip="Add Group"
+          aria-label="Click here to add a new top-level group"
+  >
+    <mat-icon>add_circle</mat-icon>
+  </button>
+  <button id="cloneStepButton"
+          mat-icon-button
+          (click)="openCloneStepDialog($event)"
+          *ngIf="redliningEnabled || (!isLockedFromEditing && !run)"
+          matTooltip="Clone Step/Group From Another Procedure"
+          aria-label="Click here to copy steps and groups from another procedure"
+  >
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>

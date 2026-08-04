@@ -1,0 +1,60 @@
+<div class="container">
+  <h1>Admin Console</h1>
+
+  <ng-container *ngIf="!offlineService.offline; else offlineTemplate">
+
+    <mat-tab-group
+      [selectedIndex]="tabId"
+      (selectedIndexChange)="onSelectedIndexChange($event)"
+    >
+      <mat-tab label="Create & Edit Items">
+        <mat-accordion>
+
+          <h2>Create</h2>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>Program</mat-expansion-panel-header>
+            <app-create-program></app-create-program>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header data-testid="create-user">User</mat-expansion-panel-header>
+            <app-create-user></app-create-user>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>Subsystem</mat-expansion-panel-header>
+            <app-create-subsystem></app-create-subsystem>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>Testing Phase</mat-expansion-panel-header>
+            <app-create-testing-phase></app-create-testing-phase>
+          </mat-expansion-panel>
+
+        </mat-accordion>
+
+        <h2>Edit</h2>
+
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header data-testid="edit-user">User</mat-expansion-panel-header>
+            <app-edit-user></app-edit-user>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-tab>
+      <mat-tab label="Program Roles & Change Types">
+        <app-edit-program-roles-and-change-types [readOnly]="false"></app-edit-program-roles-and-change-types>
+      </mat-tab>
+
+      <mat-tab label="Communication Banner">
+        <app-communication-banner-config></app-communication-banner-config>
+      </mat-tab>
+    </mat-tab-group>
+  </ng-container>
+
+</div>
+
+<ng-template #offlineTemplate>
+  <p>Admin functionality is unavailable while offline.</p>
+</ng-template>

@@ -1,0 +1,50 @@
+<div class="dialog-body">
+  <h2 mat-dialog-title>Clone Steps/Groups from Another Procedure</h2>
+  <div *ngIf="searchForProcedure">
+    <app-proceduresearch [isGlobalSearch]="false" [searchStatusType]="'ALL'" (resultSelection)="receiveProcedureSearchSelection($event)"></app-proceduresearch>
+
+
+    <br/>
+    <div mat-dialog-actions>
+      <button mat-raised-button align="left" (click)="onCancel()">Cancel</button>
+    </div>
+  </div>
+  <mat-progress-bar *ngIf="fetching" mode="query"></mat-progress-bar>
+  <div *ngIf="!searchForProcedure  && !sgSelectionsMade">
+    <h3>Select the groups/steps to clone into your procedure</h3>
+    <div class="treeWrapper">
+      <app-multi-select-groups-steps  [showNotValidatedOnly] = "false"
+      [procedureData]="selectedProcedureData"
+      (fetchingChange)="fetching=$event"
+      (selectionsChange)="receiveStepsSelection($event)"
+      (selectedGroupsChange)="receiveGroupsSelection($event)"></app-multi-select-groups-steps>
+      </div>
+    <div mat-dialog-actions>
+      <button mat-raised-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button (click)="goBackToProcedureSearch()">Go Back to Search</button>
+      <button mat-raised-button color="primary" focus type="submit" *ngIf="checklistSelection.selected.length > 0" (click)="submitSelectionsToClone()">Choose Destination</button>
+    </div>
+
+  </div>
+  <div *ngIf="sgSelectionsMade">
+    <div class="flex-row justify-center items-stretch content-stretch">
+      <mat-form-field class="form-field">
+        <mat-label>Select parent group for cloned items</mat-label>
+        <mat-select [(value)]="destGroupSelected" (selectionChange)="setDestSelection($event.value)">
+          <mat-option *ngFor="let option of allDestinationOptions" [value]="option">{{option.selectDisplayName}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div [hidden]="!isRedlineAdd">
+      <hr>
+      <app-red-black-line-comment #commentInput [disableForSaving]="disableForSaving" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+    </div>
+    <div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+      <button mat-raised-button button *ngIf="isRedlineAdd" (click)="cancelRedline()" [disabled]="disableForSaving">Cancel</button>
+      <button mat-raised-button button *ngIf="!isRedlineAdd" mat-dialog-close [disabled]="disableForSaving">Cancel</button>
+      <button mat-raised-button (click)="goBackToSelection()" [disabled]="disableForSaving">Go Back to Steps/Groups Selection</button>
+      <button mat-raised-button button *ngIf="destGroupSelected && (!isRedlineAdd || (isRedlineAdd && commentInput.isValid))"
+              color="primary" (click)="clone()" [disabled]="disableForSaving">Clone</button>
+    </div>
+  </div>
+</div>

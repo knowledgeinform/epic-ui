@@ -1,0 +1,10 @@
+<h2 mat-dialog-title class="alert alert-danger">Error</h2>
+<mat-dialog-content>
+  <p>
+    {{description}}{{errorMessage ? ':' : ''}}
+  </p>
+  <p *ngIf="errorMessage">{{errorMessage}}</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close color="primary">OK</button>
+</mat-dialog-actions>

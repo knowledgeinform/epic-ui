@@ -1,0 +1,6 @@
+<button mat-button [disabled]="disabled || isReadOnly || offlineService.offline" (click)="toggleFavorite()" title="Toggle Favorite">
+  <span *ngIf="isFavorite && showFavText" class="mat-body-1">Favorite! </span>
+  <span *ngIf="!isFavorite && showFavText" class="mat-body-1">Not Favorite </span>
+  <mat-icon iconPositionEnd color="accent" *ngIf="isFavorite">favorite</mat-icon>
+  <mat-icon iconPositionEnd *ngIf="!isFavorite">favorite_border</mat-icon>
+</button>

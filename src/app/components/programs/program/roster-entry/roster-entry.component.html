@@ -1,0 +1,58 @@
+<div
+  class="container flex-row gap-20"
+>
+
+  <span class="username">{{member.name}}</span>
+
+  <mat-form-field class="flex-100">
+    <mat-label>Roles</mat-label>
+    <mat-chip-grid
+      #roleChipList
+      [disabled]="readOnly"
+      [ngModel]="member.roles"
+    >
+      <mat-chip-row
+        *ngFor="let role of member.roles"
+        [removable]="true"
+        (removed)="removeRosterRole(member, role)"
+      >
+        {{role}}
+        <mat-icon
+          matChipRemove
+          *ngIf="!readOnly"
+        >cancel</mat-icon>
+      </mat-chip-row>
+      <input
+        #roleInput
+        [formControl]="roleChipCtrl"
+        [matChipInputFor]="roleChipList"
+        [matAutocomplete]="roleAutocomplete"
+        [matChipInputSeparatorKeyCodes]="SEPARATOR_KEY_CODES"
+        [matChipInputAddOnBlur]="true"
+      >
+    </mat-chip-grid>
+    <mat-autocomplete
+      #roleAutocomplete
+      (optionSelected)="addRole($event.option.viewValue)"
+    >
+      <mat-option
+        *ngFor="let role of filteredRoles"
+        [value]="role.name"
+      >
+        {{role.name}}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <button
+    mat-icon-button
+    *ngIf="!readOnly"
+    title="Remove from Roster"
+    (click)="removeRosterMember(member)"
+    color="warn"
+    class="remove-button"
+  >
+    <mat-icon>remove_circle_outline</mat-icon>
+  </button>
+
+</div>

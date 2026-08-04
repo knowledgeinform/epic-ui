@@ -1,0 +1,68 @@
+p.description {
+  text-align: center;
+}
+
+ mat-form-field {
+  width: 100%;
+  margin-bottom: -1.25em
+}
+
+.number-cell {
+  text-align: right;
+  padding-right: 5px;
+  padding-bottom: 20px;
+}
+
+p.info {
+  opacity: .5;
+  text-align: center;
+}
+
+button.delete-button {
+  visibility: hidden;
+}
+.equipment-row:hover button.delete-button {
+  visibility: visible;
+}
+
+div.header {
+  font-weight: bold;
+  margin-left: 20px;
+  margin-right: 75px; //Make room for icons/buttons
+}
+
+div.header > span {
+  text-align: center;
+}
+
+div.container {
+  margin: 20px;
+}
+
+mat-option .title {
+  font-weight: bold;
+}
+mat-option .desc {
+  font-size: smaller !important;
+}
+
+::ng-deep mat-option.equipment-select {
+  height: 100px !important;
+  line-height: normal !important;
+}
+
+
+// Calibration Warning
+
+.calibration-warning-container {
+  width: 25px;
+  height: 25px;
+}
+
+mat-icon.calibration-warning {
+  padding: 5px;
+}
+
+.transparent {
+  opacity: 0;
+}

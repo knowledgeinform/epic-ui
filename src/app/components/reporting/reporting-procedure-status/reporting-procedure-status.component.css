@@ -1,0 +1,9 @@
+.report-container {
+  height: 85%;
+  width: calc(100% - 20px);
+  padding: 10px;
+}
+
+.report-toolbar {
+  align-items: baseline !important;
+}

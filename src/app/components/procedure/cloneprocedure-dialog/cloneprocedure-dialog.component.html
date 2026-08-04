@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Clone Procedure</h2>
+<div *ngIf="searchForProcedure">
+  <mat-dialog-content>
+    <app-proceduresearch [searchStatusType]="searchStatusType" [isGlobalSearch]="isGlobalSearch" (resultSelection)="receiveProcedureSearchSelection($event)"></app-proceduresearch>
+  </mat-dialog-content>
+  <br />
+  <div mat-dialog-actions>
+    <button mat-raised-button align="left" (click)="onCancel()" >Cancel</button>
+  </div>
+</div>
+<div *ngIf="!searchForProcedure">
+  <mat-dialog-content>
+  <h3>Please complete the following fields for the new procedure.</h3>
+  <app-proceduredefinition (procedureDef)="receiveProcedureDef($event)" [error]="error"></app-proceduredefinition>
+  </mat-dialog-content>
+  <div mat-dialog-actions>
+    <button mat-raised-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button (click)="goBacktoProcedureSearch()">Go Back to Search</button>
+    <button mat-raised-button color="primary" focus type="submit" *ngIf="newProcedureDefForm !== undefined && newProcedureDefForm.valid"
+            (click)="submitClonedProcedureDef()">Create Cloned Procedure</button>
+  </div>
+</div>

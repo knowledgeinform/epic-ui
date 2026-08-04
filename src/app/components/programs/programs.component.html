@@ -1,0 +1,31 @@
+<div class="page-wrapper">
+
+  <h1>Programs</h1>
+
+  <div *ngIf="programs; else loadingTemplate">
+
+    <button
+      mat-raised-button
+      id="mat-create-program-button"
+      (click)="createProgram()"
+      *ngIf="loginService.currentUser.admin"
+      [disabled]="offlineService.offline"
+    >Create Program</button>
+
+    <mat-list role="list">
+      <mat-list-item
+        class="clickable"
+        *ngFor="let program of programs"
+        [routerLink]="program.code"
+      >
+        <h4>{{program.code}}: {{program.name}}</h4>
+      </mat-list-item>
+    </mat-list>
+
+
+  </div>
+
+  <ng-template #loadingTemplate>
+    <mat-spinner></mat-spinner>
+  </ng-template>
+</div>

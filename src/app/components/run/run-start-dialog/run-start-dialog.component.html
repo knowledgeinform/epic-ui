@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>Start Run</h2>
+<div *ngIf="searchForProcedure">
+  <h3 mat-dialog-content>Search for a procedure from which to start a new run.</h3>
+    <app-proceduresearch [searchStatusType]="searchStatusType"
+                         [isGlobalSearch]="false"
+                         [searchForLatestRevisions]="true"
+                         (resultSelection)="receiveProcedureSearchSelection($event)"></app-proceduresearch>
+  <br />
+  <div mat-dialog-actions>
+    <button mat-raised-button align="left" mat-dialog-close>Cancel</button>
+  </div>
+</div>
+<div *ngIf="!searchForProcedure">
+  <mat-dialog-content>
+  <h3>Please complete the following fields for the new run.</h3>
+  <app-rundefinition [disableForSaving]="saving" *ngIf="selectedProcedureDetails"
+                     [selectedProcedureDetails]="selectedProcedureDetails" (runDef)="receiveRunDef($event)"
+                     [error]="error"></app-rundefinition>
+  <div class="savingLabel flex-row justify-end items-stretch content-stretch" *ngIf="saving">
+    Creating New Run...
+  </div>
+  </mat-dialog-content>
+  <div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close [disabled]="saving">Cancel</button>
+    <button mat-raised-button (click)="goBackToProcedureSearch()" [disabled]="saving">Go Back to Search</button>
+    <button mat-raised-button color="primary" focus type="submit" *ngIf="newRunForm !== undefined && newRunForm.valid"
+            (click)="submitRunStart()" [disabled]="saving">Create Run</button>
+  </div>
+</div>

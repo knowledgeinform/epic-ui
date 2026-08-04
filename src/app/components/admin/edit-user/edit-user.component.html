@@ -1,0 +1,103 @@
+<form
+  #searchForm="ngForm"
+  class="search-form"
+>
+  <mat-form-field *ngIf="users; else loadingUsersTemplate">
+    <mat-label>521 Search</mat-label>
+    <input
+      matInput
+      name="name"
+      [(ngModel)]="searchUsername"
+      required
+      [matAutocomplete]="userAutocomplete"
+      (ngModelChange)="onSearchTextChange()"
+    >
+    <mat-autocomplete #userAutocomplete="matAutocomplete">
+      <mat-option
+        *ngFor="let user of usersFiltered"
+        [value]="user.username"
+      >{{user.username}}</mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <button
+    mat-stroked-button
+    color="warn"
+    (click)="clearSearchCriteria()"
+  >Clear</button>
+
+</form>
+
+<form
+  #editForm="ngForm"
+  (submit)="submitEdit()"
+  class="edit-form"
+  *ngIf="user"
+>
+
+  <mat-form-field>
+    <mat-label>Display Name</mat-label>
+    <input
+      matInput
+      name="name"
+      [(ngModel)]="user.displayName"
+      required
+    >
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>521</mat-label>
+    <input
+      matInput
+      name="username"
+      [(ngModel)]="user.username"
+      required
+    >
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Email</mat-label>
+    <input
+      matInput
+      name="email"
+      [(ngModel)]="user.email"
+      required
+    >
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>PIN</mat-label>
+    <input
+      matInput
+      name="pin"
+      [(ngModel)]="user.pin"
+      required
+    >
+  </mat-form-field>
+
+  <mat-checkbox
+    name="admin"
+    [(ngModel)]="user.isAdmin"
+  >Admin?</mat-checkbox>
+
+  <button
+    mat-stroked-button
+    color="warn"
+    (click)="cancelEdit()"
+  >Reset</button>
+
+  <button
+    mat-stroked-button
+    type="submit"
+    color="primary"
+    [disabled]="!editForm.valid"
+  >Submit</button>
+
+  <span class="status">{{status}}</span>
+
+</form>
+
+
+<ng-template #loadingUsersTemplate>
+  <p>Loading users...</p>
+</ng-template>

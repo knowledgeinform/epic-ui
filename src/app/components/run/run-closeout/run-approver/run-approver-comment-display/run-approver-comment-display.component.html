@@ -1,0 +1,23 @@
+<p *ngIf="!run?.runApprovals || run?.runApprovals.length === 0">No approvers were selected for this run close-out.</p>
+<mat-accordion>
+  <mat-expansion-panel *ngFor="let approval of run?.runApprovals; let i = index">
+    <mat-expansion-panel-header>
+      <span>
+        <mat-icon class="headerAlignment" [style.color]="approval.isApproved | approverIsApprovedColor"
+                  title="{{approval | approverIsApprovedTitle}}}">{{approval | approverIsApprovedIcon}}</mat-icon>
+        <span class="headerAlignment" matBadge="{{approval.comments?.length > 0 ? approval.comments.length : null}}" matBadgeColor="primary" matBadgeOverlap="false">{{approval.users.displayName}}</span>
+      </span>
+    </mat-expansion-panel-header>
+    <div class="panelContent">
+      <app-approver-action *ngIf="run.status !== RunStatus.COMPLETED" [approval]="approval" (runChange)="updateRun($event)"></app-approver-action>
+      <div class="commentDiv" *ngFor="let comment of approval.comments; let j = index">
+        <app-generic-comment-history-display [addBorder]="false" [arrayOfCommentsOrHistories]="[comment]"></app-generic-comment-history-display>
+        <div class="replyDiv" *ngFor="let reply of comment.replies">
+          <app-generic-comment-history-display [addBorder]="false" [arrayOfCommentsOrHistories]="[reply]"></app-generic-comment-history-display>
+        </div>
+        <app-run-approver-comment *ngIf="run.status !== RunStatus.COMPLETED" class="margin-top" [isReply]="true" [approverUsername]="approval.users.username" [(parent)]="run?.runApprovals[i].comments[j]"></app-run-approver-comment>
+      </div>
+      <app-run-approver-comment *ngIf="run.status !== RunStatus.COMPLETED" class="margin-top" [isReply]="false" [approverUsername]="approval.users.username" [(parent)]="run?.runApprovals[i]"></app-run-approver-comment>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

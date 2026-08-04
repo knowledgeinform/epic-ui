@@ -1,0 +1,29 @@
+<fieldset class="epic-fieldset">
+  <legend class="epic-fieldset">Run Close-Out</legend>
+  <div class="div-margin">
+    <div class="closeout-tab-min-height flex-row lt-sm:flex-column gap-10">
+      <div class="flex-50">
+        <p>{{run.procedureDetails.id}} - {{run.name}}</p>
+        <p>Status: <span [style.color]="run.status | runStatusColor">{{RunStatus[run.status]}}&nbsp;
+          <mat-icon class="icon-align">{{ run.status | runStatusIcon }}</mat-icon></span></p>
+        <ng-container *ngIf="run.status !== RunStatus.RUNNING">
+          <p>Close-out Submitted By: {{run.closeoutSubmissionUser.displayName}}</p>
+          <p>Close-out Submission Date: {{run.closeoutSubmittedDate | date: 'medium'}}</p>
+          <p *ngIf="run.status === RunStatus.COMPLETED">Close-out Approval Date: {{run.closeoutCompletedDate | date: 'medium'}}</p>
+        </ng-container>
+      </div>
+      <div class="full-width flex-50">
+        <app-status-history [histories]="run.procedureDetails.histories"></app-status-history>
+      </div>
+    </div>
+    <app-run-closeout-submission *ngIf="run.status === RunStatus.RUNNING || run.status === RunStatus.CORRECTING"
+                                 [run]="run" [isReadonly]="isReadonly" [validationErrors]="validationErrors"
+                                 (reload)="reloadComponent($event)">
+    </app-run-closeout-submission>
+    <app-run-closeout-reviewing *ngIf="RunStatus[run.status] === RunStatus.REVIEWING || RunStatus[run.status] === RunStatus.APPROVED" [run]="run" (reload)="reloadComponent($event)">
+    </app-run-closeout-reviewing>
+    <app-run-closeout-completed *ngIf="run.status === RunStatus.COMPLETED" [run]="run" (reload)="reloadComponent($event)"></app-run-closeout-completed>
+
+  </div>
+</fieldset>
+

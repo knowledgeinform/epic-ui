@@ -1,0 +1,8 @@
+.dialog-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-title-group-name{
+  text-decoration: underline;
+}

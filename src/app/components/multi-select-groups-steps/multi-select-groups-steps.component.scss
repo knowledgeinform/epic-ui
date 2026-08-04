@@ -1,0 +1,26 @@
+.groupTree-invisible {
+    display: none;
+  }
+
+  .groupTree ul,
+  .groupTree li {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+  }
+
+  .form-field {
+    width: 100%;
+  }
+
+// adds breaks to the mat-checkboxes with long labels
+  :host ::ng-deep .mat-mdc-checkbox .mdc-form-field {
+     white-space: normal !important;
+   }
+
+// rather than center the checkbox, put the checkbox in the first line
+  /* TODO(mdc-migration): This rule no longer works with the migration
+   to MDC. Will need updated if top alignment is still desired. */
+  ::ng-deep .mat-checkbox-inner-container {
+     margin-top: 3px !important;
+   }

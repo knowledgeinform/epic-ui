@@ -1,0 +1,49 @@
+<div class="">
+  <a
+    mat-stroked-button
+    [routerLink]="['/procedure', procId]"
+    aria-label="Click here to go back to the procedure view"
+  >
+    <mat-icon>chevron_left</mat-icon>
+    Back to Procedure
+  </a>
+</div>
+<div class="flex-column">
+  <mat-tab-group id="runTabsGroup"
+                 #matTabGroup='matTabGroup'
+                 class="flex-100"
+                 color="accent"
+                 backgroundColor=""
+                 mat-align-tabs="center"
+                 *ngIf="fetchIsDone; else fetchingPlaceholder"
+  >
+    <mat-tab label="Header">
+      <app-procedure-hazard
+        [(procedureData)]="procedureData"
+        [isLockedFromEditing]="true"
+        [printMode]="true"
+      ></app-procedure-hazard>
+      <app-procedureheader
+        [(procedureData)]="procedureData"
+        isLockedFromEditing="true"
+      ></app-procedureheader>
+    </mat-tab>
+    <mat-tab label="Instruction Information">
+      <app-procedure-instruction-info-container #instructionContainer
+                                                [(procedureData)]="procedureData"
+                                                [isLockedFromEditing]="true"
+      ></app-procedure-instruction-info-container>
+    </mat-tab>
+    <mat-tab label="Steps">
+      <app-procedurestepscontainer
+        [procedureData]="procedureData"
+        [isLockedFromEditing]="true"
+        [run]="run"
+      ></app-procedurestepscontainer>
+    </mat-tab>
+  </mat-tab-group>
+  <ng-template #fetchingPlaceholder>
+    <div>Retrieving procedure...</div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+</div>

@@ -1,0 +1,697 @@
+/**
+ * Utility replacements for @angular/flex-layout.
+ *
+ * Concrete declarations use !important intentionally so an explicitly applied
+ * utility class wins over Angular Material component defaults. Internal custom
+ * properties remain non-important so responsive utilities can still replace
+ * their values through the normal cascade.
+ *
+ * Responsive class tokens intentionally use colons:
+ *
+ *   gt-md:flex-30
+ *   lt-md:flex-column
+ *
+ * Attribute selectors avoid escaped class selectors such as:
+ *
+ *   .gt-md\:flex-30
+ */
+
+$fx-breakpoints: (
+  'gt-xs': 'screen and (min-width: 600px)',
+  'gt-sm': 'screen and (min-width: 960px)',
+  'gt-md': 'screen and (min-width: 1280px)',
+  'gt-lg': 'screen and (min-width: 1920px)',
+
+  'xl': 'screen and (min-width: 1920px) and (max-width: 4999.98px)',
+  'lt-xl': 'screen and (max-width: 1919.98px)',
+
+  'lg': 'screen and (min-width: 1280px) and (max-width: 1919.98px)',
+  'lt-lg': 'screen and (max-width: 1279.98px)',
+
+  'md': 'screen and (min-width: 960px) and (max-width: 1279.98px)',
+  'lt-md': 'screen and (max-width: 959.98px)',
+
+  'sm': 'screen and (min-width: 600px) and (max-width: 959.98px)',
+  'lt-sm': 'screen and (max-width: 599.98px)',
+
+  'xs': 'screen and (min-width: 0px) and (max-width: 599.98px)',
+);
+
+$fx-percentages: 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100;
+$fx-px-values: 325, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500;
+$fx-vw-values: 33, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100;
+$fx-gap-values: 5, 10, 15, 20;
+$fx-offset-values: 10;
+
+@function fx-token-selector($prefix, $name) {
+  @if $prefix == null {
+    @return '.#{$name}';
+  }
+
+  @return '[class~="#{$prefix}:#{$name}"]';
+}
+
+/**
+ * Emit a normal class selector for a static utility:
+ *
+ *   .flex-row
+ *
+ * Emit an exact-token attribute selector for a responsive utility:
+ *
+ *   [class~="lt-md:flex-column"]
+ */
+@mixin fx-token($prefix, $name) {
+  #{fx-token-selector($prefix, $name)} {
+    @content;
+  }
+}
+
+/**
+ * Every migrated flex item or offset has a class attribute, so a
+ * direction utility can assign axis variables to its classed direct
+ * children. The child utility consumes the variables only when
+ * relevant.
+ */
+@mixin fx-classed-children($prefix, $parent-name) {
+  #{fx-token-selector($prefix, $parent-name)} > [class] {
+    @content;
+  }
+}
+
+/**
+ * Return the CSS custom-property name used by a generic fallback utility.
+ *
+ * Static example:
+ *   --fx-custom-flex-value
+ *
+ * Responsive example:
+ *   --lt-md-fx-custom-flex-value
+ *
+ * Using breakpoint-specific variables allows an element to have different
+ * uncommon values at different breakpoints.
+ */
+@function fx-custom-property($prefix, $suffix) {
+  @if $prefix == null {
+    @return '--fx-custom-#{$suffix}';
+  }
+
+  @return '--#{$prefix}-fx-custom-#{$suffix}';
+}
+
+@mixin clear-flex-dimensions {
+  min-width: initial !important;
+  max-width: initial !important;
+  min-height: initial !important;
+  max-height: initial !important;
+}
+
+@mixin emit-direction($prefix, $class-name, $direction, $horizontal) {
+  @include fx-token($prefix, $class-name) {
+    display: flex !important;
+    flex-direction: $direction !important;
+    flex-wrap: nowrap !important;
+    box-sizing: border-box !important;
+
+    @if $horizontal {
+      --fx-cross-max-width: initial;
+      --fx-cross-max-height: 100%;
+    } @else {
+      --fx-cross-max-width: 100%;
+      --fx-cross-max-height: initial;
+    }
+  }
+}
+
+@mixin emit-axis-sensitive-flex-value(
+  $prefix,
+  $class-name,
+  $row-basis,
+  $column-basis,
+  $wrap-basis,
+  $main-min,
+  $main-max,
+  $grow: 1,
+  $shrink: 1
+) {
+  @include fx-token($prefix, $class-name) {
+    --fx-row-basis: #{$row-basis};
+    --fx-column-basis: #{$column-basis};
+    --fx-wrap-basis: #{$wrap-basis};
+    --fx-main-min: #{$main-min};
+    --fx-main-max: #{$main-max};
+
+    /**
+     * Row is Angular Flex-Layout's fallback when no parent direction
+     * can be determined.
+     */
+    --fx-active-basis: var(--fx-row-basis);
+    --fx-active-min-width: var(--fx-main-min);
+    --fx-active-max-width: var(--fx-main-max);
+    --fx-active-min-height: initial;
+    --fx-active-max-height: initial;
+
+    flex: #{$grow} #{$shrink} var(--fx-active-basis) !important;
+    min-width: var(--fx-active-min-width) !important;
+    max-width: var(--fx-active-max-width) !important;
+    min-height: var(--fx-active-min-height) !important;
+    max-height: var(--fx-active-max-height) !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@mixin use-row-axis {
+  --fx-active-basis: var(--fx-row-basis);
+  --fx-active-min-width: var(--fx-main-min);
+  --fx-active-max-width: var(--fx-main-max);
+  --fx-active-min-height: initial;
+  --fx-active-max-height: initial;
+}
+
+@mixin use-column-axis {
+  --fx-active-basis: var(--fx-column-basis);
+  --fx-active-min-width: initial;
+  --fx-active-max-width: initial;
+  --fx-active-min-height: var(--fx-main-min);
+  --fx-active-max-height: var(--fx-main-max);
+}
+
+@mixin use-row-offset {
+  --fx-offset-inline-start: var(--fx-offset-value);
+  --fx-offset-top: initial;
+}
+
+@mixin use-column-offset {
+  --fx-offset-inline-start: initial;
+  --fx-offset-top: var(--fx-offset-value);
+}
+
+/**
+ * Direction-dependent behavior for child utility classes.
+ *
+ * These rules assign variables only. They do not style ordinary children that
+ * happen to have classes.
+ */
+@mixin emit-parent-child-behavior($prefix: null) {
+  @include fx-classed-children($prefix, 'flex-row') {
+    @include use-row-axis;
+    @include use-row-offset;
+  }
+
+  @include fx-classed-children($prefix, 'flex-row-reverse') {
+    @include use-row-axis;
+    @include use-row-offset;
+  }
+
+  @include fx-classed-children($prefix, 'flex-column') {
+    @include use-column-axis;
+    @include use-column-offset;
+  }
+
+  @include fx-classed-children($prefix, 'flex-column-reverse') {
+    @include use-column-axis;
+    @include use-column-offset;
+  }
+
+  /**
+   * Wrapping modifies the effective basis after the direction is selected.
+   */
+  @include fx-classed-children($prefix, 'flex-wrap') {
+    --fx-active-basis: var(--fx-wrap-basis);
+  }
+}
+
+@mixin emit-utilities($prefix: null) {
+  /**
+   * Layout directions.
+   */
+  @include emit-direction($prefix, 'flex-row', row, true);
+  @include emit-direction($prefix, 'flex-column', column, false);
+  @include emit-direction($prefix, 'flex-row-reverse', row-reverse, true);
+  @include emit-direction($prefix, 'flex-column-reverse', column-reverse, false);
+
+  /**
+   * Wrapping must come after direction rules so it can override nowrap.
+   */
+  @include fx-token($prefix, 'flex-wrap') {
+    flex-wrap: wrap !important;
+  }
+
+  @include fx-token($prefix, 'inline-flex') {
+    display: inline-flex !important;
+  }
+
+  /**
+   * Main-axis alignment.
+   */
+  @include fx-token($prefix, 'justify-start') {
+    justify-content: flex-start !important;
+  }
+
+  @include fx-token($prefix, 'justify-center') {
+    justify-content: center !important;
+  }
+
+  @include fx-token($prefix, 'justify-end') {
+    justify-content: flex-end !important;
+  }
+
+  @include fx-token($prefix, 'justify-around') {
+    justify-content: space-around !important;
+  }
+
+  @include fx-token($prefix, 'justify-between') {
+    justify-content: space-between !important;
+  }
+
+  @include fx-token($prefix, 'justify-evenly') {
+    justify-content: space-evenly !important;
+  }
+
+  /**
+   * Cross-axis item alignment.
+   */
+  @include fx-token($prefix, 'items-start') {
+    align-items: flex-start !important;
+  }
+
+  @include fx-token($prefix, 'items-center') {
+    align-items: center !important;
+  }
+
+  @include fx-token($prefix, 'items-end') {
+    align-items: flex-end !important;
+  }
+
+  @include fx-token($prefix, 'items-stretch') {
+    align-items: stretch !important;
+  }
+
+  @include fx-token($prefix, 'items-baseline') {
+    align-items: baseline !important;
+  }
+
+  /**
+   * Cross-axis flex-line alignment.
+   */
+  @include fx-token($prefix, 'content-start') {
+    align-content: flex-start !important;
+  }
+
+  @include fx-token($prefix, 'content-center') {
+    align-content: center !important;
+  }
+
+  @include fx-token($prefix, 'content-end') {
+    align-content: flex-end !important;
+  }
+
+  @include fx-token($prefix, 'content-stretch') {
+    align-content: stretch !important;
+  }
+
+  @include fx-token($prefix, 'content-around') {
+    align-content: space-around !important;
+  }
+
+  @include fx-token($prefix, 'content-between') {
+    align-content: space-between !important;
+  }
+
+  /**
+   * Used only when the second fxLayoutAlign value is explicitly "stretch".
+   */
+  @include fx-token($prefix, 'cross-axis-max-100') {
+    max-width: var(--fx-cross-max-width, initial) !important;
+    max-height: var(--fx-cross-max-height, 100%) !important;
+  }
+
+  /**
+   * Item-specific cross-axis alignment.
+   */
+  @include fx-token($prefix, 'self-start') {
+    align-self: flex-start !important;
+  }
+
+  @include fx-token($prefix, 'self-center') {
+    align-self: center !important;
+  }
+
+  @include fx-token($prefix, 'self-end') {
+    align-self: flex-end !important;
+  }
+
+  @include fx-token($prefix, 'self-stretch') {
+    align-self: stretch !important;
+  }
+
+  @include fx-token($prefix, 'self-baseline') {
+    align-self: baseline !important;
+  }
+
+  @include fx-token($prefix, 'self-auto') {
+    align-self: auto !important;
+  }
+
+  /**
+   * A bare fxFlex attribute.
+   */
+  @include emit-axis-sensitive-flex-value(
+    $prefix,
+    'flex',
+    0%,
+    0.000000001px,
+    0%,
+    initial,
+    initial
+  );
+
+  @include fx-token($prefix, 'flex-0') {
+    flex: 1 1 0% !important;
+    box-sizing: border-box !important;
+    @include clear-flex-dimensions;
+  }
+
+  @include fx-token($prefix, 'flex-auto') {
+    flex: 1 1 auto !important;
+    box-sizing: border-box !important;
+    @include clear-flex-dimensions;
+  }
+
+  @include fx-token($prefix, 'flex-no-grow') {
+    flex: 0 1 auto !important;
+    box-sizing: border-box !important;
+    @include clear-flex-dimensions;
+  }
+
+  /**
+   * Percentage flex sizing:
+   *
+   * - row layouts constrain max-width;
+   * - column layouts constrain max-height;
+   * - wrapping layouts use the percentage as the flex basis.
+   */
+  @each $percentage in $fx-percentages {
+    $limit: $percentage * 1%;
+
+    /**
+     * Short form: flex-<pct> (e.g. flex-25 -> flex: 1 1 25%)
+     */
+    @include emit-axis-sensitive-flex-value(
+      $prefix,
+      'flex-#{$percentage}',
+      100%,
+      100%,
+      $limit,
+      initial,
+      $limit
+    );
+
+    /**
+     * Long form: flex-<grow>-<shrink>-<pct> (e.g. flex-1-0-25 -> flex: 1 0 25%)
+     */
+    @for $grow from 0 through 1 {
+      @for $shrink from 0 through 1 {
+        $main-min: initial;
+        $main-max: initial;
+
+        /**
+         * For a percentage basis, Angular Flex-Layout only applies a minimum
+         * when both grow and shrink are disabled.
+         */
+        @if $grow == 0 and $shrink == 0 {
+          $main-min: $limit;
+        }
+
+        /**
+         * It applies a maximum when shrinking is enabled or when the item is
+         * completely fixed.
+         */
+        @if $shrink == 1 or ($grow == 0 and $shrink == 0) {
+          $main-max: $limit;
+        }
+
+        @include emit-axis-sensitive-flex-value(
+          $prefix,
+          'flex-#{$grow}-#{$shrink}-#{$percentage}',
+          100%,
+          100%,
+          $limit,
+          $main-min,
+          $main-max,
+          $grow,
+          $shrink
+        );
+      }
+    }
+  }
+
+  /**
+   * Pixel-valued fxFlex sizing.
+   */
+  @each $value in $fx-px-values {
+    $limit: $value * 1px;
+
+    /**
+     * Short form: flex-<num>px (e.g. flex-350px -> flex: 1 1 350px)
+     */
+    @include emit-axis-sensitive-flex-value(
+      $prefix,
+      'flex-#{$value}px',
+      $limit,
+      $limit,
+      $limit,
+      $limit,
+      $limit
+    );
+
+    /**
+     * Long form: flex-<grow>-<shrink>-<num>px (e.g. flex-1-0-350px -> flex: 1 0 350px)
+     */
+    @for $grow from 0 through 1 {
+      @for $shrink from 0 through 1 {
+        $main-min: initial;
+        $main-max: initial;
+
+        @if $grow == 1 or ($grow == 0 and $shrink == 0) {
+          $main-min: $limit;
+        }
+
+        @if $shrink == 1 or ($grow == 0 and $shrink == 0) {
+          $main-max: $limit;
+        }
+
+        @include emit-axis-sensitive-flex-value(
+          $prefix,
+          'flex-#{$grow}-#{$shrink}-#{$value}px',
+          $limit,
+          $limit,
+          $limit,
+          $main-min,
+          $main-max,
+          $grow,
+          $shrink
+        );
+      }
+    }
+  }
+
+  /**
+   * Explicit-unit flex sizing:
+   *
+   * Angular Flex-Layout constrains both the minimum and maximum active-axis
+   * size for values such as 33vw.
+   */
+  @each $value in $fx-vw-values {
+    $limit: $value * 1vw;
+
+    /**
+     * Short form: flex-<pct>vw (e.g. flex-40vw -> flex: 1 1 40vw)
+     */
+    @include emit-axis-sensitive-flex-value(
+      $prefix,
+      'flex-#{$value}vw',
+      $limit,
+      $limit,
+      $limit,
+      $limit,
+      $limit
+    );
+
+    /**
+     * Long form: flex-<grow>-<shrink>-<pct>vw (e.g. flex-1-0-40vw -> flex: 1 0 40vw)
+     */
+    @for $grow from 0 through 1 {
+      @for $shrink from 0 through 1 {
+        $main-min: initial;
+        $main-max: initial;
+
+        /**
+         * For explicit units, growing items receive a minimum. A completely
+         * fixed item also receives one.
+         */
+        @if $grow == 1 or ($grow == 0 and $shrink == 0) {
+          $main-min: $limit;
+        }
+
+        /**
+         * Shrinking items receive a maximum. A completely fixed item also
+         * receives one.
+         */
+        @if $shrink == 1 or ($grow == 0 and $shrink == 0) {
+          $main-max: $limit;
+        }
+
+        @include emit-axis-sensitive-flex-value(
+          $prefix,
+          'flex-#{$grow}-#{$shrink}-#{$value}vw',
+          $limit,
+          $limit,
+          $limit,
+          $main-min,
+          $main-max,
+          $grow,
+          $shrink
+        );
+      }
+    }
+  }
+
+  /**
+   * Fallback utilities for uncommon static or responsive fxFlex values.
+   *
+   * Examples:
+   *
+   *   class="flex-custom-percent"
+   *   style="--fx-custom-flex-value: 37%"
+   *
+   *   class="lt-md:flex-custom-value"
+   *   style="--lt-md-fx-custom-flex-value: 12.5vw"
+   */
+  $custom-flex-value-property: fx-custom-property($prefix, 'flex-value');
+
+  @include emit-axis-sensitive-flex-value(
+    $prefix,
+    'flex-custom-percent',
+    100%,
+    100%,
+    var(#{$custom-flex-value-property}),
+    initial,
+    var(#{$custom-flex-value-property})
+  );
+
+  @include emit-axis-sensitive-flex-value(
+    $prefix,
+    'flex-custom-value',
+    var(#{$custom-flex-value-property}),
+    var(#{$custom-flex-value-property}),
+    var(#{$custom-flex-value-property}),
+    var(#{$custom-flex-value-property}),
+    var(#{$custom-flex-value-property})
+  );
+
+  /**
+   * Native CSS gaps.
+   */
+  @each $gap in $fx-gap-values {
+    @include fx-token($prefix, 'gap-#{$gap}') {
+      gap: #{$gap}px !important;
+    }
+  }
+
+  /**
+   * Fallback utility for uncommon gap values.
+   *
+   * Example:
+   *
+   *   class="gap-custom"
+   *   style="--fx-custom-gap: 13px"
+   */
+  $custom-gap-property: fx-custom-property($prefix, 'gap');
+
+  @include fx-token($prefix, 'gap-custom') {
+    gap: var(#{$custom-gap-property}) !important;
+  }
+
+  /**
+   * Visibility.
+   */
+  @include fx-token($prefix, 'hidden') {
+    display: none !important;
+  }
+
+  /**
+   * Offsets. Parent direction rules decide between inline-start margin and
+   * top margin.
+   */
+  @each $offset in $fx-offset-values {
+    @include fx-token($prefix, 'offset-#{$offset}') {
+      --fx-offset-value: #{$offset}px;
+      --fx-offset-inline-start: var(--fx-offset-value);
+      --fx-offset-top: initial;
+
+      margin-inline-start: var(--fx-offset-inline-start) !important;
+      margin-top: var(--fx-offset-top) !important;
+    }
+  }
+
+  /**
+   * Fallback utility for uncommon offset values.
+   *
+   * Example:
+   *
+   *   class="offset-custom"
+   *   style="--fx-custom-offset: 7px"
+   */
+  $custom-offset-property: fx-custom-property($prefix, 'offset');
+
+  @include fx-token($prefix, 'offset-custom') {
+    --fx-offset-value: var(#{$custom-offset-property});
+    --fx-offset-inline-start: var(--fx-offset-value);
+    --fx-offset-top: initial;
+
+    margin-inline-start: var(--fx-offset-inline-start) !important;
+    margin-top: var(--fx-offset-top) !important;
+  }
+}
+
+.flex-fill {
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}
+
+.flex-spacer {
+  flex: 1 1 auto !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.flex-no-wrap {
+  flex-wrap: nowrap !important;
+}
+
+/**
+ * Static utilities and their parent/child behavior.
+ */
+@include emit-utilities();
+@include emit-parent-child-behavior();
+
+/**
+ * Responsive utilities and responsive parent/child behavior.
+ *
+ * The order of $fx-breakpoints is deliberate. Flex-Layout gives
+ * narrower breakpoint ranges a higher priority. Since equally
+ * specific CSS selectors are resolved by source order, narrower
+ * ranges are emitted later so that they override broader overlapping
+ * ranges.
+ */
+@each $prefix, $query in $fx-breakpoints {
+  @media #{$query} {
+    @include emit-utilities($prefix);
+    @include emit-parent-child-behavior($prefix);
+  }
+}

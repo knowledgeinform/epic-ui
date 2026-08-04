@@ -1,0 +1,58 @@
+@use '@angular/material' as mat;
+
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-typography-config());`
+@include mat.all-component-typographies();
+@include mat.core();
+
+$accent: mat.m2-define-palette(mat.$m2-amber-palette);
+$primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+
+.mat-button-toggle-appearance-standard.mat-button-toggle-checked {
+  background-color: mat.m2-get-color-from-palette($accent);
+}
+
+@media (min-width: 768px) {
+  .search-input-mat-form {
+    width: 250px !important
+  }
+}
+
+@media (max-width: 768px) {
+  .search-input-mat-form {
+    width: 50vw
+  }
+}
+
+.search-bar {
+    --mdc-filled-text-field-input-text-color: white;
+    --mdc-filled-text-field-active-indicator-color: white;
+    --mdc-filled-text-field-focus-active-indicator-color: white;
+    --mdc-filled-text-field-hover-active-indicator-color: white;
+}
+
+.infinite-scroll-parent {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.left-margin-space {
+  margin-left:20px;
+}
+
+.filter-panel-title {
+  font-size: x-large;
+  color: mat.m2-get-color-from-palette($primary);
+}
+
+.filter-button-container {
+  > :not(:last-child) {
+    margin-inline-end: 10px;
+  }
+}

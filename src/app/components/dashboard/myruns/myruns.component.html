@@ -1,0 +1,69 @@
+<fieldset class="runs-fieldset">
+  <legend class="runs-legend">My Favorite Runs
+    <button mat-icon-button (click)="getRuns()">
+      <mat-icon color="primary">refresh</mat-icon>
+    </button>
+  </legend>
+  <div class="runsTableWrapper" *ngIf="runs.data.length; else errorPlaceholder">
+    <table mat-table [dataSource]="runs">
+      <ng-container matColumnDef="favBtn">
+        <th class="status-dash" mat-header-cell *matHeaderCellDef></th>
+        <td class="status-dash" mat-cell *matCellDef="let run" (click)="$event.stopPropagation()">
+          <app-procedure-favorite [procedureDetailsId]="run.procedureDetailsPk" [(userFavoriteList)]="run.favoriteUsers" [showFavText]="false"></app-procedure-favorite>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="pk">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let run">{{run.id}}</td>
+      </ng-container>
+      <ng-container matColumnDef="runNumber">
+        <th mat-header-cell *matHeaderCellDef>Run #</th>
+        <td mat-cell *matCellDef="let run">{{run.runNumber}}</td>
+      </ng-container>
+      <ng-container matColumnDef="version">
+        <th mat-header-cell *matHeaderCellDef>Proc. Version</th>
+        <td mat-cell *matCellDef="let run">{{run.procedureDefVersion}}</td>
+      </ng-container>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Run Name</th>
+        <td mat-cell *matCellDef="let run">{{run.runName}}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th class="status-dash" mat-header-cell *matHeaderCellDef>Status</th>
+        <td class="status-dash" mat-cell *matCellDef="let run">
+          <i class="material-icons" [style.color]="run.status | runStatusColor"
+             matTooltip="{{RunStatus[run.status]}}" [matTooltipPosition]="position">{{run.status | runStatusIcon}}</i>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="offlineStatus">
+        <th class="status-dash" mat-header-cell *matHeaderCellDef>Available Offline</th>
+        <td class="status-dash" mat-cell *matCellDef="let run">
+          <app-offline-availability-indicator [available]="run.availableOffline"></app-offline-availability-indicator>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openRun(row)" [class.disabled]="!runAvailable(row)"></tr>
+
+    </table>
+  </div>
+  <div [hidden]="!runs.data.length">
+    <mat-paginator #runsPaginator
+                   [pageSizeOptions]="[5, 10, 25, 100]"
+                   id="runsPerPage"
+                   [pageSize]="localStorage.getItem('runsPageSize')"
+                   (page)="setPageSizeCookie($event)"
+                   showFirstLastButtons
+    ></mat-paginator>
+  </div>
+  <ng-template #errorPlaceholder>
+    <ng-container *ngIf="fetchError; else emptyPlaceholder">Error retrieving runs from the server: {{fetchError}}</ng-container>
+  </ng-template>
+  <ng-template #emptyPlaceholder>
+    <ng-container *ngIf="fetchIsDone; else fetchingPlaceholder">You have no saved runs.</ng-container>
+  </ng-template>
+  <ng-template #fetchingPlaceholder>
+    <ng-container>
+      <div>Retrieving runs...</div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar></ng-container>
+  </ng-template>
+</fieldset>

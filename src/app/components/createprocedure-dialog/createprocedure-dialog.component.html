@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Create New Procedure</h2>
+<!--<form [formGroup]="form" (ngSubmit)="onSubmit()">-->
+  <div mat-dialog-content class="dialogContent" id="createNewProcedureDialog">
+    <app-proceduredefinition (procedureDef)="receiveProcedureDef($event)" [error]="error"></app-proceduredefinition>
+  </div>
+  <div mat-dialog-actions>
+    <button id="createNewProcedureCancelButton" mat-raised-button (click)="close()">Cancel</button>
+    <button id="createNewProcedureCreateButton" mat-raised-button color="primary" focus type="submit" *ngIf="newProcedureDefForm !== undefined && newProcedureDefForm.valid" (click)="submitNewProcedureDef()">Create</button>
+  </div>
+<!--</form>-->
+

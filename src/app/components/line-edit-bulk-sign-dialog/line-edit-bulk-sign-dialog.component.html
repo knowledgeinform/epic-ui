@@ -1,0 +1,26 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">Apply Approval Signature to All Black and Red Lines</h2>
+<div mat-dialog-content>
+  <h3 class="mat-warn">WARNING!</h3>
+  <p>By submitting your signature in the field below, you are approving all black and red lines. If there are already
+    approvals on any line edits, your signature will overwrite the previous approval. If this is not your intention, please click
+    "Cancel" to close this dialog.</p>
+  <p> Please note that you cannot approve red or black lines that you submitted. If you have not yet done so, it is advised that
+    you review all the line edits before approving them via this dialog.</p>
+  <p>Note that red lines can only be approved within the red-lined run; if you are approving from a locked run, your approval will
+  apply only to the black lines.</p>
+  <p>If you wish to proceed, please enter your APL 521 and individual pin in the field below. If you do not know your pin you
+    may view it on your profile page by closing this dialog and opening the site menu in the top right corner of the page to navigate
+    to your profile.</p>
+  <div class="flex-row">
+    <mat-form-field class="full-width">
+      <mat-label>Enter approver's 521 and six digit pin</mat-label>
+      <input matInput maxlength="14" [formControl]="signature" required type="password">
+      <mat-hint>Example: smithjh1123456</mat-hint>
+      <mat-error *ngIf="signature.invalid || signature.dirty || signature.touched">Approver's 521 plus pin is required</mat-error>
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" mat-dialog-close>Cancel</button>
+  <button mat-raised-button *ngIf="signature.valid" (click)="submitSignatureForAllLineEdits($event)">Approve All Line Edits</button>
+</div>

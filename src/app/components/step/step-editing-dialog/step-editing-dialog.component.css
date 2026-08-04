@@ -1,0 +1,6 @@
+.dialog-title{
+  display: flex;
+  flex-direction: column;
+  line-height: 60px;
+  height: 60px;
+}

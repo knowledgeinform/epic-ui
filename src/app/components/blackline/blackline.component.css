@@ -1,0 +1,25 @@
+.commentDiv {
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.commentDivHeader {
+  display: flex;
+  flex-direction: row;
+}
+
+.buttonLayout {
+  display: flex;
+}
+
+.fill-space {
+  flex: 1 1 auto;
+}
+
+.new-comment-border {
+  border: 2px solid black;
+}

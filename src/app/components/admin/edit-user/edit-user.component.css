@@ -1,0 +1,11 @@
+.search-form {
+  > mat-form-field {
+    margin-inline-end: 10px;
+  }
+}
+
+.edit-form {
+  > :not(:last-child) {
+    margin-inline-end: 10px;
+  }
+}

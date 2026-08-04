@@ -1,0 +1,6 @@
+<mat-icon
+[style.color]="available ? 'green' : 'red' "
+[matTooltip]="available ? 'Available Offline' : 'Not Available Offline (Open this run to save it for offline use.)'"
+matTooltipPosition="right"
+>{{ available ? 'published_with_changes' : 'unpublished' }}</mat-icon>
+

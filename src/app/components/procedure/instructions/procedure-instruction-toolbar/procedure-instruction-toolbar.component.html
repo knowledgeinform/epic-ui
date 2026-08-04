@@ -1,0 +1,39 @@
+<div>
+  <ng-container *ngIf="redliningEnabled || (!isLockedFromEditing && !runPk)">
+    <button mat-icon-button
+            (click)="addSection()"
+            id="instructionInformationAddSection"
+            matTooltip="Add Section"
+            aria-label="Add new instruction section"
+    >
+      <mat-icon>add_circle</mat-icon>
+    </button>
+    <button mat-icon-button
+            (click)="cloneSection()"
+            id="instructionInformationCopySection"
+            matTooltip="Clone Section From Another Procedure"
+            aria-label="Copy one or more instruction sections from another procedure"
+    >
+      <mat-icon>content_copy</mat-icon>
+    </button>
+
+    <ng-container *ngIf="!redliningEnabled">
+      <button mat-icon-button
+              (click)="saveSections(procedureData.procedureInstructions)"
+              id="instructionInformationSaveSections"
+              matTooltip="Save"
+              aria-label="Save all instruction sections">
+        <mat-icon>save</mat-icon>
+      </button>
+    </ng-container>
+  </ng-container>
+  <button mat-icon-button
+          (click)="toggleExpand()"
+          id="instructionInformationExpandCollapseButton"
+          matTooltip="Expand/Collapse All"
+          aria-label="Click here to expand or collapse all instruction sections"
+  >
+    <mat-icon>storage</mat-icon>
+  </button>
+</div>
+

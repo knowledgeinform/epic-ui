@@ -1,0 +1,14 @@
+<mat-toolbar class="dialog-title" color="primary">
+  <span>Edit Step</span>
+</mat-toolbar>
+<mat-dialog-content>
+  <app-stepdefinition [isEdit]="true" [redliningEnabled]="isRedLineEdit" [disableForSaving]="saving" (formChange)="receiveStep($event)" (hideCancelChange)="hideCancelButton($event)" [step]="step" [stepGroup]="stepGroup" [procedureData]="procedureData"  (tableIsGone)="showUpdateButton=!$event"></app-stepdefinition>
+  <div class="savingLabel flex-row justify-end items-stretch content-stretch" *ngIf="saving">
+    Saving Step...
+  </div>
+</mat-dialog-content>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button mat-raised-button mat-dialog-close [disabled]="saving" *ngIf="!hideCancel">Cancel</button>
+  <button mat-raised-button
+          color="primary" (click)="updateStep()" [disabled]="saving || !showUpdateButton || !formForUpdatedStep || formForUpdatedStep.invalid">OK</button>
+</div>

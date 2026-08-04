@@ -1,0 +1,405 @@
+/* You can add global styles to this file, and also import other style files */
+//@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@use '@angular/material' as mat;
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import 'material-design-icons-iconfont/dist/material-design-icons.css';
+@import 'ag-grid-community/styles/ag-grid.css';
+@import "ag-grid-community/styles/ag-theme-material.css";
+
+@import './styles/flex-utilities';
+
+@include mat.core();
+
+$my-primary: mat.m2-define-palette(mat.$m2-indigo-palette, 500);
+$my-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+
+$my-theme: mat.m2-define-light-theme((
+ color: (
+   primary: $my-primary,
+   accent: $my-accent,
+ ),
+ typography: mat.m2-define-typography-config(),
+ density: 0,
+));
+
+@include mat.all-component-themes($my-theme);
+
+html,
+body,
+app-root {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+app-root {
+  flex-direction: column;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+mat-sidenav-container {
+  height:100%;
+}
+
+mat-sidenav-content {
+  display: flex !important;
+}
+
+.alert {
+  border-radius: 5px;
+  border: 1px solid;
+  padding: 5px;
+  margin: 4px 0 4px 0;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12)
+}
+
+.alert-danger {
+  background-color: #fad6d6;
+  border-color: #ac1f1f;
+  color: #ac1f1f;
+}
+
+.clickable,
+.clickable input {
+  cursor: pointer;
+}
+
+.scroll-y {
+  overflow-y: auto;
+}
+
+/* Common fieldset styles */
+fieldset.epic-fieldset {
+  border: solid 2px;
+  margin: 5px;
+  border-radius: 5px;
+}
+fieldset.epic-fieldset>legend {
+  padding: 0 10px;
+}
+fieldset.epic-fieldset>legend>span {
+  vertical-align: bottom;
+  flex-direction: row;
+  align-items: center;
+  display: flex;
+}
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+
+  .no-print, .no-print * {
+    display: none !important;
+  }
+
+  /* Adapted from: https://www.appnovation.com/blog/how-avoid-your-web-printing-page-being-cut */
+  html, body, h1, h2, h3, ol, ul, div {
+    overflow: visible !important;
+  }
+
+}
+
+
+/* Make Flex Layout work for components included with router  */
+router-outlet + * {
+  height: 100%;
+}
+
+/* Make Flex Layout work for Mat Tabs. */
+.mat-mdc-tab-body-wrapper {
+  height: 100%;
+}
+
+h1, h2, h3, h4 {
+  font-weight: bold !important;
+}
+
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: transparent;
+  --mdc-filled-text-field-focus-active-indicator-height: 3px;
+}
+
+/* Removes the tinted background overlay when hovering or focusing */
+.mat-mdc-form-field-focus-overlay {
+  background-color: transparent !important;
+}
+
+app-procedurestepscontainer {
+  height: 100%;
+}
+
+.red-line {
+  color: red;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+}
+
+.red-line-background {
+  background-color: #ffe6e6 !important;
+}
+
+.deletion-strikethrough {
+  text-decoration-line: line-through;
+  text-decoration-color: red;
+}
+
+/* Warning Styles for banners, colors, etc. */
+@mixin warning-indicator($name, $color, $text-color) {
+  .warning-text-color-#{$name} {
+    color: $text-color !important;
+  }
+  .warning-icon-color-#{$name} { color: $color; }
+  .warning-border-color-#{$name} {
+    border-color: $color !important;
+  }
+  .warning-indicator-#{$name} {
+    background: repeating-linear-gradient(45deg, $color, $color 5px, black 5px, black 10px);
+    height: 20px;
+    width: 100%;
+  }
+  .warning-border-#{$name} {
+    border: 10px solid transparent !important;
+    border-radius: 4px !important;
+    border-image-source: repeating-linear-gradient(45deg, $color, $color 5px, black 5px, black 10px) !important;
+    border-image-slice: 5 5 5 5 !important;
+  }
+}
+$indicators: (
+  name: hazard,
+  color: red,
+  textColor: red,
+),
+(
+  name: esd0,
+  color: yellow,
+  textColor: black,
+);
+@each $indicator in $indicators {
+  $name: map-get($indicator, name);
+  $color: map-get($indicator, color);
+  $textColor: map-get($indicator, textColor);
+  @include warning-indicator($name, $color, $textColor);
+}
+
+/* Combined warning banners: */
+$hazardColor: map-get(nth($indicators, 1), color);
+$esd0Color: map-get(nth($indicators, 2), color);
+$bis: repeating-linear-gradient(45deg,
+$hazardColor 1px 5px,
+black 5px 10px,
+$esd0Color 10px 15px,
+black 15px 20px) !important;
+.warning-border-hazard.warning-border-esd0 {
+  border-image-source: $bis;
+}
+.warning-indicator-hazard.warning-indicator-esd0 {
+  background: $bis;
+}
+
+.sidenav-container {
+  //height: 100%;
+  //min-height: 100%;
+  //position: fixed;
+  //width: 100%;
+  //min-width: 100%;
+}
+
+.comment-section-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.comment-form-field {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.commentDivDate, .commentDivUser {
+  font-size: .8em;
+  font-style: italic;
+}
+
+.full-width,
+.fullWidth {
+  width: 100%;
+}
+
+.row-height {
+  height: 1vh;
+}
+.witness {
+  color: #008000;
+}
+
+.equipment {
+  color: darkgray;
+}
+
+.inspection {
+  color: #efd300;
+}
+
+.align-details-row {
+  align-items: baseline;
+}
+
+.auto-width {
+  width: auto !important;
+}
+
+.sticky-comment {
+  color: darkgoldenrod;
+}
+
+.ag-theme-material {
+  width: 100%;
+  height: 100%;
+}
+
+.ag-theme-material .ag-header, .ag-header-cell {
+  background-color: #dfdfdf !important;
+}
+
+.ag-theme-material .ag-header-cell:hover {
+  background-color: #cccccc !important;
+}
+
+.full-height {
+  height: 100%;
+}
+
+.savingLabel{
+  font-size: .8em;
+  font-style: italic;
+  color: red;
+}
+
+.page-wrapper {
+  margin: 10px;
+}
+
+.block-display {
+  display: block;
+}
+
+.table-bordered {
+  border: 1px solid #ddd;
+}
+
+@media print {
+
+  mat-sidenav-container {
+    // Position needs to be relative
+    position: relative !important;
+    height:auto;
+
+    mat-sidenav-content {
+      // Remove the content margin if sidenav is expanded when hidden for print
+      margin: 0 !important;
+
+      // Remove max width and padding from containers to flow text depending on printer page sizes
+      .container {
+        min-width: 0 !important;
+        padding: 0 !important;
+      }
+
+    }
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.show {
+  display: block;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.justify-content-space-evenly {
+  justify-content: space-evenly;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.justify-content-start {
+  justify-content: start;
+}
+
+.padding-top-10 {
+  padding-top: 10px;
+}
+
+.padding-bottom-10 {
+  padding-bottom: 10px;
+}
+
+.padding-top-15 {
+  padding-top: 15px;
+}
+
+.padding-bottom-10 {
+  padding-bottom: 15px;
+}
+
+.padding-left-10 {
+  padding-left: 10px;
+}
+
+.padding-left-35 {
+  padding-left: 35px;
+}
+
+// used as background for info communication banner
+.background-info {
+  background-color: #0ec3e7;
+}
+
+// used as background for warning communication banner
+.background-warning {
+  background-color: #f5bb09;
+}
+
+// used as background for error communication banner
+.background-error {
+  color: white;
+  background-color: #d43643;
+}
+
+// communication banner container wrapper
+.communication-banner {
+  display: block;
+  width: 100%;
+  padding: 2px;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+// used to display esd label in header
+.esd-label {
+  display: block;
+  font-size: 0.8em;
+  color: grey;
+  margin-top: 2px;
+  margin-left: 55px;
+  font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+}
+

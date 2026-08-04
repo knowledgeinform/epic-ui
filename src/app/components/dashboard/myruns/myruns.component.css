@@ -1,0 +1,39 @@
+table {
+  width: 100%;
+}
+
+.runsTableWrapper {
+  padding: 10px;
+}
+
+.runs-fieldset {
+  border: solid 2px #006b2a;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.runs-legend {
+  color: #006b2a;
+  padding: 0px 10px; /* To give a bit of padding on the left and right */
+  font-style: italic;
+  font-size: larger;
+}
+
+.status-dash {
+  text-align: center;
+}
+
+.mat-mdc-row:hover {
+  background-color: #efefef;
+  cursor: pointer;
+  /*font-weight: bold;*/
+}
+
+.mat-mdc-row.disabled:hover {
+  cursor: default !important;
+}
+
+.mat-mdc-row.disabled td {
+  color: grey;
+}
+

@@ -1,0 +1,140 @@
+<div [ngClass]="{ 'warning-border-hazard': step.hazardous, 'warning-border-esd0': step.esd0 }">
+  <h4>{{displayNumber}} {{step.stepName}}</h4>
+
+  <div class="step-content-container">
+
+    <p *ngIf="step.isManualValidation">Manually Validated.</p>
+
+    <div [ngxSummernoteView]=step.instructions></div>
+
+    <!-- Step Def Attachments, if any. -->
+    <ng-container *ngIf="step.stepDefAttachments?.length">
+      <h5>Step Attachments:</h5>
+
+      <!-- List all step def attachments. -->
+      <ol>
+        <li *ngFor="let attachment of step.stepDefAttachments">{{attachment.originalFilename}}
+          <app-image-display-component
+            *ngIf="attachment.isImage"
+            class="fullWidth"
+            [attachmentPk]="attachment.pk"
+            [filename]="attachment.originalFilename"
+          ></app-image-display-component>
+        </li>
+      </ol>
+
+    </ng-container>
+
+    <!-- Input Fields & values, if any. -->
+    <ng-container [ngSwitch]="step.type">
+
+      <ng-container *ngSwitchCase="StepType.SINGLE_VALUE">
+        <input
+          [(ngModel)]="step.runValue"
+          disabled
+        >
+      </ng-container>
+      <div *ngSwitchCase="StepType.CHECKBOX">
+
+        <mat-checkbox
+          [(ngModel)]="step.runValue"
+          disabled
+        >Step Completion
+        </mat-checkbox>
+      </div>
+      <div *ngSwitchCase="StepType.TABLE">
+        <table class="step-table">
+          <tr *ngFor="let row of step.stepTableRows">
+            <td
+              *ngFor="let cell of row.stepTableCells"
+              [ngClass]="{editable: cell.editable}"
+            >
+              <div [ngxSummernoteView]=cell.nonEditableValue></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+    </ng-container>
+
+    <!-- Signatures, if required. -->
+    <ng-container *ngIf="step.mandatoryInspection">
+      <h5>Inspection Signature</h5>
+      <p *ngIf="step.mandatoryInspectionSecondSignature; else signatureLineTemplate">
+        {{step.mandatoryInspectionSecondSignature.user.displayName}}
+        ({{ step.mandatoryInspectionSecondSignature.timestamp | date:'short' }})
+      </p>
+    </ng-container>
+    <ng-container *ngIf="step.requireWitness">
+      <h5>Witness Signature</h5>
+      <p *ngIf="step.witnessSecondSignature; else signatureLineTemplate">
+        {{step.witnessSecondSignature.user.displayName}}
+        ({{ step.witnessSecondSignature.timestamp | date:'short' }})
+      </p>
+    </ng-container>
+
+    <!-- Run Step Attachments, if any. -->
+    <ng-container *ngIf="step.runStepAttachments.length">
+      <h5>Step Run Attachments:</h5>
+
+      <!-- List all run step attachments. -->
+      <ol>
+        <li *ngFor="let attachment of step.runStepAttachments">{{attachment.originalFilename}}
+          <app-image-display-component
+            *ngIf="attachment.isImage"
+            class="fullWidth"
+            [attachmentPk]="attachment.pk"
+            [filename]="attachment.originalFilename"
+          ></app-image-display-component>
+        </li>
+      </ol>
+
+    </ng-container>
+
+    <!-- Equipment List. -->
+    <ng-container *ngIf="step.allowEquipmentEntry">
+      <h5>Equipment</h5>
+      <app-procedure-run-print-equipment-table [equipment]="step.equipment"></app-procedure-run-print-equipment-table>
+    </ng-container>
+
+    <!-- Comments, if any. -->
+    <ng-container *ngIf="step.runStepComments?.length">
+      <h5>Comments</h5>
+      <ol>
+        <li *ngFor="let comment of step.runStepComments">
+          <span>{{comment.users.displayName}} ({{comment.commentTimestamp | date:'short'}}): {{comment.commentText}}
+          </span>
+          <span *ngIf="comment.isNonconformance"><br>(Flagged as non-conformance.)</span>
+        </li>
+      </ol>
+    </ng-container>
+
+    <!-- Black-Line Comments, if any. -->
+    <ng-container *ngIf="step.blackLineComments?.length">
+      <h5>Black-Line Comments</h5>
+      <ol>
+        <li *ngFor="let comment of step.blackLineComments">
+          <span>{{comment.users.displayName}} ({{comment.commentTimestamp | date:'short'}}): {{comment.commentText}}
+          </span>
+        </li>
+      </ol>
+    </ng-container>
+
+    <!-- Red-Line Comments, if any. -->
+    <ng-container *ngIf="step.redLineComments?.length">
+      <h5>Red-Line Comments</h5>
+      <ol>
+        <li *ngFor="let comment of step.redLineComments">
+          <span>{{comment.users.displayName}} ({{comment.commentTimestamp | date:'short'}}): {{comment.commentText}}
+          </span>
+        </li>
+      </ol>
+    </ng-container>
+
+  </div>
+
+</div>
+
+<ng-template #signatureLineTemplate>
+  <p class="signature-line">Signature and date:</p>
+</ng-template>

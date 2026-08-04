@@ -1,0 +1,29 @@
+.dialogContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogContent > * {
+  width: 100%;
+}
+
+.correct-icon {
+  align-self: center;
+  color: green;
+}
+
+.incorrect-icon {
+  align-self: center;
+}
+
+.form-field-width {
+  width: 100%;
+}
+
+.red-line-warn {
+  color: red;
+}
+
+.icon-align {
+  vertical-align: middle;
+}

@@ -1,0 +1,47 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch" *ngIf="redLines">Select Red Lines For Signing</h2>
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch" *ngIf="!redLines">Select Black Lines For Signing</h2>
+
+<div>
+  <mat-stepper orientation="vertical" [linear]="true" #stepper>
+    <mat-step completed="false">
+      <ng-template matStepLabel>
+          <span *ngIf="displayRoleName && displayRoleName.length>0;  else selectRole" >Selected Role: {{displayRoleName}}</span>
+          <ng-template #selectRole><span>Select Role</span></ng-template>
+      </ng-template>
+        <app-role-selection [procedureData]="procedureData" (selectedRoleChange)="receiveRoleSelectionSelection	($event)"></app-role-selection>
+    </mat-step>
+    <mat-step>
+      <form>
+        <ng-template matStepLabel>Select Comments</ng-template>
+        <div class="treeWrapper">
+          <div *ngIf="roleSelected">
+            <app-multi-select-groups-steps [procedureData]="procedureData" [redBlackLineComments]="redBlackLineComments"
+                                           [redLines]="redLines" [showNotValidatedOnly]="true"
+                                           (fetchingChange)="fetching=$event"
+                                           (selectionsChange)="receiveCommentSelection($event)"
+                                           [role]="role">
+            </app-multi-select-groups-steps>
+            <button mat-stroked-button matStepperNext *ngIf="checklistSelection.selected.length > 0">Next</button>
+          </div>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step *ngIf="checklistSelection.selected.length > 0">
+      <ng-template matStepLabel>Signature</ng-template>
+      <div>
+        <app-sign-comment
+          [procedureData]="procedureData" [redLines]="true"
+        ></app-sign-comment>
+      </div>
+    </mat-step>
+  </mat-stepper>
+
+  <div mat-dialog-actions>
+    <button mat-raised-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" focus type="submit" id="submitLineSignature"
+            *ngIf="checklistSelection.selected.length > 0" (click)="lineSign()"
+            [disabled]="!signCommentComponent || !signCommentComponent.formControl || (signCommentComponent.formControl.value | signatureButtonDisableCondition)">
+      Sign Selected Comments</button>
+    <button mat-raised-button  *ngIf="roleSelectionComponent && roleSelectionComponent.selectedRoleName && roleSelectionComponent.selectedRoleName.length > 0" (click)="resetSignature()">Reset Selections</button>
+  </div>
+</div>

@@ -1,0 +1,174 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+.authoring-fieldset {
+  border: solid 2px #00506B;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.authoring-legend {
+  color: #00506B;
+  padding: 0px 10px; /* To give a bit of padding on the left and right */
+}
+
+.sectionHeader {
+  padding-left: 5px;
+}
+
+.icon-button {
+  vertical-align: bottom;
+}
+
+.icon-button:hover {
+  cursor: pointer;
+}
+
+.detailSection {
+  border-top: 1px solid darkgray;
+  padding-left: 10px;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.step-list.cdk-drop-list-dragging .step-group-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.step-placeholder {
+  background: #ccc;
+  border: dotted 3px #999;
+  border-radius: 5px;
+  min-height: 60px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.step-group-preview {
+
+}
+
+mat-expansion-panel {
+  border: solid 1px #00506B;
+}
+
+.overrideDisableStyle {
+  color: rgba(0, 0, 0, 10) !important;
+}
+
+.step-icon-align {
+  align-self: center;
+}
+
+.boolean-text {
+  color: #ff4081;
+  font-weight: bold;
+}
+
+.info-icons {
+  opacity: .3;
+  margin-left: 3px;
+}
+
+.overrideStepHeaderStyle {
+  padding-left: 0px;
+}
+
+.hazard {
+  color: #e40000;
+}
+
+.step-panel-title-div {
+  justify-content: left;
+}
+
+.step-content-format {
+  padding-right: 24px;
+}
+
+.red-line {
+  color: red;
+}
+
+.commentDiv {
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.commentDivHeader {
+  display: flex;
+  flex-direction: row;
+}
+
+.commentDivDate, .commentDivUser, .replyDivDate, .replyDivUser {
+  font-size: .8em;
+  font-style: italic;
+}
+
+
+.buttonLayout {
+  display: flex;
+}
+
+.fill-space {
+  flex: 1 1 auto;
+}
+
+/* Step Run Input Styles */
+.input-container {
+  margin-top: 10px;
+}
+
+.run-value-completed-by {
+  font-size: .8em;
+  font-style: italic;
+}
+
+/* Styles related to comments/manual validation */
+.comment-div-spacing {
+  margin: 5px;
+}
+
+.comment-button-border {
+  border-top: solid 1px rgba(0, 0, 0, .12);
+  line-height: 48px;
+  border-radius: unset;
+  background-color: white;
+}
+
+.savingLabel {
+  font-size: .8em;
+  font-style: italic;
+  color: red;
+}
+
+.signed-appearance {
+  align-self: center;
+  margin-right: 5px;
+}
+
+.signature-spacing {
+  margin-top: 15px;
+}
+
+.step-hazardous-border {
+  border: 10px solid transparent;
+  border-radius: 4px;
+  border-image-source: repeating-linear-gradient(45deg, red, red 5px, black 5px, black 10px);
+  border-image-slice: 5 5 5 5;
+}
+
+mat-form-field {
+  width: 100%;
+}
+mat-icon {
+  overflow: visible;
+}
+
+.content-placeholder {
+  height: 400px; /* Set default height to minimize jumping when actual step content loads. */
+  border: 1px dashed black;
+  background-color: rgba(255, 255, 255, 0.25)
+}

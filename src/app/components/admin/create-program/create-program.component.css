@@ -1,0 +1,5 @@
+.create-program-form {
+  > :not(:last-child) {
+    margin-inline-end: 10px;
+  }
+}

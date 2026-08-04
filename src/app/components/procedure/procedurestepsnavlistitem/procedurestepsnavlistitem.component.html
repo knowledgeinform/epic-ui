@@ -1,0 +1,22 @@
+<button mat-raised-button id="stepsTab_SideNav_ExpandCollapseAllButton" class="controlButton" color="primary" (click)="toggleExpandAllTree()"><mat-icon>storage</mat-icon> Expand/Collapse All</button>
+<button mat-raised-button id="stepsTab_SideNav_RefreshButton" class="controlButton" color="primary" (click)="refreshNodes()"><mat-icon>refresh</mat-icon>Refresh</button>
+<mat-tree #stepNavTree [dataSource]="treeData" [treeControl]="treeControl" class="nav-tree">
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+    <li class="mat-tree-node">
+      &nbsp;&nbsp;<mat-icon class="clickable" (click)="goTo(node)">link</mat-icon>&nbsp;{{node.name}}
+    </li>
+  </mat-tree-node>
+  <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+    <li>
+      <div class="mat-tree-node group">
+          <mat-icon class="mat-icon-rtl-mirror clickable" matTreeNodeToggle>
+            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+          </mat-icon>
+        &nbsp;&nbsp;<mat-icon class="clickable" (click)="goTo(node)">link</mat-icon>&nbsp;{{node.name}}
+      </div>
+      <ul [class.nav-tree-invisible]="!treeControl.isExpanded(node)">
+        <ng-container matTreeNodeOutlet></ng-container>
+      </ul>
+    </li>
+  </mat-nested-tree-node>
+</mat-tree>

@@ -1,0 +1,25 @@
+<div *ngIf="titleText" class="title">
+  {{titleText}}
+</div>
+<div *ngIf="arrayOfCommentsOrHistories?.length; else noEntries">
+  <div [ngClass]="{'histDiv': addBorder}" *ngFor="let entry of arrayOfCommentsOrHistories">
+    <div class="histDivHeader flex-row">
+      <span class="histDivUser">{{entry.user ? entry.user.displayName : entry.users.displayName}}</span>
+      <span>&nbsp;-&nbsp;</span>
+      <span class="histDivDate">{{(entry.timestamp ? entry.timestamp : entry.commentTimestamp) | date:'short'}}</span>
+      <span class="fill-space"></span>
+      <div class="flex-row justify-end items-end content-end">
+        <mat-icon *ngIf="entry.commentType === CommentType.BLACK_LINE_COMMENT">chat_bubble_outline</mat-icon>
+        <mat-icon *ngIf="entry.commentType === CommentType.RED_LINE_COMMENT" class="red-line">mode_comment</mat-icon>
+      </div>
+    </div>
+    <p *ngIf="entry.commentType === CommentType.BLACK_LINE_COMMENT || entry.commentType === CommentType.RED_LINE_COMMENT" class="approval-roles-note"><strong>Change type:</strong> {{entry.procedureChangeType?.name}}</p>
+    <p><strong *ngIf="entry.commentType === CommentType.BLACK_LINE_COMMENT || entry.commentType === CommentType.RED_LINE_COMMENT">Description:</strong> {{entry.description ? entry.description : entry.commentText}}</p>
+  </div>
+</div>
+
+<ng-template #noEntries>
+  <div>
+    No Entries To Display.
+  </div>
+</ng-template>

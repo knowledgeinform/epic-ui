@@ -1,0 +1,71 @@
+<div>
+  <div *ngIf="program; else loadingTemplate">
+
+    <h1 class="page-wrapper">{{program.code}}: {{program.name}}</h1>
+
+    <mat-tab-group
+      [selectedIndex]="tabId"
+      (selectedIndexChange)="onSelectedIndexChange($event)"
+    >
+
+      <mat-tab label="Users & Roles">
+        <mat-toolbar *ngIf="!readOnly">
+          <button
+            mat-stroked-button
+            (click)="editRequiredRoles()"
+          >Edit Required Roles</button>
+        </mat-toolbar>
+
+        <div
+          class="flex-row"
+          style="margin: 20px"
+        >
+          <div
+            class="flex-50 gap-20"
+          >
+            <p *ngIf="!readOnly">Changes are saved automatically.</p>
+            <app-roster-entry
+              *ngFor="let rosterMember of program.roster"
+              [programPk]="program.pk"
+              [member]="rosterMember"
+              [readOnly]="readOnly"
+              (memberRemove)="removeRosterMember($event)"
+            ></app-roster-entry>
+
+            <button
+              mat-raised-button
+              *ngIf="!readOnly"
+              title="Add to Roster"
+              color="primary"
+              (click)="showAddRosterMemberDialog()"
+            >
+              <mat-icon>person_add</mat-icon>
+            </button>
+          </div>
+          <div class="flex-50">
+            <h3>Required Roles</h3>
+            <p>The following required roles are met on this program:</p>
+            <p *ngFor="let role of program.requiredProgramRoles">
+              <mat-checkbox
+                disabled="true"
+                [checked]="role.name | rosterRoleIsMet: program.roster"
+              >{{role.name}}</mat-checkbox>
+            </p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Roles & Change Types">
+        <app-edit-program-roles-and-change-types [program]="program" [readOnly]="readOnly"></app-edit-program-roles-and-change-types>
+      </mat-tab>
+
+    </mat-tab-group>
+
+
+
+  </div>
+
+  <ng-template #loadingTemplate>
+    <mat-spinner></mat-spinner>
+  </ng-template>
+</div>

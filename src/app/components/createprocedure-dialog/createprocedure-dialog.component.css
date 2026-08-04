@@ -1,0 +1,8 @@
+.dialogContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogContent > * {
+  width: 100%;
+}

@@ -1,0 +1,8 @@
+<div class="container">
+  <mat-progress-bar *ngIf="isImageLoading" mode="query"></mat-progress-bar>
+
+  <img [ngClass]="{'gray-out': editType === EditType.REDLINE_DELETE}"
+       [src]="imageToShow" [alt]="filename" *ngIf="!isImageLoading && !isError">
+
+  <img *ngIf="!isImageLoading && isError" src="broken.png" alt="Unable to display image file: {{filename}}">
+</div>

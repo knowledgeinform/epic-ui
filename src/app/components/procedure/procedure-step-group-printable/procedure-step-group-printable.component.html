@@ -1,0 +1,19 @@
+<div class="group-container">
+
+  <h3>{{displayNumber}} {{stepGroup.stepGroupName}}</h3>
+
+  <p>{{stepGroup.description}}</p>
+
+  <app-procedure-step-printable
+    *ngFor="let step of stepGroup.stepDefs"
+    [step]="step"
+    [parentDisplayNumber]="displayNumber"
+  ></app-procedure-step-printable>
+
+  <app-procedure-step-group-printable
+    *ngFor="let group of stepGroup.stepGroupDefsChildren"
+    [stepGroup]="group"
+    [parentDisplayNumber]="displayNumber"
+  ></app-procedure-step-group-printable>
+
+</div>

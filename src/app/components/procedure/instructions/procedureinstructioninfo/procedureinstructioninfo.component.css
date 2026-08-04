@@ -1,0 +1,111 @@
+.authoring-fieldset {
+  border: solid 2px #00506B;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.authoring-legend {
+  color: #00506B;
+  padding: 0px 10px; /* To give a bit of padding on the left and right */
+}
+
+.sectionHeader {
+  padding-left: 5px;
+}
+
+.icon-button {
+  vertical-align: bottom;
+}
+
+.icon-button:hover {
+  cursor: pointer;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.section-box {
+  padding: 5px 0;
+  /*border-bottom: solid 1px #ccc;*/
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  background: white;
+  font-size: 14px;
+}
+
+.section-list.cdk-drop-list-dragging .section-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.section-placeholder {
+  background: #ccc;
+  border: dotted 3px #999;
+  border-radius: 5px;
+  min-height: 60px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.section-preview {
+
+}
+
+mat-expansion-panel {
+  width: 100%;
+  border: solid 1px #00506B;
+  cursor: auto;
+}
+
+.procedure-instruction-info-container {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#instructionToolbar {
+  height: 50px;
+  z-index: 999;
+}
+
+#instructionToolbar button {
+  margin-right: 5px;
+}
+
+/*.stickyHeader {*/
+  /*position: fixed;*/
+  /*top: 40px;*/
+  /*left: 0;*/
+  /*z-index: 999;*/
+/*}*/
+
+#instructionFieldset {
+  margin-top: 10px;
+}
+
+/*.stickyContent {*/
+  /*margin-top: 65px !important;*/
+/*}*/
+
+.overrideDisableStyle {
+  color: rgba(0, 0, 0, 10) !important;
+  align-items: center;
+}
+
+.overrideHeaderStyle {
+  padding-left: 0;
+}
+
+.dragHandle {
+  cursor: move;
+  opacity: .3;
+  /*color: #343434;*/
+}
+
+.instr-info-icon-align {
+  align-self: center;
+}

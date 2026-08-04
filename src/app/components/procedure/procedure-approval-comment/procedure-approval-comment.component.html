@@ -1,0 +1,24 @@
+<div *ngIf="!isReadonly">
+  <div [hidden]="showCommentEntry === true || hideCommentButton === true">
+    <div class="buttonLayout">
+      <span class="fill-space"></span>
+      <button mat-stroked-button color="primary" (click)="showComment()" [disabled]="disableReplyButton">
+        <mat-icon>{{isReply === true ? 'reply' : 'add_comment'}}</mat-icon>
+        {{isReply === true ? 'Reply' : 'New Comment'}}</button>
+    </div>
+  </div>
+  <div [hidden]="showCommentEntry===false">
+    <form [formGroup]="form">
+      <mat-form-field class="fullWidth">
+        <mat-label>Enter a {{isReply===true? 'reply' : 'comment'}}</mat-label>
+        <textarea matInput cdkTextareaAutosize #commentText maxlength="2048" formControlName="comment"></textarea>
+        <mat-hint align="end">{{commentText.value?.length || 0}}/2048</mat-hint>
+      </mat-form-field>
+      <div class="buttonLayout">
+        <span class="fill-space"></span>
+        <button mat-raised-button color="" type="reset" (click)="cancel()" class="flex-row justify-end items-stretch content-stretch">Cancel</button>
+        <button mat-raised-button color="primary" focus type="submit" (click)="submit()" [disabled]="form.invalid">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>

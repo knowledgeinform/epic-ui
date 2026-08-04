@@ -1,0 +1,53 @@
+<div class="stepsDiv flex flex-column">
+  <div *ngIf="!printMode" class="content flex-row">
+  </div>
+
+  <mat-sidenav-container id="stepsContainer" class="sidenav-container flex-100 flex-row">
+    <!-- this is the side navigation bar -->
+    <mat-sidenav class="sidenav mat-elevation-z6 flex-30 lt-sm:flex-100" #stepsUiSideNav mode="side" [(opened)]="sideNavOpen"
+                 >
+      <app-procedurestepsnavlistitem #stepNavPanel [procedureData]="procedureData"></app-procedurestepsnavlistitem>
+    </mat-sidenav>
+
+    <!-- this is the main content area -->
+    <mat-sidenav-content class="content flex-column flex">
+      <div #scrollContainer class="stepListDiv" (scroll)="onScroll($event)">
+        <!-- this div is the outer div that contains the top level step groups. It exists so that subgroups can be drag and dropped
+        into the top level. Do not change the id (or if you do, change it in the ts file and in procedurestepgroupsComponent.ts as well)-->
+        <div class="section-list flex-column justify-around items-stretch content-stretch" [cdkDropListData]="procedureData?.stepGroupDefs" cdkDropList
+             (cdkDropListDropped)="drop($event)">
+          <!-- the step group is the draggable element -->
+          <app-procedurestepgroups
+            cdkDropListGroup class="step-group-section-box"
+            *ngFor="let stepGroup of procedureData?.stepGroupDefs; trackBy: groupIdentity"
+            [myStepGroupParent]="null"
+            [(procedureData)]="procedureData"
+            [expandChildren]="expandAllMainContent"
+            [stepGroup]="stepGroup" cdkDrag
+            [cdkDragDisabled]="!((procedureData?.redliningEnabled || (!lockedFromEditing && !run)) && stepGroup.editType !== 'REDLINE_DELETE') || !groupDragIsDone"
+            [isReadonly]="lockedFromEditing"
+            [cdkDragData]="stepGroup"
+            [blackliningEnabled]="blackliningEnabled"
+            [disableStepPerformancePlaceholders]="disableStepPerformancePlaceholders"
+            [run]="run"
+          >
+            <div class="section-placeholder" *cdkDragPlaceholder></div>
+            <div class="section-preview" *cdkDragPreview></div>
+            <!-- the drag handle is here, within the procedurestepgroup element. Note the "slot" attribute - this matches up
+            to the element within the procedurestepgroup html. Do not change here without also changing that. The drag handle is
+            here because it turns out you need to have the drag handle in the same html file as the draggable element (whatever
+            contains the cdkDrag attribute). Same thing for the placeholder and preview elements above this comment -->
+            <mat-icon
+              slot="drag-handle"
+              cdkDragHandle *ngIf="(procedureData | canEditProcedureOrRun: procedureData.redliningEnabled) && (!lockedFromEditing || procedureData.redliningEnabled) && stepGroup.editType !== EditType.REDLINE_DELETE && groupDragIsDone"
+              class="dragHandle step-group-icon-align"
+              matTooltip="Click here to drag group to a new position within this list"
+              aria-label="Click here to drag the group to a new position"
+            >drag_indicator
+            </mat-icon>
+          </app-procedurestepgroups>
+        </div>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

@@ -1,0 +1,22 @@
+fieldset {
+  border: 2px solid #00506B;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+legend {
+  color: #00506B;
+  padding: 0 10px;
+}
+
+.sectionDiv {
+  margin: 5px;
+}
+
+.sectionDivChildElement {
+  margin: 5px;
+}
+
+.instructionDiv {
+  margin: 10px 20px;
+}

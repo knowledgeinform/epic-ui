@@ -1,0 +1,33 @@
+<div class="procedure-instruction-info-container">
+  <div class="instructionDiv" #scrollContainer (scroll)="onScroll($event)">
+    <fieldset id="instructionFieldset" class="authoring-fieldset">
+      <legend class="authoring-legend"><span aria-label="Instruction information">Instruction Information</span></legend>
+      <div id="instructionInformationSectionList" class="section-list flex-column justify-around items-stretch content-stretch" *ngIf="procedureData?.procedureInstructions" cdkDropList
+           (cdkDropListDropped)="drop($event)">
+        <app-procedureinstructioninfo *ngFor="let instruction of procedureData.procedureInstructions" [isExpand]="isExpand"
+                                      [instruction]="instruction"
+                                      [(procedureData)]="procedureData"
+                                      [isReadonly]="isLockedFromEditing || (!redliningEnabled && runPk)"
+                                      [runPk]="runPk"
+                                      [cdkDragDisabled]="disableDragging || !instructionDragIsDone"
+                                      cdkDrag [redliningEnabled]="instruction.editType === 'REDLINE_DELETE' ? false : procedureData.redliningEnabled"
+                                      class="section-box flex-column justify-around items-stretch content-stretch"
+                                      [printMode]="printMode"
+        >
+          <div class="section-placeholder" *cdkDragPlaceholder></div>
+          <div class="section-preview" *cdkDragPreview>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  {{instruction.displayOrder}}. {{instruction.sectionName}}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+            </mat-expansion-panel>
+          </div>
+          <mat-icon slot="drag-handle" cdkDragHandle *ngIf="(!isLockedFromEditing && !runPk) || (redliningEnabled && instruction.editType !== 'REDLINE_DELETE') && instructionDragIsDone" class="dragHandle"
+                    matTooltip="Click here to drag instruction to a new position within this list" aria-label="Click here to drag instruction to a new position within this list">drag_indicator</mat-icon>
+        </app-procedureinstructioninfo>
+      </div>
+    </fieldset>
+  </div>
+</div>

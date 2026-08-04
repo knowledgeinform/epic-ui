@@ -1,0 +1,21 @@
+.histDivDate, .histDivUser {
+  font-size: .8em;
+  font-style: italic;
+}
+.histDiv {
+  border: 1px solid black;
+  margin-bottom: 5px;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.title {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.fill-space {
+  /*This fills the remaining space, by using flexbox.*/
+  flex: 1 1 auto;
+}

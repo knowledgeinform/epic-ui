@@ -1,0 +1,15 @@
+.button-container {
+  > :not(:last-child) {
+    margin-inline-end: 10px;
+  }
+}
+
+table {
+  width: 100%;
+}
+
+.mat-column-acceptsAllSignatures,
+.mat-column-isEnabled
+{
+  width: 75px;
+}

@@ -1,0 +1,45 @@
+<div class="uploadfilecontainer" *ngIf="(!isReadOnly || redliningEnabled) && !isOffline" (click)="fileInput.click()" appDragDropDirective (onFileDropped)="uploadFile($event)">
+  <div class="instructionsDiv">
+    <mat-icon color="primary">cloud_upload</mat-icon>
+    <span color="primary">&nbsp;Drop files to attach, or click to browse.</span>
+  </div>
+  <input hidden type="file" multiple #fileInput (change)="uploadFile($event.target.files)">
+</div>
+<div class="files-list" *ngFor="let attachment of attachments;let i= index">
+  <!-- apply redline background if is not an original editType -->
+  <div class="flex-auto flex-row"
+       [class]="attachment.editType !== EditType.REDLINE_DELETE && attachment.editType !== EditType.REDLINE_ADD ? '' : 'red-line-background'">
+
+    <div class="flex-column flex-15 justify-start items-stretch content-stretch">
+      <!-- icons to indicate redlining -->
+      <mat-icon *ngIf="attachment?.editType === EditType.REDLINE_DELETE" class="red-line" matTooltip="This is a red line deletion">delete_forever</mat-icon>
+      <mat-icon *ngIf="attachment?.editType === EditType.REDLINE_ADD" class="red-line" matTooltip="This is a red line addition">add_box</mat-icon>
+    </div>
+    <div class="flex-column flex-70 justify-center items-center content-center">
+      <div *ngIf="attachment.isImage">
+        <app-image-display-component class="fullWidth" [attachmentPk]="attachment.pk" [filename]="attachment.originalFilename" [editType]="attachment.editType"></app-image-display-component>
+        <span [class]="attachment.editType !== EditType.REDLINE_DELETE ? 'link-style' : ''" (click)="downloadAttachment(attachment.pk, attachment.editType)">
+          {{ attachment.originalFilename }}
+        </span>
+      </div>
+
+      <div *ngIf="!attachment.isImage">
+      <span [class]="attachment.editType !== EditType.REDLINE_DELETE ? 'link-style' : ''" (click)="downloadAttachment(attachment.pk, attachment.editType)">
+        {{ attachment.originalFilename }}
+      </span>
+      </div>
+    </div>
+
+    <div class="flex-column flex-15 justify-end items-end content-end">
+      <div class="flex-row" *ngIf="attachment.editType !== EditType.REDLINE_DELETE">
+        <button *ngIf="!isOffline" mat-icon-button title="Download Attachment" (click)="downloadAttachment(attachment.pk, attachment.editType)">
+          <mat-icon>file_download</mat-icon>
+        </button>
+        <button *ngIf="(!isReadOnly || redliningEnabled) && !isOffline" mat-icon-button title="Delete Attachment" (click)="deleteAttachment(attachment.pk, attachment.originalFilename)">
+          <mat-icon>delete_forever</mat-icon>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

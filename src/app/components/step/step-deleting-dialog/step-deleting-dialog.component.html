@@ -1,0 +1,17 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">Delete Step</h2>
+<div mat-dialog-content>
+  <h3>WARNING!</h3>
+  Deleting this step will delete step <b>{{ step | stepDisplayName | uppercase }}</b>.
+  Click "Cancel" to cancel this action. If you're sure you want to delete this step,
+  click "Delete Step". <b>This action is not reversible.</b>
+  <div [hidden]="!isRedlineDelete">
+    <hr>
+    <app-red-black-line-comment #commentInput [disableForSaving]="" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+  </div>
+</div>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button mat-raised-button button color="primary" *ngIf="isRedlineDelete" (click)="cancelRedline()">Cancel</button>
+  <button mat-raised-button button color="primary" *ngIf="!isRedlineDelete" mat-dialog-close>Cancel</button>
+  <button mat-raised-button *ngIf="!isRedlineDelete || commentInput.isValid"
+          button (click)="deleteStep()">Delete Step</button>
+</div>

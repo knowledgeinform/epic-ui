@@ -1,0 +1,20 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">Copy Group</h2>
+<div mat-dialog-content>
+  <div class="flex-row justify-center items-stretch content-stretch">
+    <mat-form-field class="form-field">
+      <mat-label>Select new parent group</mat-label>
+      <mat-select [disabled]="disableForSaving" [(value)]="parentSelected" (selectionChange)="setSelection($event.value)">
+        <mat-option *ngFor="let option of allOptions" [value]="option">{{option.selectDisplayName}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div [hidden]="!isRedlineAdd">
+    <hr>
+    <app-red-black-line-comment #commentInput [disableForSaving]="disableForSaving" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+  </div>
+</div>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button mat-raised-button button *ngIf="isRedlineAdd" (click)="cancelRedline()">Cancel</button>
+  <button mat-raised-button button *ngIf="!isRedlineAdd" mat-dialog-close>Cancel</button>
+  <button mat-raised-button button *ngIf="parentSelected && (!isRedlineAdd || (isRedlineAdd && commentInput.isValid))" color="primary" [disabled]="disableForSaving" (click)="copyGroup()">Copy</button>
+</div>

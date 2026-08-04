@@ -1,0 +1,47 @@
+<ng-container *ngIf="target">
+
+  <h2 *ngIf="needsManualValidation()"
+        mat-dialog-title class="flex-row justify-center items-stretch content-stretch">{{target | blacklineCommentDialogContent:'title'}}</h2>
+
+  <h2 *ngIf="isManualValidation()" mat-dialog-title class="flex-row justify-center items-stretch content-stretch">Remove Manual Completion of Step</h2>
+
+  <div mat-dialog-content  class="dialogContent">
+    <div [hidden]="!needsManualValidation()">
+      <h3>WARNING!</h3>
+      <p>{{target | blacklineCommentDialogContent:'p1'}} </p>
+      <p>{{target | blacklineCommentDialogContent:'p2'}}</p>
+
+    </div>
+    <div *ngIf="isManualValidation()">
+      <h3>WARNING!</h3>
+      <p>{{target | blacklineCommentDialogContent:'p3'}}</p>
+      <p>{{target | blacklineCommentDialogContent:'p4'}}</p>
+    </div>
+    <div class="commentDiv" [hidden]="!fetchIsDone">
+
+      <form [formGroup]="manualValidationForm">
+
+        <mat-checkbox *ngIf="needsManualValidation()" color="accent" formControlName="manualValidation">{{target | blacklineCommentDialogContent:'p5'}}</mat-checkbox>
+
+        <mat-checkbox *ngIf="isManualValidation()" color="accent" formControlName="manualValidation">{{target | blacklineCommentDialogContent:'p6'}}</mat-checkbox>
+
+        <app-red-black-line-comment #commentInput [disableForSaving]="!fetchIsDone" [comment]="blackLine"></app-red-black-line-comment>
+
+      </form>
+
+    </div>
+    <ng-container *ngIf="!fetchIsDone">
+      <div>Processing Black Line...</div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </ng-container>
+  </div>
+  <div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+
+    <button mat-raised-button button color="primary" mat-dialog-close>Cancel</button>
+    <button mat-raised-button button *ngIf="needsManualValidation()"
+            (click)="submitManualValidation()" [disabled]="manualValidationForm.invalid || !commentInput.isValid">{{target | blacklineCommentDialogContent:'p7'}}</button>
+    <button mat-raised-button button *ngIf="isManualValidation()" (click)="submitRemoval()"
+            [disabled]="manualValidationForm.invalid || !commentInput.isValid">Remove Manual Completion and Submit Black Line</button>
+  </div>
+
+</ng-container>

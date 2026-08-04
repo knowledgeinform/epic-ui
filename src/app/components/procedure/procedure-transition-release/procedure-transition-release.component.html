@@ -1,0 +1,28 @@
+<fieldset>
+  <legend>Release Procedure</legend>
+
+  <div class="flex-column justify-evenly items-stretch content-stretch">
+    <div class="instructionDiv">All "Approvers" must approve the procedure before it can be released and made available to users for runs.</div>
+    <mat-divider></mat-divider>
+    <div class="sectionDiv">
+      <div *ngIf="procedureData.procedureApprovals" class="flex-column justify-start items-stretch content-stretch">
+        <!-- Active Approvers-->
+        <div *ngFor="let approver of approvers" class="activeApproverDivDisplay">
+          <span>
+             <mat-icon class="headerAlignment" [style.color]="approver.approverDisabled ? (approver.isApproved | disabledApproverIsApprovedColor):(approver.isApproved | approverIsApprovedColor)"
+                       title="{{approver | approverIsApprovedTitle}}}">{{approver | approverIsApprovedIcon}}</mat-icon>
+            <span class="headerAlignment">{{approver.users.displayName}}</span>
+            <!--TODO: ADD BUTTON TO "REMIND" USER TO REVIEW IF STILL "WAITING" -->
+            <mat-divider></mat-divider>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="buttonDiv">
+      <button id="returnToDraftButton" mat-raised-button color="warn" (click)="returnToDraft()"><mat-icon>cancel</mat-icon> Return to Draft</button>
+      <button id="readyForReleaseButton" mat-raised-button color="primary" (click)="readyForRelease()" [disabled]="isReadyForRelease == false"><mat-icon>thumb_up</mat-icon> Ready for Release</button>
+    </div>
+  </div>
+
+</fieldset>
+

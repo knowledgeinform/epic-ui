@@ -1,0 +1,17 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">Change Step Type</h2>
+<div mat-dialog-content>
+  <div class="flex-column justify-center items-stretch content-stretch">
+    <p>Choose the new step type for this step.</p>
+    <p>**If changing from a 'Table' step to another step type, all of the table information will be lost. This operation is not reversible!</p>
+    <mat-form-field class="form-field">
+      <mat-label>Select New Step Type</mat-label>
+      <mat-select [disabled]="disableForSaving" [(value)]="typeSelected" (selectionChange)="setSelection($event.value)">
+        <mat-option *ngFor="let option of entryTypes" [value]="option.value">{{option.display}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button mat-raised-button button mat-dialog-close>Cancel</button>
+  <button mat-raised-button button *ngIf="typeSelected" color="primary" [disabled]="disableForSaving" (click)="changeStepType()">Change Type</button>
+</div>

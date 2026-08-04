@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>edu.jhuapl.sd.sig</groupId>
+  <artifactId>EPIC-UI</artifactId>
+  <version>1.8.4-SNAPSHOT</version>
+  <!--  <packaging></packaging>-->
+
+  <name>EPIC-UI - Electronic Procedure Implementation Catalog User Interface</name>
+
+  <properties>
+  </properties>
+
+  <parent>
+    <groupId>edu.jhuapl.sd.sig.migs</groupId>
+    <artifactId>SIGParent</artifactId>
+    <version>1.4.0</version>
+  </parent>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <!-- defining the jar plugin because an artifact needs to be created.
+            but excluding jar creation because there isn't one -->
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <!--      <plugin>-->
+      <!--        <artifactId>maven-war-plugin</artifactId>-->
+      <!--        <version>3.2.2</version>-->
+      <!--        <configuration>-->
+      <!--          <failOnMissingWebXml>false</failOnMissingWebXml>-->
+      <!--          <webResources>-->
+      <!--            <resource>-->
+      <!--              <directory>dist/EPIC</directory>-->
+      <!--            </resource>-->
+      <!--          </webResources>-->
+      <!--        </configuration>-->
+      <!--      </plugin>-->
+      <!-- Create the deployment assembly -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.8.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <appendAssemblyId>false</appendAssemblyId>
+          <descriptors>
+            <descriptor>configAssembly.xml</descriptor>
+          </descriptors>
+          <tarLongFileMode>posix</tarLongFileMode>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+  </dependencies>
+</project>

@@ -1,0 +1,31 @@
+<form #form="ngForm" (submit)="submit()" class="create-program-form">
+
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input
+      matInput
+      name="name"
+      [(ngModel)]="prog.name"
+      required
+    >
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Code</mat-label>
+    <input
+      matInput
+      name="code"
+      [(ngModel)]="prog.code"
+      required
+    >
+  </mat-form-field>
+
+  <button
+    mat-stroked-button
+    type="submit"
+    [disabled]="!form.valid"
+  >Submit</button>
+
+  <span class="status">{{status}}</span>
+
+</form>

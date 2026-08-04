@@ -1,0 +1,12 @@
+.choiceDiv {
+  padding: 5px;
+  text-align: center;
+}
+
+.approve-color {
+  color: #00d000;
+}
+
+.reject-color {
+  color: #d00000;
+}

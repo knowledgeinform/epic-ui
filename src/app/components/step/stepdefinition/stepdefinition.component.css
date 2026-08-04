@@ -1,0 +1,33 @@
+.step-field {
+  width: 100%;
+}
+
+/*.left-column {*/
+/*  margin-right: 5px;*/
+/*}*/
+
+/*.right-column {*/
+/*  margin-left: 5px;*/
+/*}*/
+
+.readonly-wrapper {
+  cursor: not-allowed;
+}
+
+.readonly-wrapper .readonly-block {
+  pointer-events: none;
+}
+
+.step-icon-align {
+  align-self: center;
+  margin-top: 8px;
+}
+
+.flag-checkbox-label {
+  vertical-align: super;
+}
+
+div.form-checkbox-container {
+  margin-bottom: 20px;
+}
+

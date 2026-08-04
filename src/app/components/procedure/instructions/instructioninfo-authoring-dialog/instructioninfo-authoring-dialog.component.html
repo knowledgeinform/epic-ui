@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Add New Instruction Section</h2>
+<div mat-dialog-content class="dialogContent">
+  <form [formGroup]="form" class="dialogContent">
+    <mat-form-field>
+      <mat-label>Section Title</mat-label>
+      <input id="instructionInformationAddSectionTitle" #instructionSectionName [readonly]="saving" matInput formControlName="sectionName" required (keypress)="saveSectionEnter($event)" cdkFocusInitial maxLength="100">
+      <mat-hint align="end">{{instructionSectionName.value?.length || 0}}/100</mat-hint>
+      <mat-error *ngIf="form.get('sectionName').invalid && (form.get('sectionName').dirty || form.get('sectionName').touched)">Section Title is required.</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Position</mat-label>
+      <input id="instructionInformationAddSectionPosition" [readonly]="saving" matInput formControlName="displayOrder" type="number" min="1" max="{{procedureData.procedureInstructions.length+1}}" (keypress)="saveSectionEnter($event)">
+      <mat-error *ngIf="form.get('displayOrder').invalid && (form.get('displayOrder').dirty || form.get('displayOrder').touched)">Enter a value between 1 and {{procedureData.procedureInstructions.length+1}}</mat-error>
+    </mat-form-field>
+    <div [hidden]="!redliningEnabled">
+      <hr>
+      <app-red-black-line-comment #commentInput [disableForSaving]="saving" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+    </div>
+  </form>
+  <div class="savingLabel flex-row justify-end items-stretch content-stretch" *ngIf="saving">
+    Saving Section...
+  </div>
+</div>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button mat-raised-button button *ngIf="redliningEnabled" (click)="cancelRedline()">Cancel</button>
+  <button id="instructionInformationAddSectionCancel" *ngIf="!redliningEnabled" mat-raised-button button mat-dialog-close [disabled]="saving">Cancel</button>
+  <button id="instructionInformationAddSectionOk" mat-raised-button button color="primary"
+          *ngIf="form.valid && (!redliningEnabled || (redliningEnabled && commentInput.isValid))"
+          (click)="saveSection()" [disabled]="saving">Save</button>
+</div>
+

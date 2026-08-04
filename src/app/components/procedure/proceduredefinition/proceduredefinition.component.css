@@ -1,0 +1,18 @@
+.dialogContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogContent > * {
+  width: 100%;
+}
+
+.icon-align {
+  /*align-self: center;*/
+  /*margin-top: 8px;*/
+  vertical-align: sub;
+}
+
+.flag-checkbox-label {
+  vertical-align: super;
+}

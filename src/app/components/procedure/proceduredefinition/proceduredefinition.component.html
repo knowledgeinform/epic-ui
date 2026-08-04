@@ -1,0 +1,54 @@
+<form [formGroup]="form" class="dialogContent">
+  <mat-form-field id="createNewProcedureName">
+    <mat-label>Procedure Name</mat-label>
+    <input formControlName="name" #nameInput matInput maxlength="255" (keyup)="onSubmit()" required>
+    <mat-hint align="end">{{nameInput.value?.length || 0}}/255</mat-hint>
+    <mat-error *ngIf="form.get('name').invalid && (form.get('name').dirty || form.get('name').touched)">Name is required.</mat-error>
+  </mat-form-field>
+  <mat-form-field id="createNewProcedureDescription">
+    <mat-label>Description</mat-label>
+    <textarea formControlName="description" matInput #descInput maxlength="255" (keyup)="onSubmit()" required></textarea>
+    <mat-hint align="end">{{descInput.value?.length || 0}}/255</mat-hint>
+    <mat-error *ngIf="form.get('description').invalid && (form.get('description').dirty || form.get('description').touched)">Description is required.</mat-error>
+  </mat-form-field>
+  <ng-container *ngIf="selectionLoadComplete || (data.programs && data.subsystems) else loading ">
+    <mat-form-field id="createNewProcedureProgram">
+      <mat-label>Program</mat-label>
+      <mat-select formControlName="program" (selectionChange)="onSubmit()" required>
+        <mat-option id="procedureProgramDropdown" *ngFor="let program of data.programs" [value]="program.pk">
+          {{program.code}}: {{program.name}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('program').invalid && (form.get('program').dirty || form.get('program').touched)">Program is required.</mat-error>
+    </mat-form-field>
+    <mat-form-field id="createNewProcedureSubsystem">
+      <mat-label>Subsystem</mat-label>
+      <mat-select formControlName="subsystem" (selectionChange)="onSubmit()" required>
+        <mat-option id="procedureSubsystemDropdown" *ngFor="let subsystem of data.subsystems" [value]="subsystem.pk">
+          {{subsystem.code}}: {{subsystem.name}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('subsystem').invalid && (form.get('subsystem').dirty || form.get('subsystem').touched)">Subsystem is required.</mat-error>
+    </mat-form-field>
+  </ng-container>
+  <mat-checkbox id="createNewProcedureIsEsd0" #esd0Checkbox formControlName="esd0" (change)="onSubmit()">
+      <app-checkbox-esd0></app-checkbox-esd0>
+  </mat-checkbox>
+  <mat-checkbox id="createNewProcedureIsHazardous" #hazardCheckbox formControlName="hazardous" color="primary" (change)="onSubmit()">
+    <mat-icon class="icon-align warning-icon-color-hazard" matTooltip="Check if this procedure is hazardous.">warning</mat-icon>
+    Procedure is hazardous
+  </mat-checkbox>
+  <mat-form-field *ngIf="hazardCheckbox.checked" id="createNewProcedureHazardousDescription">
+    <mat-label>Hazard description</mat-label>
+    <input formControlName="hazardDescription" #hazardDescriptionInput matInput maxlength="2048" (keyup)="onSubmit()" required matTooltip="Include hazard classification, names of reference documents, etc.">
+    <mat-hint align="end">{{hazardDescriptionInput.value?.length || 0}}/2048</mat-hint>
+    <mat-error *ngIf="form.errors?.invalidDescription && (form.get('hazardDescription').dirty || form.get('hazardDescription').touched)">Hazard description is required.</mat-error>
+  </mat-form-field>
+</form>
+<div *ngIf="error" class="alert alert-danger">
+  {{ error }}
+</div>
+<ng-template #loading>
+  <div>Loading selections...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

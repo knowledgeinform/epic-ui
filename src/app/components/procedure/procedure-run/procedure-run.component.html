@@ -1,0 +1,385 @@
+<div class="flex-100 flex-column" *ngIf="fetchIsDone; else fetchingPlaceholder">
+  <app-procedure-hazard-banner [procedure]="procedureData"></app-procedure-hazard-banner>
+  <div class="controlBar flex-no-grow flex-row flex-wrap justify-start items-center content-center gap-15">
+    <ng-container *ngIf="run">
+
+      <app-offline-availability-indicator [available]="run.availableOffline"></app-offline-availability-indicator>
+
+    </ng-container>
+    <ng-container *ngIf="procedureData" >
+
+      <mat-icon
+        matTooltip="Validation Errors"
+        [attr.aria-label]="'Number of validation errors remaining in this run: ' + runValidationService.procedureValidation[procedureData.pk].selfAndChildErrorCount"
+        *ngIf="runValidationService.procedureValidation[procedureData.pk]"
+        [matBadge]="runValidationService.procedureValidation[procedureData.pk].selfAndChildErrorCount"
+      >error</mat-icon>
+
+      <mat-icon
+        matTooltip="Non-Conformances"
+        *ngIf="runNonconformanceService.runNonconformances[run.pk]"
+        [matBadge]="runNonconformanceService.runNonconformances[run.pk] | nonconformanceCount"
+        [attr.aria-label]="'Number of nonconformances in this run: ' + (runNonconformanceService.runNonconformances[run.pk] | nonconformanceCount)"
+      >warning</mat-icon>
+
+      <span
+        matTooltip="Red-Line Edits"
+        [attr.aria-label]="'Number of red lines in this run: ' + redLineReportingService.totalRedLineCount.getCount(procedureData.pk)"
+        *ngIf="redLineReportingService.totalRedLineCount.getCount(procedureData.pk) > 0"
+        class="strikethrough red-line text-icon"
+        [matBadge]="redLineReportingService.totalRedLineCount.getCount(procedureData.pk)"
+      >RL</span>
+
+      <span
+        matTooltip="Black-Line Edits"
+        [attr.aria-label]="'Number of black lines in this run: ' + redLineReportingService.totalBlackLineCount.getCount(procedureData.pk)"
+        *ngIf="redLineReportingService.totalBlackLineCount.getCount(procedureData.pk) > 0"
+        class="strikethrough text-icon"
+        [matBadge]="redLineReportingService.totalBlackLineCount.getCount(procedureData.pk)"
+      >BL</span>
+
+      <mat-icon
+        matTooltip="Run Closeout Stickies"
+        [attr.aria-label]="'Number of run closeout stickies on this run: ' + stickyReportingService.totalCountOfStickiesInProcedure[procedureData.pk]"
+        *ngIf="run.status !== RunStatus.RUNNING && stickyReportingService.totalCountOfStickiesInProcedure[procedureData.pk] > 0"
+        [matBadge]="stickyReportingService.totalCountOfStickiesInProcedure[procedureData.pk]"
+      >sticky_note_2</mat-icon>
+    </ng-container>
+
+    <span class="flex"></span>
+
+    <div
+      class="flex-column justify-end items-center content-center"
+    >
+      <div
+        class="flex-row justify-end items-center content-center"
+      >
+
+        <!-- Show actions buttons or dropdown. -->
+        <ng-container *ngIf="media.isActive('lt-md'); else actionsTemplate">
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="actionsMenu"
+            aria-label="Click here to access a menu of run options"
+          >
+            <mat-icon>menu</mat-icon>
+          </button>
+          <mat-menu #actionsMenu="matMenu">
+            <mat-list>
+              <ng-container *ngTemplateOutlet="actionsTemplate"></ng-container>
+            </mat-list>
+          </mat-menu>
+        </ng-container>
+
+         <ng-template #actionsTemplate>
+
+          <app-icon-menu-button
+            *ngIf="!offlineService.offline && (run?.status === RunStatus.RUNNING || run?.status === RunStatus.CORRECTING)"
+            [description]="readOnly | lockButtonText"
+            [doOnClick]="toggleReadOnly"
+            [disabled]="offlineService.offline"
+            [attr.aria-label]="readOnly | lockButtonText"
+          >
+            <mat-icon>{{ readOnly ? 'lock' : 'lock_open'}}</mat-icon>
+          </app-icon-menu-button>
+
+          <!-- The button should not appear if this is an original procedure, a locked run, or a non-closeout run-->
+          <button id="bulkValidateButton"
+          mat-icon-button
+          [disabled]="readOnly"
+          (click)="openBulkValidateDialog($event)"
+          *ngIf="procedureData?.editType !== 'ORIGINAL' && ((run?.status === RunStatus.RUNNING || run?.status === RunStatus.CORRECTING) && !redAndBlackLiningOffline())"
+          matTooltip="Bulk validate groups/steps"
+          aria-label="Click here to bulk validate groups and steps"
+          >
+            <mat-icon>playlist_add_check</mat-icon>
+          </button>
+          <app-icon-menu-button
+            *ngIf="procedureData?.editType !== 'ORIGINAL' && (procedureData?.editType !== 'LOCKED_RUN' && (run?.status === RunStatus.RUNNING || run?.status === RunStatus.CORRECTING) && !redAndBlackLiningOffline())"
+            description="Toggle Red-Line Editing"
+            [doOnClick]="toggleRedLineEditMode"
+            [selected]="procedureData?.redliningEnabled"
+            aria-label="Toggle the red line editing mode on and off"
+            [attr.aria-selected]="procedureData?.redliningEnabled"
+            >
+            <span class="red-line strikethrough text-icon">RL</span>
+          </app-icon-menu-button>
+
+          <!-- Divide toggles from actions. -->
+          <span class="vr" *ngIf="media.isActive('gt-sm')"></span>
+          <hr *ngIf="media.isActive('lt-sm')">
+
+          <app-icon-menu-button
+            description="Update Step Values from Server"
+            [doOnClick]="refreshValues"
+            aria-label="Click here to refresh the run with data from the server"
+          >
+            <mat-icon>refresh</mat-icon>
+          </app-icon-menu-button>
+
+          <app-icon-menu-button
+            *ngIf="!redAndBlackLiningOffline() && (run?.status === RunStatus.RUNNING || run?.status === RunStatus.CORRECTING)"
+            description="Black-Line Edit the Procedure"
+            [doOnClick]="createProcedureLevelBlackLine"
+            aria-label="Click here to create a run-level black line"
+          >
+            <span class="strikethrough text-icon">BL</span>
+          </app-icon-menu-button>
+          <app-icon-menu-button
+            *ngIf="!offlineService.offline && isLatestRevision && redLineReportingService.totalRedLineCount.getCount(procedureData.pk) > 0"
+            description="Create a Revision"
+            [doOnClick]="createRevision"
+            aria-label="Click here to create a new revision of the procedure for this run"
+          >
+            <mat-icon>file_copy</mat-icon>
+          </app-icon-menu-button>
+
+          <app-icon-menu-button
+            *ngIf="run && run?.status !== RunStatus.RUNNING"
+            [doOnClick]="toggleRunApprovalComments"
+            description="View Close-out Approval Comments"
+          >
+            <mat-icon>question_answer</mat-icon>
+          </app-icon-menu-button>
+
+          <app-icon-menu-button
+            *ngIf="!offlineService.offline"
+            description="Export Run"
+            [doOnClick]="exportRun"
+            aria-label="Click here to export the run"
+          >
+            <mat-icon>file_download</mat-icon>
+          </app-icon-menu-button>
+
+          <app-icon-menu-button
+            description="Print Run"
+            [doOnClick]="print"
+            aria-label="Click here to print the run"
+          >
+            <mat-icon>print</mat-icon>
+          </app-icon-menu-button>
+
+        </ng-template>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="offwhite-background flex-row gap-10">
+    <mat-form-field class="offset-10">
+      <mat-select name="runViewSelect"
+                  [(value)]="selectionIndex"
+                  (selectionChange)="onSelectionChange()"
+                  role="listbox"
+                  aria-label="Select a section of the run to view"
+                  >
+        <mat-option [value]="0" role="option" aria-label="Header">Header</mat-option>
+        <mat-option [value]="1" role="option" aria-label="Instruction Information">Instruction Information</mat-option>
+        <mat-option [value]="2" role="option" aria-label="Attachments">Attachments</mat-option>
+        <mat-option [value]="3" role="option" aria-label="Equipment">Equipment</mat-option>
+        <mat-option [value]="4" role="option" aria-label="Steps">Steps</mat-option>
+        <mat-option [value]="5" role="option" aria-label="Run Activity Summary">Run Activity Summary</mat-option>
+        <mat-option [value]="6" role="option" aria-label="Close-out">Close-Out</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="flex-row flex justify-start items-center content-center">
+      <app-procedure-instruction-toolbar
+        *ngIf="selectionIndex == 1"
+        [(procedureData)]="procedureData"
+        [redliningEnabled]="procedureData?.redliningEnabled"
+        [isLockedFromEditing]="readOnly"
+        [runPk]="run.pk"
+        (expandInstructionsChange)="expandInstructions=$event"
+      >
+      </app-procedure-instruction-toolbar>
+      <app-procedure-steps-toolbar
+        *ngIf="selectionIndex == 4"
+        [procedureData]="procedureData"
+        [redliningEnabled]="procedureData?.redliningEnabled"
+        [isLockedFromEditing]="readOnly"
+        [run]="run"
+        (expandStepsChange)="expandSteps=$event"
+        (openSideNavChange)="viewNav=$event"
+      ></app-procedure-steps-toolbar>
+    </div>
+  </div>
+  <mat-sidenav-container class="sidenav-container flex-row">
+
+    <mat-sidenav class="offwhite-background mat-elevation-z6 gt-md:flex-30 md:flex-30 lt-md:flex-0-1-350px xs:flex-0-1-100" *ngIf="run?.status !== RunStatus.RUNNING" position="end" mode="side" [(opened)]="commentsWindowOpen">
+      <div class="flex-row">
+        <app-icon-menu-button [doOnClick]="toggleRunApprovalComments">
+          <mat-icon>close</mat-icon>
+        </app-icon-menu-button>
+        <span class="flex-100"></span>
+      </div>
+      <mat-tab-group class="flex-fill" color="primary" backgroundColor="" mat-align-tabs="start">
+        <mat-tab class="flex-row flex-fill" label="Approver Actions">
+          <app-run-approver-comment-display class="flex" [run]="run" [isReadonly]="readOnly"
+                                             (runChange)="refreshValues()"></app-run-approver-comment-display>
+        </mat-tab>
+        <mat-tab class="flex-fill" label="Run Closeout Stickies">
+          <app-run-closeout-sticky-comment-summary class="flex-fill"
+                                                   [procedureData]="procedureData"></app-run-closeout-sticky-comment-summary>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="content flex flex-column">
+      <div *ngIf="selectionIndex <= 0">
+
+        <fieldset class="epic-fieldset" *ngIf="run">
+          <legend>Run Details</legend>
+          <div class="flex-row xs:flex-column gap-10">
+            <mat-form-field class="flex-50">
+              <mat-label>ID</mat-label>
+              <input matInput readonly value="{{run.procedureDetails.id}}"
+                     [attr.aria-label]="'The id for this run is ' + run.procedureDetails.id"
+                     aria-readonly="true"
+              >
+            </mat-form-field>
+            <mat-form-field class="flex-50">
+              <mat-label>Run Number</mat-label>
+              <input matInput readonly value="{{run.procedureDetails.runNumber}}"
+                     [attr.aria-label]="'The run number for this run is ' + run.procedureDetails.runNumber"
+                     aria-readonly="true"
+              >
+            </mat-form-field>
+
+          </div>
+          <div class="flex-row xs:flex-column gap-10"
+               >
+            <mat-form-field class="flex-50 xs:flex-100">
+              <mat-label>Name</mat-label>
+              <input
+                matInput
+                readonly
+                value="{{run.name}}"
+                aria-readonly="true"
+                [attr.aria-label]="'The name for this run is ' + run.name"
+              >
+            </mat-form-field>
+
+            <mat-form-field class="flex-50 xs:flex-100">
+              <mat-label>Started By</mat-label>
+              <input
+                matInput
+                readonly
+                value="{{run.user.displayName}}"
+                aria-readonly="true"
+                [attr.aria-label]="'The run was started by ' + run.user.displayName"
+              >
+            </mat-form-field>
+
+          </div>
+          <div class="flex-row xs:flex-column gap-10 gt-xs:justify-center gt-xs:items-end gt-xs:content-end"
+          >
+            <mat-form-field class="flex-50 xs:flex-100">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                readonly
+                value="{{run.description}}"
+                aria-readonly="true"
+                [attr.aria-label]="'The description for this run is ' + run.description"
+              ></textarea>
+            </mat-form-field>
+
+            <mat-form-field class="flex-50 xs:flex-100">
+              <mat-label>Creation Date</mat-label>
+              <input
+                matInput
+                readonly
+                value="{{run.createdDate | date: 'medium'}}"
+                aria-readonly="true"
+                [attr.aria-label]="'This run was created on ' + (run.createdDate | date: 'medium')"
+              >
+            </mat-form-field>
+
+          </div>
+          <div class="flex-row xs:flex-column gap-10"
+               >
+            <mat-form-field class="flex-50 xs:flex-100">
+              <mat-label>Phase</mat-label>
+              <input
+                matInput
+                readonly
+                value="{{run.testingPhase.code}} - {{run.testingPhase.name}}"
+                aria-readonly="true"
+                [attr.aria-label]="'The testing phase name for this run is ' + run.testingPhase.name"
+              >
+            </mat-form-field>
+
+            <div class="flex-50 xs:flex-100">
+              <app-procedure-favorite [procedureDetailsId]="run.procedureDetails.pk" [(userFavoriteList)]="run.procedureDetails.favoriteUsers"></app-procedure-favorite>
+            </div>
+          </div>
+        </fieldset>
+
+        <app-procedure-hazard [(procedureData)]="procedureData" (procedureDataChange)="updateProcedureData($event)"
+                              [isLockedFromEditing]="true"></app-procedure-hazard>
+        <app-procedureheader
+          [(procedureData)]="run.procedureDetails.originalProcedureDetails"
+          [run]="run"
+          [redliningEnabled]="procedureData?.redliningEnabled"
+          [isLockedFromEditing]="true"
+        ></app-procedureheader>
+      </div>
+
+      <div *ngIf="selectionIndex === 1">
+        <app-procedure-instruction-info-container #instructionContainer
+                                                  [(procedureData)]="procedureData"
+                                                  [redliningEnabled]="procedureData?.redliningEnabled"
+                                                  [isLockedFromEditing]="readOnly"
+                                                  [runPk]="run.pk"
+                                                  [isExpand]="expandInstructions"
+        ></app-procedure-instruction-info-container>
+      </div>
+
+      <div *ngIf="selectionIndex === 2">
+        <div class="flex-fill">
+          <app-upload-file-component *ngIf="run" [isReadOnly]="readOnly" [(attachments)]="run.attachments" [parentPk]="run.pk"
+                                     [attachmentType]="AttachmentType.RUN" [run]="run" (runChange)="onRunChange($event)"></app-upload-file-component>
+        </div>
+      </div>
+
+      <div *ngIf="selectionIndex === 3">
+        <app-procedure-run-equipment-entry
+          [run]="run"
+          [(equipment)]="run.equipmentList"
+          [readOnly]="readOnly"
+          (equipmentDelete)="onRunChange($event)"
+        >
+        </app-procedure-run-equipment-entry>
+      </div>
+
+      <div *ngIf="selectionIndex === selectionIndexForStepsPage">
+        <app-procedurestepscontainer
+          [procedureData]="procedureData"
+          [blackliningEnabled]="enableBlackLining"
+          [isLockedFromEditing]="readOnly"
+          [run]="run"
+          [expandAllMainContent]="expandSteps"
+          [sideNavOpen]="viewNav"
+        ></app-procedurestepscontainer>
+      </div>
+      <div *ngIf="selectionIndex === 5">
+        <app-run-summary [run]="run"
+                         [nonconformances]="runNonconformanceService.runNonconformances[run.pk]"
+            [validationErrors]="runValidationService.procedureValidation[procedureData.pk]"
+                         [isReadonly]="readOnly || (run.status !== RunStatus.RUNNING && run.status !== RunStatus.CORRECTING)"
+        ></app-run-summary>
+      </div>
+      <div *ngIf="selectionIndex >= 6">
+        <app-run-closeout-container [run]="run" [validationErrors]="runValidationService.procedureValidation[procedureData.pk]"
+                                    [isReadonly]="readOnly || (run.status !== RunStatus.RUNNING && run.status !== RunStatus.CORRECTING)"
+                                    (reload)="refreshValues()">
+        </app-run-closeout-container>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
+
+<ng-template #fetchingPlaceholder>
+  <div>Retrieving procedure...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

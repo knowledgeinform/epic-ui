@@ -1,0 +1,44 @@
+<p>{{stickyReportingService.totalCountOfStickiesInProcedure[procedureData?.pk] | lineEditCountText : CommentType.RUN_CLOSEOUT_STICKY_COMMENT}}</p>
+<div *ngIf="stickyReportingService.totalCountOfStickiesInProcedure[procedureData?.pk] > 0">
+  <button mat-raised-button color="primary" (click)="expandAllStickies = !expandAllStickies">Expand/Collapse All</button>
+
+  <!-- TODO: Add procedure level and instruction stickies -->
+  <!--  <p>Procedure Stickies - {{lineEditReportingService.procedureLevelRedLines[procedureData.pk].length}} Red Line(s)</p>-->
+  <!--  <p>Instruction Red Lines - {{lineEditReportingService.instructionRedLineCount[procedureData.pk]}} Red Line(s)</p>-->
+  <!--    <mat-accordion [multi]="true">-->
+  <!--      <mat-expansion-panel *ngFor="let instruction of lineEditReportingService.instructionRedLines[procedureData.pk]"-->
+  <!--                           [expanded]="expandRedLinesAll">-->
+  <!--        <mat-expansion-panel-header>-->
+  <!--          <mat-panel-title>-->
+  <!--            {{instruction.displayOrder}}. {{instruction.sectionName}}-->
+  <!--          </mat-panel-title>-->
+  <!--        </mat-expansion-panel-header>-->
+  <!--        <app-line-edit-comments *ngFor="let redLine of instruction.redLineComments" [comment]="redLine"-->
+  <!--                                [procedureData]="procedureData"></app-line-edit-comments>-->
+  <!--      </mat-expansion-panel>-->
+  <!--    </mat-accordion>-->
+  <p>Step Group Stickies - {{stickyReportingService.totalCountOfGroupsWithStickyComments[procedureData.pk]}} Sticky Comment(s)</p>
+  <mat-accordion [multi]="true">
+    <mat-expansion-panel *ngFor="let stepGroup of stickyReportingService.groupsWithStickyComments[procedureData.pk]"
+                         [expanded]="expandAllStickies">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{stepGroup | stepGroupDisplayOrder}} {{stepGroup.stepGroupName}}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-run-closeout-sticky-comment [readonly]="true" [(procedureData)]="procedureData" [stepGroup]="stepGroup"></app-run-closeout-sticky-comment>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <p>Step Stickies - {{stickyReportingService.totalCountOfStepsWithStickyComments[procedureData.pk]}} Sticky Comment(s)</p>
+  <mat-accordion [multi]="true">
+    <mat-expansion-panel *ngFor="let step of stickyReportingService.stepsWithStickyComments[procedureData.pk]"
+                         [expanded]="expandAllStickies">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{step | stepDisplayOrder}} {{step | stepDisplayName}}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-run-closeout-sticky-comment [readonly]="true" [(procedureData)]="procedureData" [step]="step"></app-run-closeout-sticky-comment>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

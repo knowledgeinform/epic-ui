@@ -1,0 +1,37 @@
+h2 {
+  margin: 0;
+}
+
+.controlBar{
+  padding: 10px;
+  background-color: #fafafa;
+  flex-direction: row;
+}
+
+.controlBar > button,
+.controlBar > a {
+  margin-right: 10px;
+}
+
+.fill-space {
+  /*This fills the remaining space, by using flexbox.*/
+  flex: 1 1 auto;
+}
+
+.offwhite-background {
+  background-color: #fafafa;
+}
+
+.comment-toggle-alignment {
+  align-self: center;
+  padding: 5px;
+}
+
+.procedure-ui-header {
+  z-index: 999;
+  position: sticky;
+  top: 0;
+}
+.mat-sidenav#procedureSideNav {
+  width: 1600px; /*Specify very big number to force fxFlex 25% to force on max-width is 25% of screen */
+}

@@ -1,0 +1,55 @@
+.uploadfilecontainer {
+  height: 50px;
+  border: 2px dashed #1C8ADB;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadfilecontainer:hover {
+  cursor: pointer;
+  background-color: #9ecbec !important;
+  opacity: 0.8;
+}
+
+.instructionsDiv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instructionsDiv {
+  opacity: .8;
+}
+
+.files-list {
+  display: flex;
+  justify-content: space-between;
+  /*width: 80%;*/
+  margin: 10px auto;
+  background: #ffffff;
+  border: 1px dashed;
+  border-radius: 12px;
+  padding: 5px;
+  color: #1c8adb;
+}
+
+.files-list button {
+  display: flex;
+}
+
+.link-style {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/*.files-list .delete-file {*/
+/*  background: transparent;*/
+/*  border: none;*/
+/*  cursor: pointer;*/
+/*}*/
+
+/*.files-list .delete-file img {*/
+/*  width: 30px;*/
+/*}*/

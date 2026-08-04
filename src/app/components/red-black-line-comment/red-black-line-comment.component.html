@@ -1,0 +1,18 @@
+<ng-container *ngIf="comment">
+  <p *ngIf="comment.commentType === CommentType.RED_LINE_COMMENT">You have enabled red line mode and made a red line. Changes must be recorded with a red line comment. Please select the type of change you are making, and write a comment below.</p>
+  <p *ngIf="comment.commentType === CommentType.BLACK_LINE_COMMENT">You are recording a procedure level black line comment. Please select the type of change you are making, and write a comment below.</p>
+
+  <app-comment-change-type-select
+    [(procedureChangeType)]="comment.procedureChangeType"
+    [program]="comment.procedureDetails.procedureDef?.program"
+    (procedureChangeTypeChange)="onCommentTextChange()"
+  >
+  </app-comment-change-type-select>
+
+  <mat-form-field class="full-width">
+    <mat-label>Enter a new comment here.</mat-label>
+    <textarea [disabled]="disableForSaving" matInput cdkTextareaAutosize #commentText required [(ngModel)]="comment.commentText" (ngModelChange)="onCommentTextChange($event)" maxlength="2048"></textarea>
+    <mat-hint align="end">{{commentText.value?.length || 0}}/2048</mat-hint>
+    <mat-error *ngIf="!commentText.value || commentText.value?.length === 0">Comment is required.</mat-error>
+  </mat-form-field>
+</ng-container>

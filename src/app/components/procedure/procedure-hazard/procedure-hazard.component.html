@@ -1,0 +1,67 @@
+<fieldset class="epic-fieldset hazard-fieldset warning-border-color-hazard">
+  <legend class="epic-fieldset warning-text-color-hazard">Hazard Information</legend>
+  <div class="flex-row gap-10" [ngClass]="procedureData?.hazardous ? 'warning-text-color-hazard' : ''">
+    <div class="flex-column flex-25">
+      <mat-checkbox
+        name="esd0-checkbox"
+        [disabled]="isLockedFromEditing && !procedureData.redliningEnabled"
+        [attr.aria-disabled]="isLockedFromEditing && !procedureData.redliningEnabled"
+        id="procedureHeaderIsEsd0"
+        [(ngModel)]="procedureData.esd0"
+        (ngModelChange)="saveProcedureDetailsEsd0($event)"
+        class="warning-checkbox"
+        color="primary"
+        [attr.aria-checked]="procedureData.esd0"
+        [matTooltip]="!isLockedFromEditing || procedureData.redliningEnabled ? 'Check box if this procedure is ESD Class 0.' : ''"
+        [attr.aria-label]="!isLockedFromEditing || procedureData.redliningEnabled ? 'Check box if this procedure is ESD Class 0.' : ''"
+      >
+        <app-checkbox-esd0></app-checkbox-esd0>
+      </mat-checkbox>
+      <span class="esd-label">Refer to QL2-060, Electrostatic Discharge Control</span>
+      <mat-checkbox [disabled]="isLockedFromEditing && !procedureData.redliningEnabled"
+                    [attr.aria-disabled]="isLockedFromEditing && !procedureData.redliningEnabled"
+                    id="procedureHeaderIsHazardous" #hazardCheckbox [(ngModel)]="procedureData.hazardous"
+                    (ngModelChange)="saveProcedureDetailsHazard($event)"
+                    color="primary"
+                    [attr.aria-checked]="procedureData.hazardous"
+                    [attr.aria-label]="!isLockedFromEditing || procedureData.redliningEnabled ? 'Check box if this procedure is hazardous.' : ''"
+                    [matTooltip]="!isLockedFromEditing || procedureData.redliningEnabled ? 'Check box if this procedure is hazardous.' : ''"
+      >
+        <mat-icon class="icon-align warning-icon-color-hazard" >warning</mat-icon>
+        <span class="flag-checkbox-label warning-text-color-hazard" aria-label="Procedure is Hazardous"> Procedure is Hazardous</span>
+      </mat-checkbox>
+    </div>
+  </div>
+  <div class="flex-row gap-10">
+    <div class="procHeaderDetailsDiv warning-text-color-hazard flex-column flex-100">
+      <div *ngIf="hazardCheckbox.checked">
+        <mat-form-field  class="hazard-description" *ngIf="!printMode; else descriptionPrintModeTemplate"
+                         id="procedureHeaderHazardousDescription">
+                <mat-label>Hazard description, including Hazard Class (See SD-WI-301-01, Section 4.0 and Appendix A)</mat-label>
+                <textarea [readonly]="isLockedFromEditing && !procedureData.redliningEnabled" matInput maxlength="2048" required
+                          id="hazardous-description-box"
+                          [matTooltip]="!isLockedFromEditing || procedureData.redliningEnabled ? 'Include hazard classification, names of reference documents, etc.' : ''"
+                          [ngModelOptions]="{standalone: true}"
+                          [(ngModel)]="hazardDescription"
+                          [attr.aria-label]="!isLockedFromEditing || procedureData.redliningEnabled ? 'Include hazard classification, names of reference documents, etc.' : ''"
+                          [attr.aria-readonly]="isLockedFromEditing && !procedureData.redliningEnabled"
+                >
+                  {{hazardDescription}}
+                </textarea>
+          <mat-hint class="procedure-header-hint-align" *ngIf="!isLockedFromEditing" align="end">{{hazardDescription?.length || 0}}/2048</mat-hint>
+          <button *ngIf="!isLockedFromEditing || procedureData.redliningEnabled" matSuffix mat-button color="primary"
+                  id="procedureHeaderHazardButton" (click)="saveProcedureDetailsHazard($event)"
+                  aria-label="Save hazard description for this procedure"
+          >
+            <mat-icon title="Save">save</mat-icon>
+          </button>
+          <mat-error *ngIf="hazardDescription?.length === 0">Hazard description is required.</mat-error>
+        </mat-form-field>
+        <ng-template #descriptionPrintModeTemplate>
+          <p>{{hazardDescription}}</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</fieldset>
+

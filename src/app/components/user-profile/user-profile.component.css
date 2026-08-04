@@ -1,0 +1,17 @@
+.profile-field {
+  margin: 15px;
+}
+
+.profile-header {
+  margin: 15px;
+}
+
+.profile-visibility-icon {
+  align-self: center;
+  cursor: pointer;
+}
+
+.pin-change-display-field {
+  margin-left: 20px;
+  margin-top: 5px;
+}

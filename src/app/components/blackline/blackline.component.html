@@ -1,0 +1,40 @@
+<div *ngIf="step" class="comment-section-title">
+  Black Lines
+</div>
+
+<!-- list of existing blacklines -->
+<app-line-edit-comments *ngFor="let comment of dataObject?.blackLineComments" [isReadOnly]="isReadOnly" [procedureData]="procedureData" [comment]="comment"></app-line-edit-comments>
+
+<!-- add a new comment here -->
+<div *ngIf="!isReadOnly">
+  <div class="commentDiv new-comment-border" *ngIf="enableAddBlackLine ? (fetchIsDone ? true : fetchingPlaceholder) : false">
+    <form [formGroup]="blackLineForm">
+      <mat-form-field class="comment-form-field">
+        <mat-label>Enter a new comment here.</mat-label>
+        <textarea matInput cdkTextareaAutosize #commentText formControlName="commentText" maxlength="2048"></textarea>
+        <mat-hint align="end">{{commentText.value?.length || 0}}/2048</mat-hint>
+      </mat-form-field>
+
+      <app-comment-change-type-select
+        [(procedureChangeType)]="changeType"
+        [program]="procedureData.procedureDef.program"
+        (procedureChangeTypeChange)="onSelectChange($event)"
+      >
+      </app-comment-change-type-select>
+
+      <div class="buttonLayout">
+        <span class="fill-space"></span>
+        <button id="runAddBlackLineClear" mat-raised-button color="" type="reset" (click)="clearBlackLine()" class="flex-row justify-end items-stretch content-stretch">Clear</button>
+        <button id="runAddBlackLineSubmit" mat-raised-button color="primary" focus type="submit" (click)="submitBlackLine()" [disabled]="blackLineForm.invalid">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<ng-template #fetchingPlaceholder>
+  <div>Processing Black Line...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>
+
+
+

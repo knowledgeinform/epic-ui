@@ -1,0 +1,14 @@
+.container {
+  margin: 20px;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.remove-button {
+  visibility: hidden;
+}
+.container:hover .remove-button {
+  visibility: visible;
+}

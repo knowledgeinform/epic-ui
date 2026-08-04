@@ -1,0 +1,30 @@
+<fieldset class="epic-fieldset">
+  <legend class="epic-fieldset">Approval Status</legend>
+  <p *ngIf="!run.runApprovals || run.runApprovals.length === 0">There are no approvers selected for this run close-out.</p>
+  <mat-chip-listbox class="mat-chip-list-stacked">
+    <ol>
+      <li *ngFor="let approver of run.runApprovals">
+        <mat-chip-option class="auto-width" [selectable]="false" [removable]="false" color="primary">
+          {{approver.users.displayName}}
+          <mat-icon class="margin-left" [style.color]="approver.isApproved | approverIsApprovedColor"
+                    title="{{approver | approverIsApprovedTitle}}">
+            {{approver | approverIsApprovedIcon}}
+          </mat-icon>
+        </mat-chip-option>
+      </li>
+    </ol>
+  </mat-chip-listbox>
+</fieldset>
+<fieldset class="epic-fieldset" *ngIf="jwtService.currentUserName === run.closeoutSubmissionUser.username || jwtService.getCurrentUser().isAdmin">
+  <legend class="epic-fieldset">Transition Run Close-out</legend>
+  <div class="buttonDiv">
+    <button mat-raised-button color="warn" [disabled]="transitioningRun" (click)="transitionToCorrectingStatus()">
+      <mat-icon>{{RunStatus.CORRECTING | runStatusIcon}}</mat-icon> Make Corrections to Run</button>
+    <button mat-raised-button color="primary" [disabled]="transitioningRun || run.status !== RunStatus.APPROVED || run.procedureDetails.runCloseoutStickyComments.length > 0" (click)="transitionToCompletedStatus()">
+      <mat-icon>thumb_up</mat-icon> Complete Run Close-out
+    </button>
+    <div class="savingLabel flex-row justify-end items-stretch content-stretch" *ngIf="transitioningRun">
+      Transitioning Run...
+    </div>
+  </div>
+</fieldset>

@@ -1,0 +1,14 @@
+version: '3.7'
+volumes:
+  node_modules:
+services:
+  epic-ui:
+    build:
+      context: ../
+      dockerfile: docker/dev.Dockerfile
+    volumes:
+      - ../:/workspace
+      - node_modules:/workspace/node_modules
+    ports:
+      - "4200:4200"
+      - "49153:49153"

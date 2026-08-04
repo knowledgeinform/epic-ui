@@ -1,0 +1,19 @@
+<div
+  class="choiceDiv flex-row gap-10"
+  *ngIf="approval | showApprovalControls: isReadonly"
+>
+  <mat-button-toggle
+    [disabled]="isReadonly || approval.approverDisabled"
+    (click)="onButtonClick(true)"
+    [checked]="approval.isApproved === true"
+  >Approve
+    <mat-icon class="approve-color">check_circle</mat-icon>
+  </mat-button-toggle>
+  <mat-button-toggle
+    [disabled]="isReadonly || approval.approverDisabled"
+    (click)="onButtonClick(false)"
+    [checked]="approval.isApproved === false"
+  >Reject
+    <mat-icon class="reject-color">cancel</mat-icon>
+  </mat-button-toggle>
+</div>

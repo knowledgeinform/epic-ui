@@ -1,0 +1,34 @@
+<section class="scroll"
+     infiniteScroll
+     [scrollWindow]="false"
+     [infiniteScrollDistance]="2"
+     [infiniteScrollContainer]="selector"
+     [fromRoot]="true"
+     (scrolled)="onScroll()"
+>
+  <div *ngIf="numOfResults && numOfResults > 0; else noResultsTemplate">
+    <div class='search-field'>
+      <div *ngIf="editType === 'ORIGINAL'; else runResults">
+        <div *ngFor="let result of results">
+          <app-global-search-card-result [procedureDetails]="result" (selection)="selectDetails($event)"></app-global-search-card-result>
+        </div>
+      </div>
+      <ng-template #runResults>
+        <div *ngFor="let result of results">
+          <app-global-search-card-run-result [procedureDetails]="result" (selection)="selectDetails($event)"></app-global-search-card-run-result>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+  <ng-template #noResultsTemplate>
+    <p *ngIf="firstSearch && allResultsLoaded && resultsFromParentLoaded" class="center-text">There are no results for the given search parameters.</p>
+  </ng-template>
+
+  <div *ngIf="!allResultsLoaded && resultsFromParentLoaded">
+    <mat-progress-bar color="primary" mode="indeterminate"></mat-progress-bar>
+  </div>
+
+  <ng-template #unavailableOfflineMessageTemplate>
+    <p>Search is unavailable while offline.</p>
+  </ng-template>
+</section>

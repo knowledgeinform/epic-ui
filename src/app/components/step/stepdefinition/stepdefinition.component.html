@@ -1,0 +1,98 @@
+<form [formGroup]="form">
+  <div class="flex-column justify-around items-stretch content-stretch">
+    <div class="flex-row lt-lg:flex-column justify-start items-stretch content-stretch gap-10">
+      <div class="gt-sm:flex-60 flex-row xs:flex-100 xs:flex-row xs:flex-wrap justify-start items-start content-start gap-10"
+           >
+        <div class="flex-100">
+          <mat-form-field class="step-field" appearance="outline">
+            <mat-label>Step Name</mat-label>
+            <input id="stepNameInput" [readonly]="disableForSaving" matInput #stepNameInput formControlName="stepName" maxlength="100" placeholder="Enter the step name" (keyup)="onSubmit()" type="text">
+            <mat-hint align="end">{{stepNameInput.value?.length || 0}}/100</mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="gt-xs:flex-20">
+          <mat-form-field class="step-field" appearance="outline">
+            <mat-label>Display Order</mat-label>
+            <input id="stepDisplayOrderInput" [readonly]="disableForSaving" matInput formControlName="displayOrder"
+                   matTooltip="Enter the display order as a whole number. EPIC will automatically apply outline numbering."
+                    (keyup)="onSubmit()" required type="number"/>
+            <mat-error *ngIf="form.get('displayOrder').invalid && (form.get('displayOrder').dirty || form.get('displayOrder').touched)">
+              Display order between 1 and {{maxDisplayOrder}} is required.</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="flex-40 flex-row justify-start items-start content-start xs:flex-row xs:flex-wrap gap-10">
+        <div class="gt-xs:flex-50 flex-column">
+            <mat-checkbox class="flex" id="requireWitnessCheckbox" [disabled]="disableForSaving" formControlName="requireWitness" color="primary" (change)="onSubmit()">
+              <mat-icon class="step-icon-align witness" matTooltip="This step requires non-SMA witnessing or verification.">person</mat-icon>
+              <span class="flag-checkbox-label"> Non-SMA Witness/Verify</span>
+            </mat-checkbox>
+          <mat-checkbox id="hazardousStepCheckbox" [disabled]="disableForSaving" formControlName="hazardous" color="primary" (change)="onSubmit()">
+            <mat-icon class="step-icon-align warning-icon-color-hazard" matTooltip="This step is marked hazardous.">warning</mat-icon>
+            <span class="flag-checkbox-label"> Hazardous</span>
+          </mat-checkbox>
+          <mat-checkbox id="enableEquipmentListCheckbox" formControlName="allowEquipmentEntry" color="primary" (change)="onSubmit()">
+            <mat-icon class="step-icon-align equipment" matTooltip="This step requires equipment entry.">build</mat-icon>
+            <span class="flag-checkbox-label"> Enable Equipment List</span>
+          </mat-checkbox>
+        </div>
+        <div class="gt-xs:flex-50 flex-column">
+          <mat-checkbox
+            id="esd0StepCheckbox"
+            [disabled]="disableForSaving"
+            formControlName="esd0"
+            (change)="onSubmit()"
+            color="primary"
+          >
+            <app-checkbox-esd0 prefix=""></app-checkbox-esd0>
+          </mat-checkbox>
+          <mat-checkbox id="mandatoryInspectionCheckbox" [disabled]="disableForSaving" formControlName="mandatoryInspection" color="primary" (change)="onSubmit()">
+            <mat-icon class="step-icon-align inspection" matTooltip="This is an SMA mandatory inspection step.">assignment_turned_in</mat-icon>
+            <span class="flag-checkbox-label"> SMA Mandatory Inspection</span>
+          </mat-checkbox>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-column">
+      <p *ngIf="form.get('hazardous').value" class="warning-text-color-hazard">This step is being marked as HAZARDOUS. Please include information about the hazard in the step instructions.</p>
+      <fieldset class="epic-fieldset"><legend class="epic-legend">Step Instructions</legend>
+        <app-summernote-editor [text]="form.get('instructions').value" (textChange)="receiveTextChange($event)" required >
+        </app-summernote-editor>
+      </fieldset>
+    </div>
+
+    <!-- TODO: Refactor needed here to allow for uploading attachments before a step exists in the database; i.e. authoring a new step. -->
+    <div class="flex-column" *ngIf="isEdit">
+      <fieldset class="epic-fieldset">
+        <legend class="epic-legend">Step Attachments</legend>
+        <app-upload-file-component [isReadOnly]="false" [redliningEnabled]="redliningEnabled"
+                                   [attachments]="step.stepDefAttachments" [parentPk]="step.pk"
+                                   [attachmentType]="AttachmentType.STEP_DEF" [step]="step"
+                                   [procedureData]="procedureData"
+                                   (attachmentsChange)="hideCancelDueToAttachmentsChange($event)"></app-upload-file-component>
+      </fieldset>
+    </div>
+
+    <div class="flex-column">
+      <mat-form-field id="valueEntryDropdownOptions">
+        <mat-label>Step Type</mat-label>
+        <mat-select id="valueEntryDropdown" [disabled]="disableForSaving || isEdit" formControlName="type" (selectionChange)="onSubmit()" required>
+          <mat-option [id]="'option_'+type.value" *ngFor="let type of entryTypes" [value]="type.value"> {{type.display}}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('type').invalid && (form.get('type').dirty || form.get('type').touched)">Type of value entry is required.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="form.get('type').value === 'TABLE'" class="flex-column justify-center items-stretch content-stretch cross-axis-max-100">
+        <app-tablestepentry class="flex" [readonly]="false" 
+          [disableForSaving]="disableForSaving" 
+          [step]="step" 
+          [procedureData]="procedureData" 
+          [stepGroup]="stepGroup" 
+          [showEditingControls]="true" 
+          [redliningEnabled]="redliningEnabled"
+          (tableIsGone)="receiveTableIsGone($event)"></app-tablestepentry>
+    </div>
+  </div>
+</form>

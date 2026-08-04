@@ -1,0 +1,16 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">Step Selection for Manual Validation</h2>
+
+<div>
+    <mat-progress-bar *ngIf="fetching" mode="query"></mat-progress-bar>
+    <div class="treeWrapper">
+      <app-multi-select-groups-steps [showNotValidatedOnly] = "true" [procedureData]="procedureData"
+        (selectionsChange)="receiveStepsSelection($event)" (fetchingChange)="fetching=$event">
+      </app-multi-select-groups-steps>
+      </div>
+    <div mat-dialog-actions>
+      <button mat-raised-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="primary" focus type="submit" *ngIf="checklistSelection.selected.length > 0" (click)="bulkBlacklineComment()">Manually Mark Selected Steps as Done</button>
+    </div>
+  <div class="treeWrapper">
+  </div>
+  </div>

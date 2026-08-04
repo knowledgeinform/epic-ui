@@ -1,0 +1,43 @@
+<h1 class="profile-header">Profile</h1>
+<div class="profile-field flex-column justify-center content-around" *ngIf="fetchIsDone; else fetchingPlaceholder">
+  <div class="flex-row justify-start items-stretch content-around">
+    <mat-form-field>
+      <mat-label>Last Login</mat-label>
+      <input matInput [value]="user.lastLogin | date:'short'" readonly>
+    </mat-form-field>
+  </div>
+  <div class="flex-row justify-start items-stretch content-around">
+    <mat-form-field>
+      <mat-label>Username</mat-label>
+      <input matInput value="{{user.username}}" readonly>
+    </mat-form-field>
+  </div>
+  <div class="flex-row justify-start items-stretch content-around">
+    <mat-form-field>
+      <mat-label>Display Name</mat-label>
+      <input matInput value="{{user.displayName}}" readonly>
+    </mat-form-field>
+  </div>
+  <div class="flex-row justify-start items-stretch content-around">
+    <mat-form-field>
+      <mat-label>Pin</mat-label>
+      <input matInput id="user-pin-box" type="{{pinDisplayType}}" value="{{user.pin}}" readonly>
+    </mat-form-field>
+    <div class="profile-visibility-icon" id="profileViewerButton" (click)="togglePinDisplay()">
+      <mat-icon *ngIf="displayPin">visibility_off</mat-icon>
+      <mat-icon *ngIf="!displayPin">visibility</mat-icon>
+    </div>
+  </div>
+  <div style="display: flex">
+    <button id="change-the-pin-button" mat-raised-button (click)="displayPinChange()" color="primary" [disabled]="disablePinChangeButton">
+      Change Pin
+    </button>
+  </div>
+  <app-pin-change class="pin-change-display-field" [hidden]="!pinChangeDisplay" (cancelPin)="hidePinChange()"
+                  (userInfoChange)="updateUserInfo($event)" [user]="user"></app-pin-change>
+</div>
+
+<ng-template #fetchingPlaceholder>
+  <div>Retrieving user profile...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

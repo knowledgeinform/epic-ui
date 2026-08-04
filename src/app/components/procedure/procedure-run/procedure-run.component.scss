@@ -1,0 +1,72 @@
+.controlBar{
+  padding: 10px;
+  background-color: #fafafa;
+}
+
+.offwhite-background {
+  background-color: #fafafa;
+}
+
+h2 {
+  margin-left: 10px;
+  margin-bottom: 0px;
+}
+
+// Fieldset styles
+$fieldsetColor: #00506B;
+fieldset.epic-fieldset {
+  border-color: $fieldsetColor;
+}
+fieldset.epic-fieldset > legend {
+  color: $fieldsetColor;
+  margin-bottom: 10px;
+}
+
+.procedure-ui-header {
+  z-index: 999;
+  position: sticky;
+  top: 0;
+}
+
+.vr {
+  border-left: 2px;
+  border-color: black;
+  border-left-style: solid;
+  height: 24px;
+  margin-right: 8px;
+  margin-left: 13px; // Extra margin because the text icon has more width than other icons.
+}
+
+button[mat-icon-button] span {
+  font-size: 20px;
+
+  // Vertically center:
+  display: inline-block;
+  padding-bottom: 2px;
+}
+
+button.selected {
+  background-color: lightgrey;
+  border: 1px solid black;
+}
+
+.text-icon {
+  font-size: x-large;
+  font-family: serif;
+}
+
+// Fix alignment on text icon vs. icon badges.
+::ng-deep .text-icon > .mat-badge-content {
+  top: -10px !important; // Relative to a height of 22px, I believe.
+}
+
+
+// Allow mat-badges to show more 1 character:
+::ng-deep mat-icon > .mat-badge-content,
+::ng-deep .text-icon > .mat-badge-content {
+  border-radius: 13px; // Half calculated height.
+  min-width: 13px !important; // With padding, maintain circle shape.
+  width: auto !important;
+  padding: 0px 4px !important;
+  box-sizing: content-box;
+}

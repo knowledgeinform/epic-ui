@@ -1,0 +1,78 @@
+@use '@angular/material' as mat;
+
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-typography-config());`
+@include mat.all-component-typographies();
+@include mat.core();
+
+$fieldset-color: #00506B;
+$primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+
+
+fieldset.epic-fieldset {
+  border: solid 2px $fieldset-color;
+  border-color: $fieldset-color;
+}
+fieldset.epic-fieldset legend {
+  color: $fieldset-color;
+  margin-bottom: 10px;
+}
+
+.user-item, .doc-item {
+  border: 2px solid $fieldset-color;
+  padding: 5px;
+  margin: 5px;
+}
+
+.spinner-wrapper {
+  display: flex;
+  padding: 0 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button {
+  /*  vertical-align: bottom;*/
+  line-height: 0;
+}
+
+.icon-button:hover {
+  cursor: pointer;
+}
+
+
+.procHeaderDetailsDiv * {
+  width: 100%;
+}
+
+.clickable.disabled {
+  pointer-events: none;
+  cursor: default !important;
+}
+
+.procedure-header-hint-align {
+  flex: 0;
+}
+
+.icon-align {
+  align-self: center;
+  margin-top: 8px;
+}
+
+.hazard-description {
+  margin-top: 10px;
+}
+
+.epic-fieldset mat-checkbox {
+  font-weight: bold;
+}
+
+.flag-checkbox-label {
+  vertical-align: super;
+}

@@ -1,0 +1,24 @@
+
+.dashboard-section {
+  /*border: 2px solid black;*/
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.search-widget-fieldset {
+  border: solid 2px #640d6b;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.search-widget-legend {
+  color: #640d6b;
+  padding: 0px 10px; /* To give a bit of padding on the left and right */
+  font-style: italic;
+  font-size: larger;
+}
+
+.search-widget-section {
+  margin-top: 5px;
+  width: 100%;
+}

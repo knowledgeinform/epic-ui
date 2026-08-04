@@ -1,0 +1,23 @@
+<mat-form-field class="change-type-field">
+  <mat-label>Change Type</mat-label>
+  <mat-select
+    required
+    [ngModel]="procedureChangeType"
+    (selectionChange)="onSelectChange($event)"
+  >
+    <mat-option
+      *ngFor="let changeType of changeTypes"
+      [value]="changeType"
+    >{{changeType.name}}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<p *ngIf="procedureChangeType" class="approval-roles-note">
+  <ng-container *ngIf="!procedureChangeType.acceptsAllSignatures; else noApprovalsRequiredTemplate">
+    <ng-container *ngIf="procedureChangeType.requiredRoleApprovals?.length; else noRolesSetTemplate">
+      Requires approval by {{procedureChangeType.requiredRoleApprovals | joinProp:'name':', ':' and '}}.
+    </ng-container>
+    <ng-template #noRolesSetTemplate>Warning: No roles are allowed to sign off on this change. Please contact your administrator if this seems incorrect.</ng-template>
+  </ng-container>
+  <ng-template #noApprovalsRequiredTemplate>Anyone can sign off on this change.</ng-template>
+</p>

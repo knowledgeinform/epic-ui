@@ -1,0 +1,112 @@
+#input {
+  border: 1px solid blue;
+}
+
+.scrollTable {
+  display: grid;
+}
+
+.inputTable {
+  border-collapse: collapse;
+  min-width: 50%;
+  margin: 10px 10px 100px;
+}
+
+mat-form-field, textarea  {
+  width: 100%;
+}
+
+.inputTable th {
+  alignment: center;
+}
+
+.inputTable th, .inputTable td{
+  border: 1px solid gray;
+  height: 20px;
+}
+.inputTable tr {
+  height: 20px;
+  min-height: 20px;
+  white-space: break-spaces;
+}
+
+.inputTable tr td.buttonColumnTD:last-child{
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+}
+
+.inputTable tr:last-child td.buttonRowTD {
+  border-right:none;
+  border-left: none;
+  border-bottom:none;
+}
+
+.inputTable tr:nth-child(odd) {
+  background: #d6d6d6;
+}
+
+.addRow, .addColumn {
+  color: #6aa9ff;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+}
+
+.deleteRow, .deleteColumn {
+  color: #ff786d;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+}
+
+td.table-buttons {
+  background-color: white;
+  white-space: nowrap;
+}
+
+.is-editableRequired {
+  background-color: #a1dcf4;
+}
+
+.is-editableOptional {
+  background-color: #fad6d6;
+}
+
+.is-highlighted {
+  background-color: #efd300;
+  contenteditable: true;
+}
+
+td.invalid {
+  border: 2px solid red !important;
+}
+
+.buttonColumnTD {
+  width: 50px;
+}
+
+/*override for shift select*/
+.selectStart {
+  border: 2px dashed black !important;
+}
+
+.white-icon {
+  color: white;
+}
+
+.width-fit-content {
+  width: fit-content;
+  min-width: 5px;
+}
+
+.attribute-edit-mode th,
+.attribute-edit-mode td {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.position-fixed {
+  position: fixed;
+}
+

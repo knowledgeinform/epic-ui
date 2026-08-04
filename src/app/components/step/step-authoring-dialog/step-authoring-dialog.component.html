@@ -1,0 +1,15 @@
+<mat-toolbar color="primary" class="dialog-title">
+  <span>Add Step To Group:</span>
+  <span class="dialog-title-group-name">{{stepGroup.stepGroupName}}</span>
+</mat-toolbar>
+<mat-dialog-content>
+  <app-stepdefinition [isEdit]="false" [disableForSaving]="saving" (formChange)="receiveStep($event)" [step]="null" [stepGroup]="stepGroup" [procedureData]="procedureData"></app-stepdefinition>
+  <div class="savingLabel flex-row justify-end items-stretch content-stretch" *ngIf="saving">
+    Saving Step...
+  </div>
+</mat-dialog-content>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button id="addStepCancelButton" mat-raised-button button mat-dialog-close [disabled]="saving">Cancel</button>
+  <button id="addStepOkButton" mat-raised-button button *ngIf="formForUpdatedStep && (formForUpdatedStep.get('type').value !== 'TABLE' || stepDefinitionComponent.tableStepEntry?.currentTable)" color="primary" (click)="saveStep()" [disabled]="saving">OK</button>
+</div>
+

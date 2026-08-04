@@ -1,0 +1,129 @@
+<div class="flex-100 flex-column" *ngIf="fetchIsDone; else fetchingPlaceholder">
+  <app-procedure-hazard-banner [procedure]="procedureData"></app-procedure-hazard-banner>
+  <div class="controlBar flex-row flex-wrap justify-end items-stretch content-stretch gap-10">
+    <button *ngIf="(procedureData | canEditProcedureOrRun: procedureData.redliningEnabled) && !offlineService.offline"
+            mat-icon-button
+            class="run-button icon-button"
+            (click)="isLockedFromEditing = !isLockedFromEditing"
+            [matTooltip]="isLockedFromEditing | lockButtonText"
+            aria-label="{{isLockedFromEditing | lockButtonText}}"
+    >
+      <mat-icon>{{ isLockedFromEditing ? 'lock' : 'lock_open'}}</mat-icon>
+    </button>
+    <button
+        mat-stroked-button
+        *ngIf="ProcedureStatus[procedureData?.status] === ProcedureStatus.READY"
+        (click)="exportRuns()"
+        aria-label="Export all runs for this procedure"
+      >
+      Export Runs
+    </button>
+    <button
+        mat-stroked-button
+        *ngIf="isLatestRevision && ProcedureStatus[procedureData?.status] === ProcedureStatus.READY"
+        (click)="procedureRevisionService.createRevision(procedureData, procedureDef)"
+        aria-label="Create new revision of this procedure"
+      >
+      Create Revision
+    </button>
+    <a
+      *ngIf="procedureData"
+      mat-stroked-button
+      [routerLink]="['/preview', procedureData.id]"
+      aria-label="Preview the run"
+    >Preview Run
+    </a>
+    <a
+      class="flex-no-grow"
+      *ngIf="procedureData"
+      mat-stroked-button
+      [routerLink]="['/print/procedure', procedureData.id]"
+      aria-label="Print this procedure"
+    >Print</a>
+    <button
+      mat-raised-button
+      class="run-start-button"
+      color="primary" (click)="openRunStart(procedureData.pk)"
+      *ngIf="procedureData?.status === 'READY' && isLatestReleasedRevision"
+      aria-label="Start a new run for this procedure">Start Run</button>
+    <span class="comment-toggle-alignment">
+      <mat-slide-toggle
+        *ngIf="procedureData | showApproverComments"
+        [checked]="commentsWindowOpen"
+        [attr.aria-checked]="commentsWindowOpen"
+        labelPosition="before"
+        (change)="toggleApprovalComments($event)"
+        aria-label="Display/Hide approval decisions and comments for this procedure">Approval Comments</mat-slide-toggle>
+    </span>
+  </div>
+  <div class="offwhite-background flex-row gap-10">
+    <mat-form-field class="offset-10">
+      <mat-select
+        id="procedure-section-mat-select"
+        name="procedureViewSelect"
+        data-testid="procedure-view-select"
+        aria-label="Select procedure section"
+        [(value)]="tabSelectionIndex"
+        role="listbox"
+        (selectionChange)="onSelectionChange()"
+      >
+        <mat-option [value]="0" role="option" aria-label="Header">Header</mat-option>
+        <mat-option [value]="1" role="option" aria-label="Instruction Information">Instruction Information</mat-option>
+        <mat-option [value]="2" role="option" aria-label="Steps">Steps</mat-option>
+        <mat-option [value]="3"
+                    *ngIf="ProcedureStatus[procedureData?.status] === ProcedureStatus.DRAFT"
+                    role="option" aria-label="Submit procedure for approval"
+        >Submit For Approval</mat-option>
+        <mat-option [value]="4"
+                    role="option"
+                    aria-label="Release procedure"
+                    *ngIf="(procedureData?.status | canReleaseProcedure) && (procedureData?.procedureHeader.user.username | canTransitionProcedureOrRun: jwtService)">Release</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="flex-row flex justify-start items-center content-center">
+      <app-procedure-instruction-toolbar
+        *ngIf="tabSelectionIndex == 1"
+        [(procedureData)]="procedureData"
+        [isLockedFromEditing]="isLockedFromEditing"
+        (expandInstructionsChange)="expandInstructions=$event"
+      >
+      </app-procedure-instruction-toolbar>
+      <app-procedure-steps-toolbar
+        *ngIf="tabSelectionIndex == 2"
+        [procedureData]="procedureData"
+        [isLockedFromEditing]="isLockedFromEditing"
+        (expandStepsChange)="expandSteps=$event"
+        (openSideNavChange)="viewNav=$event"
+      ></app-procedure-steps-toolbar>
+    </div>
+  </div>
+  <mat-sidenav-container class="sidenav-container flex-row">
+    <mat-sidenav-content class="content flex flex-column">
+      <div *ngIf="tabSelectionIndex <= 0">
+        <app-procedure-hazard [procedureData]="procedureData" [isLockedFromEditing]="isLockedFromEditing"></app-procedure-hazard>
+        <app-procedureheader [(procedureData)]="procedureData" [isLockedFromEditing]="isLockedFromEditing"></app-procedureheader>
+      </div>
+      <div *ngIf="tabSelectionIndex === 1">
+        <app-procedure-instruction-info-container [(procedureData)]="procedureData"
+                                                  [isLockedFromEditing]="isLockedFromEditing" [isExpand]="expandInstructions"></app-procedure-instruction-info-container>
+      </div>
+      <div *ngIf="tabSelectionIndex === 2">
+        <app-procedurestepscontainer [(procedureData)]="procedureData" [isLockedFromEditing]="isLockedFromEditing" [sideNavOpen]="viewNav" [expandAllMainContent]="expandSteps"></app-procedurestepscontainer>
+      </div>
+      <div *ngIf="tabSelectionIndex === 3">
+        <app-procedure-transition [procedureData]="procedureData" [isLockedFromEditing]="isLockedFromEditing"></app-procedure-transition>
+      </div>
+      <div *ngIf="tabSelectionIndex >= 4">
+        <app-procedure-transition-release [procedureData]="procedureData"></app-procedure-transition-release>
+      </div>
+    </mat-sidenav-content>
+    <mat-sidenav class="sidenav mat-elevation-z6 flex-25 lt-lg:flex-0-1-325px" *ngIf="procedureData | showApproverComments" position="end" mode="side" [(opened)]="commentsWindowOpen" id="procedureSideNav">
+      <app-procedure-approval-comment-display [(procedureData)]="procedureData" [isReadonly]="procedureData.status | approvalCommentsDisplayIsReadonly"></app-procedure-approval-comment-display>
+    </mat-sidenav>
+  </mat-sidenav-container>
+</div>
+
+<ng-template #fetchingPlaceholder>
+  <div>Retrieving procedure...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

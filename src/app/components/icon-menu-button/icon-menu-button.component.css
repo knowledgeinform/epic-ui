@@ -1,0 +1,13 @@
+.list-desc {
+  margin: 5px;
+}
+mat-list-item:hover {
+  background-color: lightgrey;
+  cursor: pointer;
+}
+
+button.selected,
+mat-list-item.selected {
+  background-color: lightgrey;
+  border: 1px solid black;
+}

@@ -1,0 +1,15 @@
+version: '3.7'
+volumes:
+  node_modules:
+services:
+  epic-ui:
+    image: sd-artifactory.jhuapl.edu/sig-docker-local/scaide/epic/epic-ui:${EPIC_VERSION}
+    build:
+      context: ../
+      dockerfile: docker/ui.Dockerfile
+    volumes:
+      - ../:/workspace
+      - ${NODE_MODULES_DIR}:/workspace/node_modules
+    ports:
+      - "4200:4200"
+      - "49153:49153"

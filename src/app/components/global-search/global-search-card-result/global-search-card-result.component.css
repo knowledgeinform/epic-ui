@@ -1,0 +1,11 @@
+.padding-right {
+  padding-right: 10px;
+}
+
+mat-card {
+  cursor: pointer;
+}
+
+mat-card:hover {
+  background-color: lightgray;
+}

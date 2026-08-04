@@ -1,0 +1,155 @@
+<p *ngIf="!readOnly">Use the buttons below to create Roles and Change Types. Roles will appear as columns of the table, and Change Types
+  will appear as rows. Use the table's checkboxes to indicate which roles must sign off for which change types. Use the
+  "delete" buttons next to each item to remove that item.</p>
+
+<p>Change Types marked "Signable by Anyone" will require only one signature, and will be signable by anyone, regardless
+  of their role(s).</p>
+
+<div class="button-container" *ngIf="!readOnly">
+  <button
+    mat-raised-button
+    id="add-role-button"
+    (click)="addRole()"
+    color="primary"
+    [disabled]="readOnly"
+  >Add Role</button>
+  <button
+    mat-raised-button
+    id="add-change-type-button"
+    (click)="addChangeType()"
+    color="primary"
+    [disabled]="readOnly"
+  >Add Change Type</button>
+</div>
+
+<div>
+  <table
+    mat-table
+    [dataSource]="changeTypes"
+    *ngIf="roleCols && changeTypes"
+  >
+
+    <ng-container matColumnDef="acceptsAllSignatures">
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+      >Accepts All Signatures</th>
+      <td
+        mat-cell
+        *matCellDef="let changeType"
+      >
+        <mat-slide-toggle
+          aria-label="acceptsAllSignaturesToggle"
+          [checked]="changeType.acceptsAllSignatures"
+          (change)="toggleChangeTypeAcceptsAllSignatures(changeType)"
+          [disabled]="readOnly"
+        ></mat-slide-toggle>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="isEnabled">
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+      >Enabled</th>
+      <td
+        mat-cell
+        *matCellDef="let changeType"
+      >
+        <mat-slide-toggle
+          aria-label="isEnabledToggle"
+          [checked]="changeType.isEnabled"
+          (change)="toggleChangeTypeIsEnabled(changeType)"
+          [disabled]="readOnly"
+        ></mat-slide-toggle>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+      >Change Type</th>
+      <td
+        mat-cell
+        *matCellDef="let changeType"
+      >{{changeType.name}}
+
+        <button *ngIf="changeType.deletable && !readOnly"
+                mat-icon-button
+                (click)="deleteChangeType(changeType)"
+                mat-tooltip="Delete Change Type"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container
+      *ngFor="let roleCol of roleCols"
+      [matColumnDef]="roleCol"
+    >
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+      >
+        {{roleCol}}
+        <ng-container *ngIf="!readOnly">
+          <button mat-icon-button [matMenuTriggerFor]="roleMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #roleMenu="matMenu" >
+            <ng-container *ngIf="(roles| findInCollection:'name':roleCol) as role">
+
+              <button
+                mat-menu-item
+                (click)="toggleRoleBypassValidation(role)"
+              >
+                <ng-container *ngIf="role.bypassValidation; else bypassValidationAltTemplate">
+                  <mat-icon>check</mat-icon>
+                  Enable Validation
+                </ng-container>
+                <ng-template #bypassValidationAltTemplate>
+                  <mat-icon>close</mat-icon>
+                  Disable Validation
+                </ng-template>
+              </button>
+
+              <button *ngIf="role.deletable"
+                      mat-menu-item
+                      (click)="deleteRole(roleCol)"
+                      color="warn"
+              >
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </ng-container>
+          </mat-menu>
+        </ng-container>
+      </th>
+      <td
+        mat-cell
+        *matCellDef="let changeType"
+      >
+        <mat-checkbox
+          #checkbox
+          aria-label="roleCheckbox"
+          [checked]="changeType.requiredRoleApprovals | changeTypeRequiresRole:roleCol"
+          (change)="toggleRequirement(changeType, roleCol, checkbox.checked)"
+          [disabled]="changeType.acceptsAllSignatures || readOnly"
+        ></mat-checkbox>
+
+      </td>
+    </ng-container>
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="allCols"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: allCols;"
+    ></tr>
+
+  </table>
+</div>

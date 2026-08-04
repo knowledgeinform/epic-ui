@@ -1,0 +1,48 @@
+<div *ngIf="selectedProcedureDetails; else loading">
+  <h4>This will be run {{runNumber}} for procedure {{selectedProcedureDetails.procedureDef.name}}, revision
+    {{selectedProcedureDetails.procedureDefVersion}}</h4>
+  <h5 *ngIf="willBeLocked" class="red-line-warn"><mat-icon class="icon-align">format_strikethrough</mat-icon> A red-lined run already exists for this procedure revision. This run will therefore be LOCKED and not permit new red lines.</h5>
+  <form [formGroup]="form" class="dialogContent">
+    <div class="flex-row">
+      <mat-form-field class="form-field-width" *ngIf="runNameInput; else checkingRunName">
+        <mat-label>Run Name</mat-label>
+        <input #nameInput  [readonly]="disableForSaving" formControlName="name"  matInput maxlength="255" (change)="checkUniqueRunName()" required>
+        <mat-hint align="end">{{nameInput.value?.length || 0}}/255</mat-hint>
+        <mat-error *ngIf="form.get('name').invalid && (form.get('name').dirty || form.get('name').touched)">Name is required.</mat-error>
+      </mat-form-field>
+      <mat-icon class="correct-icon" *ngIf="isValidRunName">done</mat-icon>
+    </div>
+
+    <mat-form-field>
+      <mat-label>Run Description</mat-label>
+      <textarea [readonly]="disableForSaving" formControlName="description" matInput #descInput maxlength="255" (change)="onSubmit()"></textarea>
+      <mat-hint align="end">{{descInput.value?.length || 0}}/255</mat-hint>
+    </mat-form-field>
+    <ng-container *ngIf="selectionLoadComplete || (data.testingPhases); else loading ">
+      <mat-form-field>
+        <mat-label>Testing Phase</mat-label>
+        <mat-select [disabled]="disableForSaving" formControlName="testingPhase" (selectionChange)="onSubmit()" required>
+          <mat-option *ngFor="let phase of data?.testingPhases" [value]="phase.pk">
+            {{phase.code}}: {{phase.name}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('testingPhase').invalid && (form.get('testingPhase').dirty || form.get('testingPhase').touched)">
+          Testing phase is required.</mat-error>
+      </mat-form-field>
+    </ng-container>
+  </form>
+</div>
+<div *ngIf="error" class="alert alert-danger">
+  {{ error }}
+</div>
+<ng-template #loading>
+  <div>Loading selections...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>
+
+<ng-template #checkingRunName>
+  <div class="flex-column flex-100">
+    <div>Checking for unique run name...</div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+</ng-template>

@@ -1,0 +1,92 @@
+<fieldset class="approvals-fieldset">
+  <legend class="approvals-legend">Approvals In Waiting</legend>
+
+  <div *ngIf="!offlineService.offline; else unavailableOfflineMessageTemplate">
+
+    <div class="approvalTableWrapper">
+      <h4>Procedure Approvals</h4>
+        <ng-container *ngIf="procedureApprovals.data.length; else emptyProcedurePlaceholder">
+          <table mat-table [dataSource]="procedureApprovals">
+            <ng-container matColumnDef="pk">
+              <th mat-header-cell *matHeaderCellDef>ID</th>
+              <td mat-cell *matCellDef="let approval">{{approval.id}}</td>
+            </ng-container>
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let approval">{{approval.procApprovalType}}</td>
+            </ng-container>
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let approval">{{approval.procName}}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th class="status-dash" mat-header-cell *matHeaderCellDef>Status</th>
+              <td class="status-dash" mat-cell *matCellDef="let approval">
+                <mat-icon [style.color]="approval.procStatus | procedureStatusColor" matTooltip="{{approval.procStatus}}" [matTooltipPosition]="position">{{approval.procStatus | procedureStatusIcon}}</mat-icon>
+                <!--{{approval.procedureDetails.status}}--></td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="approve(row)"></tr>
+          </table>
+        </ng-container>
+        <ng-template #emptyProcedurePlaceholder>
+          <div class="empty-placeholder" *ngIf="fetchIsDone && !fetchError; else errorPlaceholder" >There are no procedures awaiting your approval.</div>
+        </ng-template>
+    </div>
+    <div [hidden]="!procedureApprovals.data.length">
+      <mat-paginator #procPaginator [pageSizeOptions]="[5, 10, 25, 100]" [pageSize]="localStorage.getItem('procedureApprovalsPageSize')" id="approvalsPerPage" (page)="setPageSizeCookieForProcedureApprovals($event)"></mat-paginator>
+    </div>
+
+    <div class="approvalTableWrapper">
+      <h4>Closeout Approvals</h4>
+      <ng-container *ngIf="closeoutApprovals.data.length; else emptyCloseoutPlaceholder">
+        <table mat-table [dataSource]="closeoutApprovals">
+          <ng-container matColumnDef="pk">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let approval">{{approval.id}}</td>
+          </ng-container>
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let approval">{{approval.procApprovalType}}</td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let approval">
+              <mat-icon [style.color]="approval.runStatus | runStatusColor" matTooltip="{{approval.runStatus}}">{{approval.runStatus | runStatusIcon}}</mat-icon>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Run Name</th>
+            <td mat-cell *matCellDef="let approval">{{approval.runName}}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="closeout(row)"></tr>
+        </table>
+      </ng-container>
+      <ng-template #emptyCloseoutPlaceholder>
+        <div class="empty-placeholder"*ngIf="fetchIsDone && !fetchError; else errorPlaceholder">There are no runs awaiting your closeout approval.</div>
+      </ng-template>
+      <div [hidden]="!closeoutApprovals.data.length">
+        <mat-paginator #closPaginator [pageSizeOptions]="[5, 10, 25, 100]" [pageSize]="localStorage.getItem('closeoutApprovalsPageSize')" (page)="setPageSizeCookieForCloseoutApprovals($event)"></mat-paginator>
+      </div>
+    </div>
+    <ng-template #errorPlaceholder>
+      <ng-container *ngIf="fetchError; else emptyPlaceholder">Error retrieving approvals from the server: {{fetchError}}</ng-container>
+    </ng-template>
+    <ng-template #emptyPlaceholder>
+      <ng-container *ngIf="fetchIsDone; else fetchingPlaceholder">There are no actions awaiting your approval.</ng-container>
+    </ng-template>
+    <ng-template #fetchingPlaceholder>
+      <ng-container>
+        <div>Retrieving approval requests...</div>
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </ng-container>
+    </ng-template>
+
+  </div>
+</fieldset>
+
+
+<ng-template #unavailableOfflineMessageTemplate>
+  <p>Approvals list is unavailable while offline.</p>
+</ng-template>

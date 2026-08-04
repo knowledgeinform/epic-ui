@@ -1,0 +1,12 @@
+.report-display-toolbar {
+  padding: 10px;
+  align-items: center !important;
+}
+
+.report-display-area {
+  padding: 10px;
+}
+
+.report-view {
+  height: 95%;
+}

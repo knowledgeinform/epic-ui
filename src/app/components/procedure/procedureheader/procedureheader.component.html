@@ -1,0 +1,334 @@
+<div class="procedure-header-container">
+  <form class="procedure-header-form">
+    <div class="flex-column justify-evenly items-stretch content-stretch">
+      <fieldset class="epic-fieldset">
+        <legend class="epic-legend epic-fieldset">Procedure Details</legend>
+        <div class="procHeaderDetailsDiv flex-row xs:flex-column gap-10">
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field [routerLink]="['/procedure', procedureData?.id]" class="clickable" [class.disabled]="offlineService.offline" >
+                <mat-label>ID</mat-label>
+                <input matInput
+                       readonly
+                       value="{{procedureData?.id}}"
+                       [attr.aria-label]="'The id for this procedure is ' + procedureData.id"
+                       aria-readonly="true"
+                       aria-placeholder="ID"
+                >
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field>
+                <mat-label>Revision</mat-label>
+                <input matInput
+                       [readonly]="true"
+                       value="{{procedureData?.procedureDefVersion}}"
+                       [attr.aria-label]="'This revision is number ' + procedureData.procedureDefVersion"
+                       aria-readonly="true"
+                       aria-placeholder="Revision"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="procHeaderDetailsDiv flex-row xs:flex-column gap-10">
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field>
+                <mat-label>Procedure Name</mat-label>
+                <input matInput [readonly]="isLockedFromEditing"
+                       id="procedureHeaderProcedureNameInput"
+                       maxlength="255"
+                       [(ngModel)]="procedureName"
+                       [ngModelOptions]="{standalone: true}"
+                       value="{{procedureName}}"
+                       [attr.aria-readonly]="isLockedFromEditing"
+                       [attr.aria-label]="'This procedure name is ' + procedureName"
+                       aria-placeholder="Procedure name"
+                >
+                <mat-hint class="procedure-header-hint-align"
+                          align="end"
+                          *ngIf="!isLockedFromEditing"
+                          aria-label='This procedure name can be no more than 255 characters long'
+                >{{procedureName.length || 0}}/255</mat-hint>
+                <button *ngIf="!isLockedFromEditing"
+                        matSuffix
+                        mat-button color="primary"
+                        id="procedureHeaderProcedureNameButton"
+                        (click)="saveProcedureName()"
+                        aria-label="Save procedure name"
+                ><mat-icon title="Save">save</mat-icon></button>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field>
+                <mat-label>Author</mat-label>
+                <input
+                  matInput
+                  id="procedure-author-textbox"
+                  value="{{procedureData?.procedureHeader?.user?.displayName}}"
+                  [readonly]="true"
+                  [attr.aria-label]="'The procedure author is ' + procedureData?.procedureHeader?.user?.displayName"
+                  aria-readonly="true"
+                  aria-placeholder="Author"
+                >
+                <span class="spinner-wrapper" *ngIf="savingAuthor"><mat-spinner mode="indeterminate" diameter="24"></mat-spinner></span>
+                <button
+                  *ngIf="(!isLockedFromEditing && !savingAuthor) || (procedureData | canEditApprovers: isLockedFromEditing)"
+                  matSuffix
+                  mat-button
+                  color="primary"
+                  id="procedureHeaderAuthorButton"
+                  (click)="changeProcedureAuthor()"
+                  aria-label="Click here to change the procedure author"
+                >
+                  <mat-icon title="Change Procedure Author">person</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="procHeaderDetailsDiv flex-row xs:flex-column gap-10">
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field>
+                <mat-label>Procedure Description</mat-label>
+                <textarea matInput
+                          [readonly]="isLockedFromEditing"
+                          maxlength="255"
+                          id="procedureHeaderProcedureDescriptionInput"
+                          [(ngModel)]="procedureDescription"
+                          [ngModelOptions]="{standalone: true}"
+                          value="{{procedureDescription}}"
+                          [attr.aria-label]="'This procedure description is ' + procedureDescription"
+                          [attr.aria-readonly]="isLockedFromEditing"
+                          aria-placeholder="Procedure Description"
+                ></textarea>
+                <mat-hint class="procedure-header-hint-align" align="end"
+                          *ngIf="!isLockedFromEditing"
+                          aria-label="The description can be a maximum of 255 characters"
+                >{{procedureDescription.length || 0}}/255</mat-hint>
+                <button *ngIf="!isLockedFromEditing"
+                        matSuffix
+                        mat-button
+                        color="primary"
+                        id="procedureHeaderProcedureDescriptionButton"
+                        (click)="saveProcedureDescription()"
+                        aria-label="Click here to save the procedure description"
+                ><mat-icon title="Save">save</mat-icon></button>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="flex-column flex-50">
+            <div>
+              <app-procedure-favorite *ngIf="!printMode && procedureData" [procedureDetailsId]="procedureData?.pk" [(userFavoriteList)]="procedureData.favoriteUsers"></app-procedure-favorite>
+            </div>
+          </div>
+        </div>
+        <div class="procHeaderDetailsDiv flex-row xs:flex-column gap-10">
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field>
+                <mat-label>Program</mat-label>
+                <input matInput
+                       [readonly]="true"
+                       value="{{procedureData?.procedureDef?.program.name}}"
+                       [attr.aria-label]="'This procedure is part of program ' + procedureData?.procedureDef?.program.name"
+                       aria-placeholder="Program"
+                       aria-readonly="true"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field>
+                <mat-label>Subsystem</mat-label>
+                <input matInput
+                       [readonly]="true"
+                       value="{{procedureData?.procedureDef?.subsystem.code}} - {{procedureData?.procedureDef?.subsystem.name}}"
+                       [attr.aria-label]="'This procedure is part of subsystem ' + procedureData?.procedureDef?.subsystem.name"
+                       aria-placeholder="Subsystem"
+                       aria-readonly="true"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset class="epic-fieldset">
+        <legend class="epic-legend epic-fieldset">Procedure Status History</legend>
+        <div class="procHeaderDetailsDiv flex-row xs:flex-column gap-10">
+          <div class="flex-column flex-50">
+            <div>
+              <mat-form-field>
+                <mat-label>Status</mat-label>
+                <mat-icon matSuffix [style.color]="procedureData?.status | procedureStatusColor">{{procedureData?.status | procedureStatusIcon}}</mat-icon>
+                <input matInput [readonly]="true"
+                       value="{{ProcedureStatus[procedureData?.status]}}"
+                       [attr.aria-label]="'This procedure is in status ' + ProcedureStatus[procedureData?.status]"
+                       aria-placeholder="Status"
+                       aria-readonly="true"
+                />
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <mat-label>Creation Date</mat-label>
+                <input matInput
+                       value="{{procedureData?.procedureHeader?.creationDate | date:'medium'}}"
+                       [readonly]="true"
+                       aria-readonly="true"
+                       aria-placeholder="Creation date"
+                       [attr.aria-label]="'This procedure was created on ' + (procedureData?.procedureHeader?.creationDate | date:'medium')"
+                >
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <mat-label>Submitted for Approval Date</mat-label>
+                <input matInput
+                       value="{{procedureData?.procedureHeader?.submittedForReviewDate | date:'medium'}}"
+                       [readonly]="true"
+                       aria-readonly="true"
+                       aria-placeholder="Submitted for Approval Date"
+                       [attr.aria-label]="'This procedure was submitted for approval on ' + (procedureData?.procedureHeader?.submittedForReviewDate | date:'medium')"
+                >
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <mat-label>Approved Date</mat-label>
+                <input matInput
+                       value="{{procedureData?.procedureHeader?.approvedDate | date:'medium'}}"
+                       [readonly]="true"
+                       aria-readonly="true"
+                       aria-placeholder="Approved Date"
+                       [attr.aria-label]="'This procedure was approved on ' + (procedureData?.procedureHeader?.approvedDate | date:'medium')"
+                >
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <mat-label>Released Date</mat-label>
+                <input matInput
+                       value="{{procedureData?.procedureHeader?.releasedDate | date:'medium'}}"
+                       [readonly]="true"
+                       aria-readonly="true"
+                       aria-placeholder="Released Date"
+                       [attr.aria-label]="'This procedure was released on ' + (procedureData?.procedureHeader?.releasedDate | date:'medium')"
+                >
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="block-display flex-50">
+            <app-status-history [histories]="procedureData.histories"></app-status-history>
+          </div>
+        </div>
+      </fieldset>
+      <div>
+        <fieldset class="epic-fieldset">
+          <legend class="epic-fieldset">
+            <span>Approvers
+              <span class="spinner-wrapper"*ngIf="savingApprover"><mat-spinner mode="indeterminate" diameter="24"></mat-spinner></span>
+              <button mat-button *ngIf="(procedureData | canEditApprovers: isLockedFromEditing) && !savingApprover"
+                      class="icon-button"
+                      id="procedureHeaderAddApprovers"
+                      (click)="addApprover()"
+                      title="Add Approver"
+                      aria-label="Add an approver to this procedure"
+              ><mat-icon>person_add</mat-icon></button>
+            </span>
+          </legend>
+          <div *ngIf="!run">
+            <h3>Guidelines for Procedure Approvals</h3>
+            <p>For a “minor” procedure (legacy work order), approvers during system I&T are typically:</p>
+            <ul>
+              <li>I&T Lead Engineer</li>
+              <li>System Assurance Manager</li>
+              <li>System Safety Engineer (only if this is a hazardous procedure)</li>
+              <li>Cognizant Engineer (such as a subsystem lead, if necessary)</li>
+            </ul>
+            <p>For a “major” procedure (legacy PLM procedure), approvers during system I&T should follow the project signature authority memo for I&T procedures.</p>
+          </div>
+          <div *ngIf="procedureData?.procedureApprovals" class="flex-row flex-wrap justify-start items-stretch content-stretch">
+            <mat-chip-listbox>
+              <mat-chip-option *ngFor="let approver of approvers"
+                        selected [selectable]="true"
+                        [removable]="true"
+                        color="primary"
+                        (removed)="setApproverStatus(approver, true)"
+                        [matTooltip]="approver | approverChipTooltip: (procedureData | canEditApprovers: isLockedFromEditing)"
+                        [attr.aria-label]="'This approver is ' + approver.users.displayName"
+              >{{approver.users.displayName}}<mat-icon *ngIf="procedureData  | canEditApprovers: isLockedFromEditing" matChipRemove>cancel</mat-icon></mat-chip-option>
+            </mat-chip-listbox>
+          </div>
+          <br/>
+          <div *ngIf="procedureData?.procedureApprovals" class="flex-row flex-wrap justify-start items-stretch content-stretch">
+            <mat-chip-listbox>
+              <mat-chip-option *ngFor="let approver of disabledApprovers"
+                         [selectable]="true"
+                        [removable]="true"
+                        class="mat-chip mat-focus-indicator mat-primary mat-standard-chip mat-chip-selected mat-chip-disabled"
+                        (removed)="setApproverStatus(approver, false)"
+                        [matTooltip]="approver | approverChipDisabledTooltip: (procedureData | canEditApprovers: isLockedFromEditing)"
+                        [attr.aria-label]="'This approver is ' + approver.users.displayName + ' and has been disabled.'"
+              >{{approver.users.displayName}}
+                <mat-icon *ngIf="procedureData | canEditApprovers: isLockedFromEditing" matChipRemove>add_circle_outline</mat-icon></mat-chip-option>
+            </mat-chip-listbox>
+          </div>
+        </fieldset>
+      </div>
+      <div>
+        <fieldset class="epic-fieldset">
+          <legend class="epic-fieldset">
+            <span>Reviewers
+              <span class="spinner-wrapper" *ngIf="savingApprover"><mat-spinner mode="indeterminate" diameter="24"></mat-spinner></span>
+              <button mat-button
+                      *ngIf="(procedureData | canEditApprovers: isLockedFromEditing) && !savingApprover"
+                      class="icon-button"
+                      id="procedureHeaderAddReviewers"
+                      (click)="addReviewer()"
+                      title="Add Reviewer"
+                      aria-label="Add a reviewer to this procedure"
+              ><mat-icon>person_add</mat-icon></button>
+            </span>
+          </legend>
+          <div *ngIf="procedureData?.procedureApprovals" class="flex-row flex-wrap justify-start items-stretch content-stretch">
+            <mat-chip-listbox>
+              <mat-chip-option *ngFor="let reviewer of reviewers"
+                        [selectable]="true"
+                        [removable]="true"
+                        (removed)="removeApproval(reviewer)"
+                        [matTooltip]="reviewer | approverChipTooltip: (procedureData | canEditApprovers: isLockedFromEditing)"
+                        [attr.aria-label]="'This reviewer is ' + reviewer.users.displayName"
+              >{{reviewer.users.displayName}}<mat-icon *ngIf="procedureData |  canEditApprovers: isLockedFromEditing" matChipRemove>cancel</mat-icon></mat-chip-option>
+            </mat-chip-listbox>
+          </div>
+        </fieldset>
+      </div>
+      <div>
+        <fieldset class="epic-fieldset">
+          <legend class="epic-fieldset">
+            <span>Supporting Documents</span>
+          </legend>
+          <!-- Current implementation has attachments associated with a procedure header.
+           This holds true for runs as well, attachments are associated with the 'original procedure header' and therefore cannot be red-lined at the moment.
+           -->
+          <app-upload-file-component *ngIf="procedureData && procedureData.procedureHeader"
+                                     [isReadOnly]="isLockedFromEditing"
+                                     [attachments]="run ? run.procedureDetails.procedureHeader.attachments : procedureData.procedureHeader.attachments" (attachmentsChange)="run ? run.procedureDetails.procedureHeader.attachments : procedureData.procedureHeader.attachments = $event"
+                                     [parentPk]="run ? run.procedureDetails.procedureHeader.pk : procedureData.procedureHeader.pk"
+                                     [attachmentType]="AttachmentType.PROCEDURE"
+                                     [run]="run"
+                                     [procedureData]="run ? run.procedureDetails : procedureData"
+                                     [redliningEnabled]="redliningEnabled" (redLineCommentChange)="addRedLineToRun($event)"></app-upload-file-component>
+        </fieldset>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,10 @@
+.controlBar {
+  display: flex;
+  padding: 10px;
+  background-color: #fafafa;
+  text-transform: capitalize;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}

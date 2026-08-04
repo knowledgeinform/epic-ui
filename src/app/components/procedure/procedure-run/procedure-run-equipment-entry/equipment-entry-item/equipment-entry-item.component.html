@@ -1,0 +1,90 @@
+<div
+  *ngIf="parentForm"
+  [formGroup]="parentForm"
+  class="gap-20 flex-100 flex-row"
+>
+
+  <mat-form-field class="flex-auto lt-md:flex-custom-percent"
+                  style="--lt-md-fx-custom-flex-value: 16%">
+    <input
+      [readonly]="readOnly"
+      [attr.data-equipmentDisplayField]="'run_EquipmentEntryNameInput' + i"
+      matInput
+      formControlName="name"
+      required
+      maxlength="255"
+      #equipmentName
+    />
+    <mat-hint align="end">{{equipmentName.value?.length || 0}}/255</mat-hint>
+  </mat-form-field>
+
+  <mat-form-field class="flex-auto lt-md:flex-custom-percent"
+                  style="--lt-md-fx-custom-flex-value: 16%">
+    <input
+      [readonly]="readOnly"
+      [attr.data-equipmentDisplayField]="'run_EquipmentEntrySerialNumberInput' + i"
+      matInput
+      formControlName="serialNumber"
+    />
+  </mat-form-field>
+
+  <mat-form-field class="flex-auto lt-md:flex-custom-percent"
+                  style="--lt-md-fx-custom-flex-value: 16%">
+    <input
+      [readonly]="readOnly"
+      [attr.data-equipmentDisplayField]="'run_EquipmentEntryPropertyNumberInput' + i"
+      matInput
+      formControlName="propertyNumber"
+    />
+  </mat-form-field>
+
+  <mat-form-field class="flex-auto lt-md:flex-custom-percent"
+                  style="--lt-md-fx-custom-flex-value: 16%">
+    <input
+      [readonly]="readOnly"
+      [attr.data-equipmentDisplayField]="'run_EquipmentEntryCalibrationDateInput' + i"
+      matInput
+      formControlName="calibrationDueDate"
+      [matDatepicker]="calibrationDueDatePicker"
+    />
+    <mat-datepicker-toggle
+      [disabled]="readOnly"
+      [id]="'run_EquipmentCalibrationDueDatePicker_' + i"
+      matSuffix
+      [for]="calibrationDueDatePicker"
+    ></mat-datepicker-toggle>
+    <mat-datepicker
+      [disabled]="readOnly"
+      #calibrationDueDatePicker
+    ></mat-datepicker>
+    <mat-hint align="end" class="warn"
+              *ngIf="parentForm?.get('calibrationDueDate').value | isBeforeToday"
+    >This item is overdue for calibration.
+    </mat-hint>
+  </mat-form-field>
+
+  <mat-form-field class="flex-auto lt-md:flex-custom-percent"
+                  style="--lt-md-fx-custom-flex-value: 16%">
+    <input
+      [readonly]="readOnly"
+      [attr.data-equipmentDisplayField]="'run_EquipmentEntryCalibrationDateInput' + i"
+      matInput
+      formControlName="calibrationDate"
+      [matDatepicker]="calibrationDatePicker"
+    />
+    <mat-datepicker-toggle
+      [disabled]="readOnly"
+      [id]="'run_EquipmentCalibrationDatePicker_' + i"
+      matSuffix
+      [for]="calibrationDatePicker"
+    ></mat-datepicker-toggle>
+    <mat-datepicker
+      [disabled]="readOnly"
+      #calibrationDatePicker
+    ></mat-datepicker>
+    <mat-hint align="end" class="warn"
+              *ngIf="parentForm?.get('calibrationDate').value | isAfterToday"
+    >This item was calibrated after today.
+    </mat-hint>
+  </mat-form-field>
+</div>

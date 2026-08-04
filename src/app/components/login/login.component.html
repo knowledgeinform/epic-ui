@@ -1,0 +1,47 @@
+<div class="loginPage">
+  <div class="loginDiv">
+    <mat-card appearance="outlined" class="loginCard">
+      <mat-card-header>
+        <div mat-card-avatar id="loginAplImage" class="header-image"><img src="assets/icons/aplShield.png"></div>
+        <mat-card-title>EPIC - Electronic Procedure Implementation Catalog</mat-card-title>
+        <mat-card-subtitle>Please Log In. You will need an EPIC account - please contact
+          epic-support&#64;jhuapl.edu for new accounts.</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <p *ngIf="offlineService.offline">You are logging-in while offline. Please supply a username that has logged-in before from this web browser. No password is required.</p>
+
+        <form [formGroup]="loginForm" class="formContainer" (ngSubmit)="login()" (keyup.enter)="login()">
+
+
+          <mat-form-field class="fullWidth">
+            <mat-icon matPrefix color="primary">person</mat-icon>
+            <mat-label>Username</mat-label>
+            <input autofocus id="loginFormUsername" formControlName="username" matInput required/>
+            <mat-error *ngIf="loginForm.get('username').invalid && (loginForm.get('username').dirty || loginForm.get('username').touched)">Username is required.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="fullWidth" *ngIf="!offlineService.offline" >
+            <mat-icon matPrefix color="primary">lock</mat-icon>
+            <mat-label>Password</mat-label>
+            <input type="password" id="loginFormPassword" formControlName="password" matInput required/>
+            <mat-error *ngIf="loginForm.get('password').invalid && (loginForm.get('password').dirty || loginForm.get('password').touched)">Password is required.</mat-error>
+          </mat-form-field>
+
+
+          <!--<p>-->
+          <!--<input type="submit" value="Log in">-->
+          <!--</p>-->
+        </form>
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+        <mat-card-actions>
+          <button class="loginBtn" id="loginFormSubmitButton" mat-raised-button color="primary" focus type="submit" [disabled]="loginForm === undefined || loginForm.invalid" (click)="login()">Log In</button>
+        </mat-card-actions>
+      </mat-card-content>
+
+    </mat-card>
+  </div>
+</div>

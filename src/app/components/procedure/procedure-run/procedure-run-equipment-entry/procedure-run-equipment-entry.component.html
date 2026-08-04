@@ -1,0 +1,191 @@
+<app-spinner *ngIf="showSpinner" [message]="'Updating equipment list. Please wait...'"></app-spinner>
+<div
+  class="container flex-100 flex-column gap-20"
+>
+
+  <!-- <p class="description">Enter the equipment being used for this run in the table below. (Entries are automatically saved.)</p> -->
+  <div *ngIf="allowItemEdit && !readOnly">
+    <button
+      mat-flat-button
+      color="primary"
+      [disabled]="!allowItemEdit"
+      matTooltip="Add new equipment entry"
+      (click)="addNewEquipmentEntryItemDialog()"
+    >Add New Entry
+    </button>
+  </div>
+  <form
+    [formGroup]="fa"
+    class="flex-column gap-10"
+  >
+
+    <div
+      class="header flex-100 flex-row gap-20"
+    >
+      <span class="flex">Name</span>
+      <span class="flex">Serial No.</span>
+      <span class="flex">APL Property Number</span>
+      <span class="flex">Calibration Due Date</span>
+      <span class="flex">Calibrated On</span>
+    </div>
+
+    <div
+      *ngFor="let control of fa.controls; let i = index"
+      [formGroupName]="i"
+      class="equipment-row flex-100 flex-row"
+    >
+      <div
+        class="number-cell flex-row justify-center items-center content-center flex-no-grow"
+      >{{i+1}}.</div>
+
+      <!-- Form fields -->
+      <app-equipment-entry-item
+        [i]="i"
+        [readOnly]="true"
+        [parentForm]="fa.controls[i]"
+        class="flex-100"
+      ></app-equipment-entry-item>
+
+      <button
+        [attr.data-equipmentDisplayField]="'run_EditEquipmentEntryButton_' + i"
+        type="button"
+        mat-icon-button
+        color="primary"
+        class="delete-button flex-no-grow"
+        (click)="openEquipmentEntryItemDialog(fa.controls[i], i, control.value)"
+        *ngIf="!offlineService.offline && !readOnly"
+        [disabled]="!control.value.pk"
+        matTooltip="Edit equipment entry"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+
+      <!-- Delete button -->
+      <button
+        [attr.data-equipmentDisplayField]="'run_DeleteEquipmentEntryButton_' + i"
+        type="button"
+        mat-icon-button
+        color="warn"
+        class="delete-button flex-no-grow"
+        (click)="onDeleteClick(control.value)"
+        *ngIf="!offlineService.offline && !readOnly"
+        [disabled]="!control.value.pk"
+        matTooltip="Delete equipment entry"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+
+    </div>
+
+  </form>
+
+  <div *ngIf="allowItemEdit && !readOnly">
+    <button
+      mat-flat-button
+      color="primary"
+      [disabled]="!allowItemEdit"
+      matTooltip="Add new equipment entry"
+      (click)="addNewEquipmentEntryItemDialog()"
+    >Add New Entry
+    </button>
+  </div>
+  <p
+    class="info no-print"
+    *ngIf="allowItemEdit"
+  >
+    <span *ngIf="!offlineService.offline; else offlineMessageTemplate">
+      To edit or delete existing equipment, use the edit and delete controls located on the right-hand side of each equipment row.
+    </span>
+    <ng-template #offlineMessageTemplate>Entries cannot be modified while offline.</ng-template>
+  </p>
+
+  <!-- Add Item form. -->
+  <form
+    *ngIf="addItemForm"
+    [formGroup]="addItemForm"
+    class="gap-10 flex-column"
+    (submit)="onAddItemSubmit()"
+  >
+    <app-equipment-entry-item
+      class="flex-100"
+      [parentForm]="addItemForm"
+    ></app-equipment-entry-item>
+
+    <div
+      class="flex-row justify-center items-center content-center gap-10"
+    >
+      <button
+        mat-stroked-button
+        type="submit"
+        color="primary"
+      >Add</button>
+      <button
+        mat-stroked-button
+        (click)="addItemForm = null"
+      >Cancel</button>
+    </div>
+  </form>
+
+  <!-- "Add Existing" typeahead -->
+  <div
+    *ngIf="showAddExistingInput"
+    class="flex-column gap-10"
+  >
+    <mat-form-field class="flex-100">
+      <mat-label>Select Equipment</mat-label>
+      <input
+        type="text"
+        matInput
+        [(ngModel)]="addEquipmentFilterText"
+        (ngModelChange)="filterAddEquipmentList()"
+        [matAutocomplete]="equipmentAutocomplete"
+      >
+      <mat-autocomplete
+        (optionSelected)="addExistingInputSubmit($event)"
+        [displayWith]="autocompleteDisplayWith"
+        #equipmentAutocomplete="matAutocomplete"
+      >
+        <mat-option
+          *ngFor="let equipment of addEquipmentFilteredEquipment"
+          [value]="equipment"
+          class="equipment-select"
+        >
+          <span class="title">{{ equipment.name }}</span>
+          <div class="desc">
+            <div>Property Number: {{ equipment.propertyNumber }}</div>
+            <div>Serial Number: {{ equipment.serialNumber }}</div>
+            <div>Calibrated Last: {{ equipment.calibrationDate | date:'longDate' }}</div>
+            <div>Calibration Due: {{ equipment.calibrationDueDate | date:'longDate' }}</div>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <div
+      class="flex-row flex justify-center items-center content-center"
+    >
+      <button
+        mat-stroked-button
+        (click)="addExistingInputClose()"
+      >Done</button>
+    </div>
+
+  </div>
+
+  <div
+    class="flex-row justify-center items-center content-center gap-10"
+    *ngIf="!addItemForm && !readOnly && allowAddExistingItem && !showAddExistingInput"
+  >
+    <button
+      mat-raised-button
+      (click)="showAddItemForm()"
+    >Add New Item</button>
+    <button
+      mat-raised-button
+      color="primary"
+      *ngIf="allowAddExistingItem"
+      (click)="addExistingInputShow()"
+    >Add Existing Item</button>
+  </div>
+
+</div>

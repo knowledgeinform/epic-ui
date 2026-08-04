@@ -1,0 +1,41 @@
+<div [class]="isRunsForEquipmentReport ? 'full-height' : 'report-container'" class="flex-row">
+  <div [class]="isEquipmentReport ? 'equipment-container': 'full-width'" *ngIf="fetchIsDone; else fetchingPlaceholder">
+    <div class="report-toolbar gap-15 flex-row justify-end items-stretch content-stretch">
+      <mat-icon class="icon-align" matTooltip="Clear All Filters" (click)="clearAllFilters()">clear_all</mat-icon>
+      <mat-icon class="icon-align" matTooltip="Refresh Data" color="primary" (click)="refreshData()">refresh</mat-icon>
+      <mat-icon class="icon-align" matTooltip="Export Report" (click)="exportTableAsCsv($event)" color="accent">save_alt</mat-icon>
+      <mat-form-field>
+        <mat-label>Select number to display</mat-label>
+        <mat-select [(value)]="defaultPageSize"
+                    (selectionChange)="changePageSize($event)">
+          <mat-option [value]="10">10</mat-option>
+          <mat-option [value]="25">25</mat-option>
+          <mat-option [value]="50">50</mat-option>
+          <mat-option [value]="100">100</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <ag-grid-angular
+      #agGrid
+      class="ag-theme-material"
+      [rowData]="rowData"
+      [columnDefs]="columnDefs"
+      (rowClicked)="onReportRowClick($event)"
+      pagination="true"
+      [rowSelection]="'single'"
+      (gridReady)="onGridReady($event)"></ag-grid-angular>
+  </div>
+
+  <div class="runs-container" *ngIf="isEquipmentReport && showRunsForEquipmentTable">
+    <app-reporting-run-status [equipment]="selectedEquipment"
+                              [program]="program"
+                              [subsystem]="subsystem"
+                              [testingPhase]="testingPhase"
+                              [isRunsForEquipmentReport]="true"></app-reporting-run-status>
+  </div>
+</div>
+
+<ng-template #fetchingPlaceholder>
+  <div>Retrieving report...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

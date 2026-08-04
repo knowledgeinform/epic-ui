@@ -1,0 +1,22 @@
+.dialog-body {
+  padding: 24px;
+}
+
+h2 {
+  padding: 0;
+}
+
+.groupTree-invisible {
+  display: none;
+}
+
+.groupTree ul,
+.groupTree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+.form-field {
+  width: 100%;
+}

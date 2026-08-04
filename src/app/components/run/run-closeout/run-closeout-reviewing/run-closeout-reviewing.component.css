@@ -1,0 +1,10 @@
+.buttonDiv button{
+  margin:5px;
+}
+.buttonDiv mat-icon{
+  padding-right:3px;
+}
+
+.margin-left {
+  margin-left: 5px;
+}

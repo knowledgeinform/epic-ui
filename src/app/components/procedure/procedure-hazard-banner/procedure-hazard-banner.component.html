@@ -1,0 +1,4 @@
+<div id="hazardous-striped-banner"
+  *ngIf="procedure && (procedure?.hazardous || procedure?.esd0)"
+  [ngClass]="{ 'warning-indicator-hazard': procedure?.hazardous, 'warning-indicator-esd0': procedure?.esd0 }"
+></div>

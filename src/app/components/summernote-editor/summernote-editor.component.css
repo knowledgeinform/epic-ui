@@ -1,0 +1,8 @@
+.length-hint {
+  text-align: right;
+}
+
+.length-hint-error {
+  color: red;
+  font-weight: 600;
+}

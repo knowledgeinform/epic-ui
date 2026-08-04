@@ -1,0 +1,42 @@
+.commentBlackDiv {
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.commentRedDiv {
+  border: 1px solid red;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.commentDivHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.red-line {
+  color: red;
+}
+
+.fill-space {
+  /*This fills the remaining space, by using flexbox.*/
+  flex: 1 1 auto;
+}
+
+.approval-validation {
+  margin-top: 0px;
+  color: red;
+}
+
+.role-sign-container > label{
+  font-weight: bold;
+  text-transform: capitalize;
+}

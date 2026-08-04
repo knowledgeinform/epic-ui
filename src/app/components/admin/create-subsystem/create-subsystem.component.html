@@ -1,0 +1,48 @@
+<form
+	#form="ngForm"
+	(submit)="submit()"
+	class="create-subsystem-form"
+>
+
+	<mat-form-field>
+		<mat-label>Name</mat-label>
+		<input
+			matInput
+			name="name"
+			[(ngModel)]="subsystem.name"
+			required
+		>
+	</mat-form-field>
+
+	<mat-form-field>
+		<mat-label>Short Name</mat-label>
+		<input
+			matInput
+			name="shortName"
+			[(ngModel)]="subsystem.shortName"
+			required
+		>
+	</mat-form-field>
+
+	<mat-form-field>
+		<mat-label>Code</mat-label>
+		<input
+			matInput
+			name="code"
+			[(ngModel)]="subsystem.code"
+      type="text"
+			pattern="\d+"
+			required
+		>
+    <mat-hint>Numbers only</mat-hint>
+	</mat-form-field>
+
+	<button
+		mat-stroked-button
+		type="submit"
+		[disabled]="!form.valid"
+	>Submit</button>
+
+	<span class="status">{{status}}</span>
+
+</form>

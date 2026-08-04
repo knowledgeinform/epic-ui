@@ -1,0 +1,633 @@
+<mat-menu #stepActionMenu="matMenu">
+  <button
+    mat-menu-item
+    (click)="openEditStepDialog()"
+    aria-label="Click here to open the step editing dialog"
+    matTooltip="Edit the Step"
+  >Edit Step
+  </button>
+  <button *ngIf="!run"
+          mat-menu-item
+          matTooltip="Change the Step Type"
+          (click)="openChangeStepTypeDialog()"
+          aria-label="Click here to change the type of the step"
+  >Change Step Type
+  </button>
+  <button
+    mat-menu-item
+    matTooltip="Move step either within this group or to another group"
+    (click)="openMoveStepDialog()"
+    aria-label="Click here to move this step to a new position within this group or to another group"
+  >Move Step
+  </button>
+  <button
+    id="deleteStepButton"
+    mat-menu-item
+    (click)="openDeleteStepDialog()"
+    matTooltip="Delete the Step"
+    aria-label="Click here to delete this step"
+  >Delete Step
+  </button>
+  <button
+    mat-menu-item
+    matTooltip="Make a copy of this step"
+    (click)="openCopyStepDialog()"
+    aria-label="Click here to copy this step"
+  >Copy Step
+  </button>
+</mat-menu>
+
+
+<!-- Having the ID in a separate div allows navigation to this step even if the expansion panel is out-of-view and de-rendered. -->
+<div id="{{anchorName}}">
+
+  <div
+    *ngIf="isVisible; else stepLoadingTemplate"
+    [@fadeInOut]
+  >
+    <div [ngClass]="{ 'warning-border-hazard': step.hazardous, 'warning-border-esd0': step.esd0 }">
+      <mat-expansion-panel
+        [disabled]="stepMenuDisplay || buttonGroupClick"
+        [expanded]="step.editType === EditType.REDLINE_DELETE ? false : (expandAll || expandThis)"
+        (click)="toggleExpandThis($event)"
+        [ngClass]="{'red-line-background': !(step.editType === EditType.RUN || step.editType === EditType.ORIGINAL || step.editType === EditType.LOCKED_RUN)}"
+      >
+        <mat-expansion-panel-header [collapsedHeight]=determineExpansionHeaderHeight() [expandedHeight]=determineExpansionHeaderHeight()>
+          <mat-panel-title class="flex-row">
+            <div class="xs:flex-column gt-xs:flex-row flex-100">
+              <div class="flex-row">
+                <div
+                  class="step-panel-title-div flex-100 flex-row"
+                >
+                  <ng-content select="[slot=drag-handle]"></ng-content>
+                  <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="stepActionMenu"
+                    (onMenuOpen)="stepMenuDisplay=true"
+                    (onMenuClose)="stepMenuDisplay=false"
+                    class="step-icon-align"
+                    *ngIf="(procedureData | canEditProcedureOrRun: procedureData.redliningEnabled) && (!readOnly || procedureData.redliningEnabled) && step.editType !== EditType.REDLINE_DELETE"
+                    matTooltip="Click here for step actions."
+                    aria-label="Click here to open the step actions menu"
+                  >
+                    <mat-icon>settings</mat-icon>
+                  </button>
+                  <mat-icon *ngIf="step?.editType === EditType.REDLINE_DELETE"
+                            class="step-icon-align red-line"
+                            matTooltip="This is a red line deletion"
+                            aria-label="This step has been deleted as a red line action"
+                  >delete_forever</mat-icon>
+                  <mat-icon *ngIf="step?.editType === EditType.REDLINE_ADD"
+                            class="step-icon-align red-line"
+                            matTooltip="This is a red line addition"
+                            aria-label="This step has been added as a red line action"
+                  >add_box</mat-icon>
+                  <mat-icon *ngIf="step?.editType === EditType.REDLINE_EDIT"
+                            class="step-icon-align red-line"
+                            matTooltip="This is a red line edit"
+                            aria-label="This step has been edited as a red line action"
+                  >create</mat-icon>
+                  <mat-icon
+                    class="step-icon-align info-icons"
+                    *ngIf="step.type === StepType.SINGLE_VALUE"
+                    matTooltip="This is a single value entry step."
+                    aria-label="This is a single value entry step"
+                  >input
+                  </mat-icon>
+                  <mat-icon
+                    class="step-icon-align info-icons"
+                    *ngIf="step.type === StepType.CHECKBOX"
+                    matTooltip="This is a checkbox step."
+                    aria-label="This is a checkbox step"
+                  >check_box
+                  </mat-icon>
+                  <mat-icon
+                    class="step-icon-align info-icons"
+                    *ngIf="step.type === StepType.TABLE"
+                    matTooltip="This is a table step."
+                    aria-label="This is a table step"
+                  >table_chart
+                  </mat-icon>
+                  <span class="step-icon-align flex-row flex justify-center items-stretch content-stretch"
+                        *ngIf="step.editType !== EditType.REDLINE_DELETE"
+                         >&nbsp;
+                    &nbsp;{{step | stepDisplayOrder : step.displayOrder}}&nbsp;&nbsp;</span>
+                  <span class="step-icon-align flex-100"
+                        [ngClass]="step.editType === EditType.REDLINE_DELETE ?
+                    'deletion-strikethrough' : ''">{{step | stepDisplayName}}</span>
+                </div>
+              </div>
+              <div class="flex-row flex">
+                <div class="flex-100"></div>
+                <div class="flex-row flex justify-end items-center content-center">
+                  <!-- adding in icon for indicating there are stickies to address on this step -->
+                  <mat-icon class="step-icon-align sticky-comment"
+                            *ngIf="step.runCloseoutStickyComments?.length > 0"
+                            matTooltip="There are closeout stickies waiting for resolution"
+                            [attr.aria-label]="'This step has ' + step.runCloseoutStickyComments?.length + ' stickies'"
+                  >
+                    bookmark
+                  </mat-icon>
+                  <mat-icon class="step-icon-align"
+                            *ngIf="step.runStepComments?.length > 0"
+                            matTooltip="There are comments on this step">
+                    comment
+                  </mat-icon>
+                  <mat-icon class="step-icon-align" *ngIf="step.blackLineComments?.length > 0"
+                            matTooltip="There are black line comments on this step">
+                    chat_bubble_outline
+                  </mat-icon>
+                  <mat-icon class="step-icon-align red-line" *ngIf="step.redLineComments?.length > 0"
+                            matTooltip="There are red line comments on this step">
+                    mode_comment
+                  </mat-icon>
+                  <mat-icon
+                    class="step-icon-align equipment"
+                    *ngIf="step.allowEquipmentEntry"
+                    matTooltip="This step requires equipment entry."
+                    aria-label="This step requires equipment entry"
+                  >build
+                  </mat-icon>
+                  <mat-icon
+                    class="step-icon-align witness"
+                    *ngIf="step.requireWitness"
+                    matTooltip="This step requires a non-SMA Witness/Verification signature."
+                    aria-label="This step requires a non-QA witness signature"
+                  >person
+                  </mat-icon>
+                  <mat-icon
+                    class="step-icon-align warning-icon-color-hazard"
+                    *ngIf="step.hazardous"
+                    matTooltip="This step is marked hazardous."
+                    aria-label="This step is marked hazardous"
+                  >warning
+                  </mat-icon>
+                  <app-icon-esd0
+                    matTooltip="This step is marked esd0."
+                    aria-label="This step is mark esd0"
+                    class="step-icon-align"
+                    *ngIf="step.esd0"></app-icon-esd0>
+                  <mat-icon
+                    class="step-icon-align inspection"
+                    *ngIf="step.mandatoryInspection"
+                    matTooltip="This is an SMA mandatory inspection step."
+                    aria-label="This is a QA inspection step"
+                  >assignment_turned_in
+                  </mat-icon>
+                  <mat-icon
+                    class="step-icon-align"
+                    *ngIf="step.isManualValidation"
+                    matTooltip="This step has been manually marked as done."
+                    aria-label="This step has been manually marked as done."
+                  >how_to_reg
+                  </mat-icon>
+                  <mat-icon
+                    class="step-icon-align"
+                    *ngIf="isValid"
+                    matTooltip="This step is complete and valid."
+                    aria-label="This step is complete and valid"
+                  >check
+                  </mat-icon>
+                </div>
+              </div>
+            </div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-template matExpansionPanelContent>
+          <div
+            class="procHeaderDetailsDiv step-content-format flex-row gap-10"
+          >
+
+            <div
+              class="flex-column flex-100 gap-5"
+            >
+              <div id="manualValidation" *ngIf="run">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  [disabled]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                  *ngIf="!step.isManualValidation"
+                  (click)="submitManualValidation()"
+                  aria-label="Manually mark this step as done"
+                >
+                  <mat-icon class="step-icon-align">done</mat-icon>
+                  Manually Mark this Step as Done
+                </button>
+                <button
+                  mat-raised-button
+                  color="primary"
+                  [disabled]="!editable"
+                  *ngIf="step.isManualValidation"
+                  (click)="removeManualValidation()"
+                  aria-label="Remove the manual validation from this step"
+                >
+                  <mat-icon class="step-icon-align">remove_circle</mat-icon>
+                  Remove Manual Marking
+                </button>
+              </div>
+              <div
+                class="flex-row gap-10"
+              >
+                <div [ngxSummernoteView]=step.instructions></div>
+              </div>
+              <fieldset class="epic-fieldset" *ngIf="step.stepDefAttachments && step.stepDefAttachments.length > 0">
+                <legend class="epic-legend">Step Attachments</legend>
+                <app-upload-file-component [isReadOnly]="true" [(attachments)]="step.stepDefAttachments" [parentPk]="step.pk"
+                                           [attachmentType]="AttachmentType.STEP_DEF" [(step)]="step"></app-upload-file-component>
+              </fieldset>
+              <!-- Step Run Input -->
+              <form
+                *ngIf="run; else nonRunTemplate"
+                class="input-container"
+                [formGroup]="formGroup"
+                [ngSwitch]="step.type"
+              >
+
+                <div *ngSwitchCase="StepType.SINGLE_VALUE">
+                  <mat-form-field>
+                    <mat-label>Enter Step Results</mat-label>
+                    <input
+                      matInput
+                      [readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                      [(ngModel)]="step.runValue"
+                      [formControlName]="StepType.SINGLE_VALUE"
+                      required
+                      (change)="onInputValChange()"
+                      maxlength="255"
+                      aria-label="Enter the results for this single value step"
+                      aria-placeholder="Enter Step Results"
+                      [attr.aria-readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                    >
+                    <mat-hint align="end">{{step.runValue?.length || 0}}/255</mat-hint>
+                  </mat-form-field>
+                </div>
+                <div *ngSwitchCase="StepType.CHECKBOX">
+
+                  <mat-checkbox
+                    [(ngModel)]="step.runValue"
+                    (change)="onInputValChange()"
+                    [formControlName]="StepType.CHECKBOX"
+                    [disabled]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                    required
+                    [attr.aria-readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                    aria-label="Check the box to verify this step has been completed"
+                  >Verify Step Completed
+                  </mat-checkbox>
+                </div>
+                <div *ngSwitchCase="StepType.TABLE">
+                  <app-tablestepentry
+                    [procedureData]="procedureData"
+                    [stepGroup]="stepGroup"
+                    [(step)]="step"
+                    [readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                    [showEditingControls]="false"
+                    [fillable]="!offlineService.offline"
+                    [formGroup]="formGroup.get(StepType.TABLE)"
+                  ></app-tablestepentry>
+                </div>
+
+                <!-- TODO: Decide whether to retain or remove the following error message. -->
+                <div *ngSwitchDefault>Error: No input type was found for {{step.type}}.</div>
+
+              </form>
+
+              <!-- Bottom panels -->
+              <ng-container *ngIf="run" >
+                <div *ngIf="step.runValueEntryUser !== null">
+                  <span class="run-value-completed-by">Last Value Entered: {{step.runValueEntryUser?.displayName}} at
+                    {{step.runValueSavedTimestamp | date:'short'}}</span>
+                </div>
+                <div
+                  class="flex-row gap-10"
+                >
+                  <div
+                    class="flex-column flex-100"
+                    *ngIf="(step.requireWitness || step.mandatoryInspection)"
+                  >
+                    <div *ngIf="step.requireWitness">
+                      <div
+                        class="signature-spacing flex-row"
+                        *ngIf="!savingSecondSignature; else savingSignature"
+                      >
+                        <mat-icon
+                          class="step-icon-align witness"
+                          matTooltip="This step requires a non-SMA witness/verification signature."
+                          aria-label="This step requires a non-QA witness signature"
+                        >person
+                        </mat-icon>
+                        <div
+                          class="flex-100"
+                          *ngIf="displayWitnessEntry"
+                        >
+                          <mat-form-field>
+                            <mat-label>{{ isSmallScreen()
+                                ? 'Enter 521 and pin' : 'Enter non-SMA witness/verifier\'s 521 and six digit pin.' }}</mat-label>
+                            <input
+                              matInput
+                              maxlength="14"
+                              [formControl]="witnessSignature"
+                              required
+                              type="password"
+                              [readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                              (change)="submitSecondSignature(witnessSignature, SecondSignatureType.WITNESS)"
+                              aria-label="Enter a non-QA witness' 5-2-1 and six digit pin"
+                              [attr.aria-readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                            >
+                            <mat-hint *ngIf="!isSmallScreen()">Example: smithjd1123456</mat-hint>
+                            <mat-hint *ngIf="isSmallScreen()">Enter non-SMA witness/verifier's 521 and six
+                              digit pin. Example: smithjd1123456</mat-hint>
+                            <mat-error
+                              *ngIf="!readOnly && (witnessSignature.invalid || witnessSignature.dirty || witnessSignature.touched)"
+                            >
+                              Non-SMA witness/verifier's 521 plus pin is required.
+                            </mat-error>
+                          </mat-form-field>
+                          <button
+                            mat-raised-button
+                            color="primary"
+                            *ngIf="step.witnessSecondSignature && !readOnly"
+                            (click)="cancelWitnessAgain()"
+                            matTooltip="Click here if you are cancelling the non-SMA re-signing."
+                            aria-label="Click here to cancel re-signing the non-QA signature block"
+                          >Cancel Re-Witness
+                          </button>
+                        </div>
+                        <div class="flex-column gt-xs:flex-row gap-10">
+                          <div
+                            class="signed-appearance"
+                            *ngIf="!displayWitnessEntry"
+                          >
+                            Non-SMA Witnessed/Verified By: {{step.witnessSecondSignature.user.displayName}} at {{step.witnessSecondSignature.timestamp | date:'short'}}
+                          </div>
+                          <div *ngIf="!displayWitnessEntry && !readOnly">
+                            <button
+                              mat-raised-button
+                              (click)="signWitnessAgain()"
+                              matTooltip="Click here if you need to re-do the non-SMA witness/verification signature."
+                              aria-label="Click here to re-do the non-QA witness signature"
+                            >Re-Witness
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="step.mandatoryInspection">
+                      <div
+                        class="signature-spacing flex-row"
+                        *ngIf="!savingSecondSignature; else savingSignature"
+                      >
+                        <mat-icon
+                          class="step-icon-align inspection"
+                          matTooltip="This step is an SMA mandatory inspection."
+                          aria-label="This step must be inspected by QA"
+                        >assignment_turned_in
+                        </mat-icon>
+                        <div
+                          class="fill-space"
+                          *ngIf="displayInspectionEntry"
+                        >
+                          <mat-form-field>
+                            <mat-label>{{ isSmallScreen()
+                                ? 'Enter 521 and pin' : 'Enter SMA inspector\'s 521 and six digit pin.' }}</mat-label>
+                            <input
+                              matInput
+                              maxlength="14"
+                              [readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                              [formControl]="inspectionSignature"
+                              required
+                              type="password"
+                              aria-label="Enter the QA inspector's 5-2-1 and six digit pin"
+                              [attr.aria-readonly]="readOnly || step.editType === EditType.REDLINE_DELETE"
+                              (change)="submitSecondSignature(inspectionSignature, SecondSignatureType.MANDATORY_INSPECTION)"
+                            >
+                            <mat-hint *ngIf="!isSmallScreen()">Example: smithjd1123456</mat-hint>
+                            <mat-hint *ngIf="isSmallScreen()">Enter SMA inspector's 521 and six digit pin.
+                              Example: smithjd1123456</mat-hint>
+                            <mat-error
+                              *ngIf="!readOnly && (inspectionSignature.invalid || inspectionSignature.dirty || inspectionSignature.touched)"
+                            >SMA Inspector's 521 plus pin is required.
+                            </mat-error>
+                          </mat-form-field>
+                          <button
+                            mat-raised-button
+                            color="primary"
+                            *ngIf="step.mandatoryInspectionSecondSignature && !readOnly"
+                            (click)="cancelInspectionAgain()"
+                            matTooltip="Click here if you are cancelling the SMA re-signing."
+                            aria-label="Click here to cancel re-signing the QA inspector signature block"
+                          >Cancel Re-Inspect
+                          </button>
+                        </div>
+                        <div class="flex-column gt-xs:flex-row gap-10">
+                          <div
+                            class="signed-appearance"
+                            *ngIf="!displayInspectionEntry"
+                          >
+                            Inspected By: {{step.mandatoryInspectionSecondSignature.user.displayName}} at {{step.mandatoryInspectionSecondSignature.timestamp | date:'short'}}
+                          </div>
+                          <div *ngIf="!displayInspectionEntry && !readOnly">
+                            <button
+                              mat-raised-button
+                              (click)="signInspectionAgain()"
+                              matTooltip="If SMA needs to re-sign this step, click here."
+                              aria-label="Click here to re-sign the QA inspector signature block"
+                            >Re-Inspect
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <br />
+                  </div>
+                </div>
+                <br />
+              </ng-container>
+
+              <div *ngIf="run">
+                <div class="flex-row justify-between items-center" (click)="toggleDisplayActions()">
+                  <mat-divider class="flex-50"></mat-divider>
+                  <mat-icon *ngIf="!displayActions" matTooltip="Display More" aria-label="Click here to view additional step content">expand_more</mat-icon>
+                  <mat-icon *ngIf="displayActions" matTooltip="Display Less" aria-label="Clikc here to hide additional step content">expand_less</mat-icon>
+                  <mat-divider class="flex-50"></mat-divider>
+                </div>
+                <div [@displayActions] = "displayActions ? 'display' : 'hide'"
+                     class="flex-row">
+                  <mat-tab-group id="stepsTabsGroup"
+                                 *ngIf="run"
+                                 class="flex-100 flex-column"
+                                 color="accent"
+                                 mat-align-tabs="center"
+                  >
+                    <mat-tab aria-label="Click here to view the step history">
+                      <ng-template mat-tab-label>
+                        <mat-icon
+                          matBadge="{{step.histories?.length>0? step.histories.length : null}}"
+                          matBadgeColor="primary"
+                          matTooltip="Run Step History"
+                          aria-label="There are {{step.histories?.length}} step history message(s)"
+                        >history</mat-icon>
+                      </ng-template>
+                      <app-generic-comment-history-display
+                        [addBorder]="true"
+                        [titleText]="'Run Step History'"
+                        [arrayOfCommentsOrHistories]="step?.histories">
+                      </app-generic-comment-history-display>
+                    </mat-tab>
+                    <mat-tab label="Attachments" aria-label="Click here to view the run step attachments">
+                      <ng-template mat-tab-label>
+                        <mat-icon
+                          class="step-icon-align"
+                          aria-label="There are {{step.runStepAttachments?.length}} run step attachment(s)"
+                          matBadge="{{step.runStepAttachments?.length>0? step.runStepAttachments.length : null}}"
+                          matBadgeColor="primary"
+                          matTooltip="Attachments"
+                        >attach_file</mat-icon>
+                      </ng-template>
+                      <fieldset class="epic-fieldset" *ngIf="run">
+                        <legend class="epic-legend">Run Step Attachments</legend>
+                        <app-upload-file-component
+                          [isReadOnly]="!editable"
+                          [(attachments)]="step.runStepAttachments"
+                          [parentPk]="step.pk"
+                          [attachmentType]="AttachmentType.STEP_RUN"
+                          [redliningEnabled]="procedureData.redliningEnabled && step.editType !== EditType.REDLINE_DELETE"
+                          [(step)]="step"
+                        >
+                        </app-upload-file-component>
+                      </fieldset>
+                    </mat-tab>
+                    <mat-tab aria-label="Click here to view or enter equipment for this step" *ngIf="step.allowEquipmentEntry">
+                      <ng-template mat-tab-label>
+                        <mat-icon
+                          class="step-icon-align"
+                          matBadge="{{step.equipment?.length>0? step.equipment.length : null}}"
+                          matBadgeColor="primary"
+                          matTooltip="Equipment Entry"
+                          aria-label="There are {{step.equipment?.length}} equipment items for this step"
+                        >build</mat-icon>
+                      </ng-template>
+                      <app-procedure-run-equipment-entry
+                        class="detailSection"
+                        [run]="run"
+                        [(equipment)]="step.equipment"
+                        [step]="step"
+                        [readOnly]="!editable"
+                        [allowItemEdit]="false"
+                        [allowAddExistingItem]="true"
+                        (equipmentChange)="onEquipmentChange()"
+                        (equipmentRemoveFromStep)="onEquipmentRemove($event)"
+                      ></app-procedure-run-equipment-entry>
+                    </mat-tab>
+                    <mat-tab aria-label="Click here to view run step comments">
+                      <ng-template mat-tab-label>
+                        <mat-icon
+                          class="step-icon-align"
+                          matBadge="{{step.runStepComments?.length>0? step.runStepComments.length : null}}"
+                          matBadgeColor="primary"
+                          matTooltip="Step Comments"
+                          aria-label="There are {{step.runStepComments?.length>0}} run step comment(s)"
+                        >comment</mat-icon>
+                      </ng-template>
+                      <app-runstepcomment
+                        class="detailSection"
+                        [isReadOnly]="!editable"
+                        [(step)]="step"
+                        [run]="run"
+                      ></app-runstepcomment>
+                    </mat-tab>
+                    <mat-tab aria-label="Click here to view step black lines">
+                      <ng-template mat-tab-label>
+                        <mat-icon
+                          class="step-icon-align"
+                          matBadge="{{step.blackLineComments?.length>0 ? step.blackLineComments.length : null}}"
+                          matBadgeColor="primary"
+                          matTooltip="Blackline Comments"
+                          aria-label="There are {{step.blackLineComments?.length>0}} black line(s)"
+                        >chat_bubble_outline</mat-icon>
+                      </ng-template>
+                      <app-blackline
+                        class="detailSection"
+                        [isReadOnly]="!editable"
+                        [enableAddBlackLine]="true"
+                        [(step)]="step" [procedureData]="procedureData"
+                      ></app-blackline>
+                    </mat-tab>
+                    <mat-tab aria-label="Click here to view step red lines">
+                      <ng-template mat-tab-label>
+                        <mat-icon
+                          class="step-icon-align red-line"
+                          matBadge="{{step.redLineComments?.length > 0 ? step.redLineComments.length : null}}"
+                          matBadgeColor="primary"
+                          matTooltip="Redline Comments"
+                          aria-label="There are {{step.redLineComments?.length}} red line(s)"
+                        >mode_comment</mat-icon>
+                      </ng-template>
+                      <div class="detailSection">
+                        <div  class="comment-section-title">
+                          Red Lines
+                        </div>
+                        <app-line-edit-comments
+                          *ngFor="let comment of step.redLineComments"
+                          [comment]="comment" [procedureData]="procedureData"
+                          [isReadOnly]="readOnly || (readOnly && step.editType !== EditType.REDLINE_DELETE)">
+                        </app-line-edit-comments>
+                      </div>
+                    </mat-tab>
+                    <mat-tab label="Run Closeout Stickies"
+                             aria-label="Click here to view or add run closeout stickies"
+                             *ngIf="run.status !== RunStatus.RUNNING && run.status !== RunStatus.COMPLETED">
+                      <ng-template mat-tab-label>
+                        <mat-icon
+                          class="step-icon-align sticky-comment"
+                          matBadge="{{step.runCloseoutStickyComments?.length > 0 ? step.runCloseoutStickyComments.length : null}}"
+                          matBadgeColor="primary"
+                          matTooltip="Run Sticky Comments"
+                          aria-label="There are {{step.runCloseoutStickyComments?.length}} run closeout stickies"
+                        >bookmark</mat-icon>
+                      </ng-template>
+                      <app-run-closeout-sticky-comment
+                        class="detailSection"
+                        [(procedureData)]="procedureData" [step]="step">
+                      </app-run-closeout-sticky-comment>
+                    </mat-tab>
+                  </mat-tab-group>
+                </div>
+              </div>
+
+            </div>
+
+            <ng-template #nonRunTemplate>
+              <div [ngSwitch]="step.type">
+                <div *ngSwitchCase="StepType.TABLE">
+                  <app-tablestepentry
+                    [procedureData]="procedureData"
+                    [stepGroup]="stepGroup"
+                    [(step)]="step"
+                    [readOnly]="true"
+                    [showEditingControls]="false"
+                  ></app-tablestepentry>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+        </ng-template>
+      </mat-expansion-panel>
+    </div>
+  </div>
+</div>
+
+<ng-template #savingSignature>
+  <div>Saving Second Signature...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>
+
+
+<ng-template #stepLoadingTemplate>
+  <div
+    class="content-placeholder flex-column justify-center items-center content-center"
+  >
+    <mat-spinner></mat-spinner>
+    <p>Loading Step...</p>
+  </div>
+</ng-template>

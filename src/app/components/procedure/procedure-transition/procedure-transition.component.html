@@ -1,0 +1,76 @@
+<fieldset>
+  <legend>Submit Procedure to be Approved For Release</legend>
+
+  <div class="instructionDiv" *ngIf="procedureData.hazardous && procedureData.hazardDescription?.length === 0">
+    This procedure has been marked as hazardous, but there is no hazard information in the header. Resolve this conflict before submitting this procedure for approval.
+  </div>
+  <div *ngIf="!procedureData.hazardous || (procedureData.hazardous && procedureData.hazardDescription?.length > 0)"
+       class="flex-column justify-evenly items-stretch content-stretch">
+    <div class="instructionDiv">Email will be sent to following users. "Approvers" are required to approve the procedure before a run can be started.</div>
+    <div class="sectionDiv">
+      <fieldset>
+        <legend>Approvers</legend>
+        <div *ngIf="procedureData.procedureApprovals" class="flex-row flex-wrap justify-start items-stretch content-stretch">
+          <mat-chip-listbox>
+            <mat-chip-option *ngFor="let approver of approvers"  color="primary" selected
+              [disabled] = "approver.approverDisabled"
+              [attr.aria-label]="'This approver is ' + approver.users.displayName">{{approver.users.displayName }}
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </fieldset>
+    </div>
+    <div class="sectionDiv">
+      <fieldset>
+        <legend>Reviewers</legend>
+        <div *ngIf="procedureData.procedureApprovals" class="flex-row flex-wrap justify-start items-stretch content-stretch">
+          <mat-chip-listbox>
+            <mat-chip-option *ngFor="let reviewer of reviewers" [attr.aria-label]="'This approver is ' + reviewer.users.displayName">{{reviewer.users.displayName}}</mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </fieldset>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="sectionDiv">
+      <form [formGroup]="form" class="sectionDivChildElement">
+        <mat-form-field appearance="outline">
+          <mat-label>Approver Due Date</mat-label>
+          <input id="approverDueDateInput"
+                 [readonly]="isLockedFromEditing"
+                 formControlName="dueDate"
+                 matInput
+                 [matDatepicker]="dueDate"
+                 placeholder="Select Date"
+                 autocomplete="off"
+                 [attr.aria-readonly]="isLockedFromEditing"
+                 aria-placeholder="Select a due data for approvers"
+          >
+          <mat-datepicker-toggle [disabled]="isLockedFromEditing"
+                                 id="datePickerToggle"
+                                 matSuffix
+                                 [for]="dueDate"
+                                 [attr.aria-disabled]="isLockedFromEditing"
+                                 aria-label="Click here to open a calendar for selecting a due date"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #dueDate></mat-datepicker>
+          <mat-error *ngIf="form.get('dueDate').invalid && (form.get('dueDate').dirty || form.get('dueDate').touched)" aria-label="Error; due date is required">Due Date is required.</mat-error>
+        </mat-form-field>
+      </form>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="sectionDiv">
+      <button
+        id="submitForApprovalSubmitButton"
+        class="sectionDivChildElement"
+        mat-raised-button
+        color="primary"
+        focus
+        type="submit"
+        (click)="submit()"
+        [disabled]="form.invalid || isLockedFromEditing"
+        aria-label="Submit this procedure for review"
+        [attr.aria-disabled]="form.invalid || isLockedFromEditing"
+      >Submit</button>
+    </div>
+  </div>
+</fieldset>

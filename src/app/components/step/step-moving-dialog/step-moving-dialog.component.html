@@ -1,0 +1,14 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">Move Step</h2>
+<div mat-dialog-content>
+  <app-movedefinition [allOptions]="allOptions" [entityType]="entityType" [movingEntity]="step"
+                      [procedureData]="procedureData" (movingChange)="receiveMovingChange($event)"></app-movedefinition>
+  <div [hidden]="!isRedlineEdit">
+    <hr>
+    <app-red-black-line-comment #commentInput [disableForSaving]="saving" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+  </div>
+</div>
+<div mat-dialog-actions class="flex-row justify-end items-stretch content-stretch">
+  <button mat-raised-button button *ngIf="isRedlineEdit" (click)="cancelRedline()">Cancel</button>
+  <button mat-raised-button button *ngIf="!isRedlineEdit" [disabled]="saving" mat-dialog-close>Cancel</button>
+  <button mat-raised-button button *ngIf="(parentSelected && olderSibling) && (!isRedlineEdit || (isRedlineEdit && commentInput.isValid))" color="primary" (click)="updateStep()" [disabled]="saving">Move Step</button>
+</div>

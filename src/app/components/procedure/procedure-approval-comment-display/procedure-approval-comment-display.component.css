@@ -1,0 +1,53 @@
+.commentDiv {
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.commentDivDate, .commentDivUser, .replyDivDate, .replyDivUser {
+  font-size: .8em;
+  font-style: italic;
+}
+
+.panelContent {
+  border-top: 1px solid black;
+  padding-top: 10px;
+}
+
+.commentDivComment {
+
+}
+
+::ng-deep .mat-content {
+  overflow: visible !important;
+}
+
+span.headerAlignment {
+  padding-left: 5px;
+}
+
+.headerAlignment {
+  vertical-align: middle;
+}
+
+.replyDiv {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #1960c1;
+  background-color: rgba(165, 230, 255, 0.61);
+  padding: 5px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.replyDivHeader, .commentDivHeader {
+  display: flex;
+  flex-direction: row;
+}
+
+.replyDivReply {
+
+}

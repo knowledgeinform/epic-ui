@@ -1,0 +1,75 @@
+<fieldset class="epic-fieldset" *ngIf="procedureData.editType !== 'LOCKED_RUN' && procedureData.hazardous && (procedureData.hazardDescription?.length === 0)">
+  <legend class="epic-fieldset">Hazard Description Needed</legend>
+  <p >
+    This procedure has been marked as hazardous, but there is no hazard information in the header. Resolve this conflict before submitting this run for close-out.
+  </p>
+</fieldset>
+<div *ngIf="(!procedureData.hazardous || (procedureData.hazardous && procedureData.hazardDescription?.length > 0))">
+  <fieldset class="epic-fieldset">
+    <legend class="epic-fieldset">Approvers
+      <span class="spinner-wrapper" *ngIf="savingApprover"><mat-spinner mode="indeterminate" diameter="24"></mat-spinner></span>
+    </legend>
+    <p>List the run close-out approvers in the order in which EPIC should request approvals.</p>
+    <p>Approvers will not be emailed until the approver before them has approved, but an approver may log in at any time to approve.</p>
+    <div class="div-margin">
+      <h3>Guidelines for Run Close-out</h3>
+      <p>For a “minor” procedure (legacy work order), closeout approvers during system I&T are typically:</p>
+      <ol>
+        <li>I&T Lead Engineer</li>
+        <li>System Assurance Manager</li>
+      </ol>
+      <p>For a “major” procedure (legacy PLM procedure), closeout approvers during system I&T are typically:</p>
+      <ol>
+        <li>Cognizant Engineer</li>
+        <li>I&T Lead Engineer</li>
+        <li>System Assurance Manager</li>
+      </ol>
+    </div>
+    <div *ngIf="run?.runApprovals" class="div-margin">
+      <h3>Selected Approvers</h3>
+      <div class="flex-row flex-wrap justify-start items-stretch content-stretch">
+        <mat-chip-listbox class="mat-chip-list-stacked section-list" cdkDropList (cdkDropListDropped)="dropApprover($event)">
+          <div class="section-box" cdkDrag *ngFor="let approver of run.runApprovals" [cdkDragDisabled]="!canAddChangeDeleteApprovers">
+            <div class="approval-placeholder" *cdkDragPlaceholder></div>
+            <div *cdkDragPreview>
+              <mat-chip-option>{{approver.users.displayName}}</mat-chip-option>
+            </div>
+            <mat-icon *ngIf="canAddChangeDeleteApprovers"
+              cdkDragHandle
+              matTooltip="Click here to drag approval to a new position in list"
+              class="dragHandle drag-handle-icon"
+            >drag_indicator
+            </mat-icon>
+            <mat-chip-option selected [selectable]="true" [removable]="true" color="primary" class="flex-item"
+                      (removed)="removeApproval(approver)" [matTooltip]="getApproverChipTooltipText(approver)">
+              {{approver.users.displayName}}
+              <mat-icon *ngIf="canRemoveApprover(approver)" matChipRemove>cancel</mat-icon>
+            </mat-chip-option>
+            <mat-form-field class="form-field-margin">
+              <mat-label>Approver Due Date</mat-label>
+              <input [readonly]="!canAddChangeDeleteApprovers" #dueDateInput [value]="approver.dueDate | approverDueDate"
+                     matInput [matDatepicker]="dueDate" placeholder="Select Date" autocomplete="off"
+                     (dateChange)="updateApproverDueDate(approver, $event.value)">
+              <mat-datepicker-toggle *ngIf="!isReadonly" id="datePickerToggle" matSuffix [for]="dueDate"></mat-datepicker-toggle>
+              <mat-datepicker [disabled]="approver.isApproved || !canAddChangeDeleteApprovers" #dueDate></mat-datepicker>
+              <mat-error *ngIf="!dueDateInput.value || dueDateInput.value.length === 0">Due Date is required.</mat-error>
+            </mat-form-field>
+            <mat-icon class="icon-align" [style.color]="approver.isApproved | approverIsApprovedColor"
+                      title="{{approver | approverIsApprovedTitle}}">
+              {{approver | approverIsApprovedIcon}}
+            </mat-icon>
+          </div>
+        </mat-chip-listbox>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" [disabled]="savingApprover || submittingRun || !canAddChangeDeleteApprovers" (click)="addApprover()" title="Add Approver"><mat-icon>person_add</mat-icon></button>
+  </fieldset>
+  <fieldset class="epic-fieldset">
+    <legend class="epic-fieldset">Submit For Approval</legend>
+    <p>Click the button below to submit this run for approval. All approvers must have due dates before this run can be submitted.</p>
+    <button mat-raised-button color="primary" [disabled]="savingApprover || submittingRun || !allApproversHaveDueDates || !canAddChangeDeleteApprovers" (click)="submitRunAndTransitionToReviewing()">Submit Run for Approval</button>
+    <div class="savingLabel flex-row justify-end items-stretch content-stretch" *ngIf="submittingRun">
+      Submitting Run...
+    </div>
+  </fieldset>
+</div>

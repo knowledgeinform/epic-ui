@@ -1,0 +1,19 @@
+<h2 mat-dialog-title class="flex-row justify-center items-stretch content-stretch">New Pin Generation</h2>
+<div *ngIf="fetchIsDone; else fetchingPlaceholder">
+  <div mat-dialog-content>
+    <p>Hello, {{user.displayName}}</p>
+    <p>You do not yet have a pin associated with your account. Your randomly generated pin is: </p>
+    <p class="pin-style">{{user.pin}}</p>
+    <p>Please remember this pin and keep it private.</p>
+    <p>If you would like to view or change this pin in the future, you may do so on your profile page - click on the
+      drop-down menu in the left top corner of the application to access your profile.</p>
+  </div>
+  <mat-dialog-actions>
+    <button mat-raised-button button color="primary" mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+</div>
+
+<ng-template #fetchingPlaceholder>
+  <div>Generating New Pin...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

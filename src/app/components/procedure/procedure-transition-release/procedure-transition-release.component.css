@@ -1,0 +1,33 @@
+span.headerAlignment {
+  padding-left: 5px;
+}
+
+.headerAlignment {
+  vertical-align: middle;
+}
+
+.approverDivDisplay{
+  padding:5px;
+}
+
+fieldset {
+  border: 2px solid #00506B;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+legend {
+  color: #00506B;
+  padding: 0 10px;
+}
+.buttonDiv{
+}
+
+.buttonDiv button {
+  margin:5px;
+}
+
+.buttonDiv mat-icon {
+  padding-right:3px;
+}
+

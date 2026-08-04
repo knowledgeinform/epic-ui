@@ -1,0 +1,210 @@
+<fieldset>
+  <legend>Run Activity Summary</legend>
+  <div class="div-margin">
+    <fieldset class="epic-fieldset">
+      <legend class="epic-fieldset">Validation Errors</legend>
+      <p>{{validationErrors | validationErrorCountText}}
+        <button mat-icon-button disabled>
+        <mat-icon color="primary" matTooltip="Validation error count includes all errors down to individual fields of a step, such as table cells and witness signatures.">help</mat-icon>
+        </button>
+        <span>
+          <button mat-icon-button
+                          (click)="expandValidationAll = !expandValidationAll"
+                          id="validationSummaryExpandCollapseButton"
+                          matTooltip="Expand/Collapse All"
+                          aria-label="Click here to expand or collapse all validation errors"
+          >
+            <mat-icon>storage</mat-icon>
+          </button>
+        </span>
+      </p>
+
+      <div *ngIf="validationErrors?.selfAndChildErrorCount > 0">
+
+        <mat-accordion [multi]="true">
+          <mat-expansion-panel *ngFor="let step of invalidSteps" [expanded]="expandValidationAll">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{step.element | stepDisplayOrder : step.element.displayOrder}} {{step.element | stepDisplayName}}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div *ngFor="let error of step.errors">
+              <p>
+                  <span [style.color]="error.error | validationErrorIconColor">
+                    <mat-icon class="icon-align">{{error.error | validationErrorIcon : step.element.type}}</mat-icon>
+                  </span> {{error.description}}
+              </p>
+            </div>
+            <div *ngIf="step.element.type === StepType.TABLE && step.childErrorCount > 0">
+              <p>
+                  <span [style.color]="ValidationErrors.FIELD_REQUIRED | validationErrorIconColor">
+                    <mat-icon class="icon-align">{{ValidationErrors.FIELD_REQUIRED | validationErrorIcon : step.element.type}}</mat-icon>
+                  </span> {{step | tableValidationErrorDescription}}
+              </p>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+    </fieldset>
+    <fieldset class="epic-fieldset">
+      <legend class="epic-fieldset">Non-Conformances</legend>
+      <p>{{nonconformances?.length | nonconformanceCountText}}</p>
+      <div *ngIf="nonconformances?.length > 0">
+        <button mat-raised-button color="primary" (click)="expandNonconformanceAll = !expandNonconformanceAll">Expand/Collapse All</button>
+        <mat-accordion [multi]="true">
+          <mat-expansion-panel *ngFor="let nc of nonconformances" [expanded]="expandNonconformanceAll">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{nc.step | stepDisplayOrder : nc.step.displayOrder}} {{nc.step | stepDisplayName}}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="commentDiv" *ngFor="let comment of nc.nonconformanceComments">
+              <div class="commentDivHeader">
+                <span class="commentDivDate">{{comment.commentTimestamp | date:'short'}}</span>
+                <span>&nbsp;-&nbsp;</span>
+                <span class="commentDivUser">{{comment.users.displayName}}</span>
+              </div>
+              <span class="commentDivComment">{{comment.commentText}}</span>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+    </fieldset>
+    <fieldset class="epic-fieldset">
+      <legend class="epic-fieldset">Red Lines</legend>
+
+      <p>{{lineEditReportingService.totalRedLineCount.getCount(procedureData.pk) | lineEditCountText : CommentType.RED_LINE_COMMENT}}
+        <span *ngIf="lineEditReportingService.totalRedLineCount.getCount(procedureData.pk) > 0">
+          <button mat-icon-button
+                  (click)="expandRedLinesAll = !expandRedLinesAll"
+                  id="redLineSummaryExpandCollapseButton"
+                  matTooltip="Expand/Collapse All"
+                  aria-label="Click here to expand or collapse all red lines">
+            <mat-icon>storage</mat-icon>
+          </button>
+          <button *ngIf="!isReadonly" mat-icon-button
+                  (click)="openBulkSignLineDialog(true)"
+                  id="bulkSignRedLinesButton"
+                  matTooltip="Bulk sign Red Lines"
+                  aria-label="Sign Red Lines">
+            <mat-icon style="color: red;">beenhere</mat-icon>
+          </button>
+        </span>
+      </p>
+
+      <div *ngIf="lineEditReportingService.totalRedLineCount.getCount(procedureData.pk) > 0">
+        <p>Procedure Red Lines - {{lineEditReportingService.procedureLevelRedLines.getLines(procedureData.pk).length}} Red Line(s)</p>
+        <app-line-edit-comments *ngFor="let procedureRedLine of lineEditReportingService.procedureLevelRedLines.getLines(procedureData.pk)"
+                                [procedureData]="procedureData" [comment]="procedureRedLine" [isReadOnly]="isReadonly"></app-line-edit-comments>
+        <p>Instruction Red Lines - {{lineEditReportingService.instructionRedLineCount.getCount(procedureData.pk)}} Red Line(s)</p>
+        <mat-accordion [multi]="true">
+          <mat-expansion-panel *ngFor="let instruction of lineEditReportingService.instructionRedLines.getLines(procedureData.pk)"
+                               [expanded]="expandRedLinesAll">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{instruction.displayOrder}}. {{instruction.sectionName}}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-line-edit-comments *ngFor="let redLine of instruction.redLineComments" [comment]="redLine"
+                                    [procedureData]="procedureData" [isReadOnly]="isReadonly"></app-line-edit-comments>
+          </mat-expansion-panel>
+        </mat-accordion>
+        <p>Step Group Red Lines - {{lineEditReportingService.groupRedLineCount.getCount(procedureData.pk)}} Red Line(s)</p>
+        <mat-accordion [multi]="true">
+          <mat-expansion-panel *ngFor="let stepGroup of lineEditReportingService.groupRedLines.getLines(procedureData.pk)"
+                               [expanded]="expandRedLinesAll">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{stepGroup | stepGroupDisplayOrder : stepGroup.displayOrder}} {{stepGroup.stepGroupName}}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-line-edit-comments *ngFor="let redLine of stepGroup.redLineComments" [comment]="redLine"
+                                    [procedureData]="procedureData" [isReadOnly]="isReadonly"></app-line-edit-comments>
+          </mat-expansion-panel>
+        </mat-accordion>
+        <p>Step Red Lines - {{lineEditReportingService.stepRedLineCount.getCount(procedureData.pk)}} Red Line(s)</p>
+        <mat-accordion [multi]="true">
+          <mat-expansion-panel *ngFor="let step of lineEditReportingService.stepRedLines.getLines(procedureData.pk)"
+                               [expanded]="expandRedLinesAll">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{step | stepDisplayOrder : step.displayOrder}} {{step | stepDisplayName}}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-line-edit-comments *ngFor="let redLine of step.redLineComments" [comment]="redLine"
+                                    [procedureData]="procedureData" [isReadOnly]="isReadonly"></app-line-edit-comments>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+    </fieldset>
+    <fieldset class="epic-fieldset">
+      <legend class="epic-fieldset">Black Lines</legend>
+      <p>{{lineEditReportingService.totalBlackLineCount.getCount(procedureData.pk) | lineEditCountText : CommentType.BLACK_LINE_COMMENT}}
+        <span *ngIf="lineEditReportingService.totalBlackLineCount.getCount(procedureData.pk) > 0">
+          <button mat-icon-button
+                  (click)="expandBlackLinesAll = !expandBlackLinesAll"
+                  id="blackLineSummaryExpandCollapseButton"
+                  matTooltip="Expand/Collapse All"
+                  aria-label="Click here to expand or collapse all black lines">
+            <mat-icon>storage</mat-icon>
+          </button>
+          <button *ngIf="!isReadonly" mat-icon-button
+                  (click)="openBulkSignLineDialog(false)"
+                  id="bulkSignBlackLinesButton"
+                  matTooltip="Bulk sign Black Lines"
+                  aria-label="Sign Black Lines">
+            <mat-icon>beenhere</mat-icon>
+          </button>
+        </span>
+      </p>
+
+        <div *ngIf="lineEditReportingService.totalBlackLineCount.getCount(procedureData.pk) > 0">
+        <p>Procedure Black Lines - {{lineEditReportingService.procedureBlackLineCount.getCount(procedureData.pk)}} Black Line(s)</p>
+        <app-line-edit-comments *ngFor="let procedureRedLine of lineEditReportingService.procedureLevelBlackLines.getLines(procedureData.pk)"
+                                [procedureData]="procedureData" [isReadOnly]="isReadonly" [comment]="procedureRedLine"></app-line-edit-comments>
+
+        <!-- placeholder - eventually black lines will be implemented for step groups and instructions -->
+        <!--          <p>Instruction Black Lines - {{redLineReportingService.getTotalInstructionRedLineCount(procedureData)}} Red Line(s)</p>-->
+        <!--          <mat-accordion [multi]="true">-->
+        <!--            <mat-expansion-panel *ngFor="let instruction of redLineReportingService.instructionRedLines[procedureData.pk]"-->
+        <!--                                 [expanded]="expandRedLinesAll">-->
+        <!--              <mat-expansion-panel-header>-->
+        <!--                <mat-panel-title>-->
+        <!--                  {{instruction.displayOrder}}. {{instruction.sectionName}}-->
+        <!--                </mat-panel-title>-->
+        <!--              </mat-expansion-panel-header>-->
+        <!--              <app-line-edit-comments *ngFor="let redLine of instruction.redLineComments" [comment]="redLine"-->
+        <!--                                      [procedureData]="procedureData"></app-line-edit-comments>-->
+        <!--            </mat-expansion-panel>-->
+        <!--          </mat-accordion>-->
+        <!--          <p>Step Group Red Lines - {{redLineReportingService.getTotalGroupRedLineCount(procedureData)}} Red Line(s)</p>-->
+        <!--          <mat-accordion [multi]="true">-->
+        <!--            <mat-expansion-panel *ngFor="let stepGroup of redLineReportingService.groupRedLines[procedureData.pk]"-->
+        <!--                                 [expanded]="expandRedLinesAll">-->
+        <!--              <mat-expansion-panel-header>-->
+        <!--                <mat-panel-title>-->
+        <!--                  {{getStepGroupDisplayOrderAndName(stepGroup)}}-->
+        <!--                </mat-panel-title>-->
+        <!--              </mat-expansion-panel-header>-->
+        <!--              <app-line-edit-comments *ngFor="let redLine of stepGroup.redLineComments" [comment]="redLine"-->
+        <!--                                      [procedureData]="procedureData"></app-line-edit-comments>-->
+        <!--            </mat-expansion-panel>-->
+        <!--          </mat-accordion>-->
+
+        <p>Step Black Lines - {{lineEditReportingService.stepBlackLineCount.getCount(procedureData.pk)}} Black Line(s)</p>
+        <mat-accordion [multi]="true">
+          <mat-expansion-panel *ngFor="let step of lineEditReportingService.stepBlackLines.getLines(procedureData.pk)"
+                               [expanded]="expandBlackLinesAll">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{step | stepDisplayOrder : step.displayOrder}} {{step | stepDisplayName}}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-line-edit-comments *ngFor="let blackLine of step.blackLineComments" [comment]="blackLine"
+                                    [procedureData]="procedureData" [isReadOnly]="isReadonly"></app-line-edit-comments>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+    </fieldset>
+  </div>
+</fieldset>

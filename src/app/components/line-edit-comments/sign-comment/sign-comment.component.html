@@ -1,0 +1,63 @@
+<div
+  class="signature-box flex-column"
+  *ngIf="!saving; else savingSignature"
+>
+
+  <div [ngSwitch]="state" class="flex-column gap-10 items-start">
+    <ng-container *ngSwitchDefault>
+
+      <mat-form-field class="full-width">
+        <mat-label>Enter approver's 521 and six digit pin</mat-label>
+        <input *ngIf=!redLines
+          [readonly]="readonly"
+          matInput
+          maxlength="14"
+          [formControl]="formControl"
+          required
+          type="password"
+          (change)=submitSignature()
+        >
+        <input *ngIf=redLines
+               [readonly]="readonly"
+               matInput
+               maxlength="14"
+               [formControl]="formControl"
+               required
+               type="password"
+        >
+        <mat-hint>Example: smithjh1123456</mat-hint>
+        <mat-error *ngIf="formControl.invalid || formControl.dirty || formControl.touched">Approver's 521 plus pin is
+          required</mat-error>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        *ngIf="state === STATES.RESIGNING && !redLines"
+        color="warn"
+        (click)="cancelResign()"
+      > Cancel Re-Sign </button>
+
+    </ng-container>
+
+    <ng-container *ngSwitchCase="STATES.SIGNED">
+      <ng-container *ngIf="signature">
+        <div class="signature-display">
+          Approved By: {{signature.user.displayName}} at {{signature.timestamp | date: 'short'}}
+        </div>
+        <button
+          mat-raised-button
+          *ngIf="!readonly"
+          color="warn"
+          (click)="resign()"
+        >Re-Sign</button>
+      </ng-container>
+    </ng-container>
+
+  </div>
+
+</div>
+
+<ng-template #savingSignature>
+  <div>Saving Signature...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

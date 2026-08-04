@@ -1,0 +1,82 @@
+<div class="flex-column flex-100">
+  <div class="report-display-toolbar flex-row justify-start items-stretch content-stretch gap-15 flex-10"
+       *ngIf="fetchIsDone; else fetchingPlaceholder">
+    <mat-form-field>
+      <mat-label>Select a Report</mat-label>
+      <mat-select [(value)]="selectedReport" required>
+        <mat-option *ngFor="let report of reportsLists" [value]="report">{{ReportTypes[report]}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <ng-container *ngIf="selectedReport">
+      <mat-form-field>
+        <mat-label>Select Program</mat-label>
+        <mat-select [(value)]="selectedProgram">
+          <mat-option *ngFor="let program of programs" [value]="program">{{program.code}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <ng-container *ngIf="ReportTypes[selectedReport] !== ReportTypes.PROGRAM_EXPORT">
+        <mat-form-field >
+          <mat-label>Select Subsystem</mat-label>
+          <mat-select [(value)]="selectedSubsystem">
+            <mat-option *ngFor="let subsystem of subsystems" [value]="subsystem">{{subsystem.code}} - {{subsystem.name}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field *ngIf="ReportTypes[selectedReport] !== ReportTypes.PROCEDURE_STATUS">
+          <mat-label>Select Testing Phase</mat-label>
+          <mat-select [(value)]="selectedTestingPhase">
+            <mat-option *ngFor="let phase of testingPhases" [value]="phase">{{phase.code}} - {{phase.name}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </ng-container>
+      <mat-icon class="icon-align" matTooltip="Clear All Filters" (click)="clearAllFilters()">clear_all</mat-icon>
+      <button *ngIf="selectedReport !== 'PROGRAM_EXPORT'; else programExportBtnTemplate" mat-raised-button color="primary" (click)="openTabWithSelectedReport($event)">Display Selected Report</button>
+      <ng-template #programExportBtnTemplate >
+        <button [disabled]="!selectedProgram" mat-raised-button color="primary" (click)="exportProgram(selectedProgram)">Export Program</button>
+      </ng-template>
+    </ng-container>
+  </div>
+  <div class="report-display-area flex-90 flex-row">
+    <mat-tab-group [selectedIndex]="selectedTab" class="flex-100" id="reportsTabGroup" #matTabGroup='matTabGroup' color="accent" mat-align-tabs="center">
+      <mat-tab *ngFor="let tab of openTabs; let i = index" label="{{ReportTypes[tab]}}">
+        <div class="flex-row">
+          <div  class="flex-column flex-50 justify-start items-start content-start">
+            <div *ngIf="ReportTypes[tab] === ReportTypes.RUN_STATUS" class="flex-row justify-start items-start content-start">
+              <mat-slide-toggle [disabled]="fetchingRecords" color="accent" labelPosition="after" (toggleChange)="showRunApprovals = !showRunApprovals">View Run Closeout Approvals</mat-slide-toggle>
+              <mat-slide-toggle [disabled]="fetchingRecords" color="accent" labelPosition="after" (toggleChange)="showRunNonConformance = !showRunNonConformance" style="padding-left: 20px">View Run NonConformances</mat-slide-toggle>
+            </div>
+          </div>
+          <div class="flex-column flex-50">
+            <div class="flex-row justify-end items-end content-end">
+              <mat-icon color="warn" (click)="closeReport(i)" matTooltip="Close This Report">close</mat-icon>
+            </div>
+          </div>
+        </div>
+        <div class="report-view flex-row">
+          <ng-container [ngSwitch]="ReportTypes[tab]">
+            <app-reporting-procedure-status class="full-width" *ngSwitchCase="ReportTypes.PROCEDURE_STATUS"
+                                            [program]="selectedProgram"
+                                            [subsystem]="selectedSubsystem"></app-reporting-procedure-status>
+            <app-reporting-run-status class="full-width" *ngSwitchCase="ReportTypes.RUN_STATUS"
+                                      [program]="selectedProgram"
+                                      [subsystem]="selectedSubsystem"
+                                      [testingPhase]="selectedTestingPhase"
+                                      [showRunApprovals]="showRunApprovals"
+                                      [showRunNonConformance]="showRunNonConformance"
+                                      (fetchingChange)="fetchingRecords=$event"></app-reporting-run-status>
+            <app-reporting-equipment-list class="full-width" *ngSwitchCase="ReportTypes.EQUIPMENT_LIST"
+                                          [program]="selectedProgram"
+                                          [subsystem]="selectedSubsystem"
+                                          [testingPhase]="selectedTestingPhase"
+                                          [isEquipmentReport]="true"></app-reporting-equipment-list>
+          </ng-container>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <ng-template #fetchingPlaceholder>
+    <div>Setting up report selection tools...</div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+</div>
+

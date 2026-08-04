@@ -1,0 +1,44 @@
+// For more customization options, see https://containers.dev/implementors/json_reference
+{
+  "name": "EPIC UI DevContainer",
+
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+
+  "privileged": true,
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "angular.ng-template",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "vscjava.vscode-java-pack"
+      ]
+    },
+    "jetbrains": {
+      "backend": "IntelliJ",
+      "settings": {
+        // IDE settings can be added via "Show context actions" | "Add currently modified settings from IDE"
+      },
+      "plugins": []
+    }
+  },
+
+  "mounts": [
+    "source=${env:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
+    "source=${env:HOME}/.m2,target=/root/.m2,type=bind,consistency=cached"
+  ],
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "forwardPorts": [4200, 49153],
+
+  "postCreateCommand": "npm install",
+
+  "remoteUser": "root"
+}

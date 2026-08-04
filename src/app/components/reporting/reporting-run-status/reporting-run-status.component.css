@@ -1,0 +1,14 @@
+.div-container {
+  height: 85%;
+  width: calc(100% - 20px);
+  padding: 10px;
+}
+
+.div-toolbar {
+  align-items: baseline !important;
+}
+
+.div-equipment-container {
+  height: 100%;
+  width: 100%;
+}

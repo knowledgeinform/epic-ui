@@ -1,0 +1,30 @@
+<mat-dialog-content>
+  <form
+    class="flex-column gap-10"
+  >
+    <div
+      class="header flex-100 flex-row gap-20"
+    >
+      <span class="flex">Name</span>
+      <span class="flex">Serial No. 123</span>
+      <span class="flex">APL Property Number</span>
+      <span class="flex">Calibration Due Date</span>
+      <span class="flex">Calibrated On</span>
+    </div>
+
+    <div
+         class="equipment-row flex-100 flex-row">
+      <app-equipment-entry-item
+        [i]="i"
+        [readOnly]="false"
+        [parentForm]="parentForm"
+        class="flex-100"
+      ></app-equipment-entry-item>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+  <button mat-raised-button align="left" mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" align="left" [mat-dialog-close]="parentForm">Save</button>
+</div>

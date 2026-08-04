@@ -1,0 +1,33 @@
+<!-- list of existing comments -->
+<div class="comment-section-title">
+  Run Closeout Stickies
+</div>
+<div class="commentDiv" *ngFor="let comment of runCloseoutStickyComments">
+  <app-generic-comment-history-display [arrayOfCommentsOrHistories]="[comment]" [addBorder]="false"></app-generic-comment-history-display>
+  <mat-checkbox *ngIf="!readonly" [checked]="comment.isComplete" (change)="deleteStickyComment(comment, $event)" color="accent">Sticky has been addressed</mat-checkbox>
+</div>
+<!-- add a new comment here -->
+<div *ngIf="!readonly">
+  <div class="commentDiv new-comment-border" *ngIf="fetchIsDone; else fetchingPlaceholder">
+    <form [formGroup]="stickyCommentForm">
+      <mat-form-field class="comment-form-field">
+        <mat-label>Enter a new sticky here.</mat-label>
+        <textarea id="runStickyInputField" #commentText maxlength="2048" matInput cdkTextareaAutosize formControlName="commentText"></textarea>
+        <mat-hint align="end">{{commentText.value?.length || 0}}/2048</mat-hint>
+      </mat-form-field>
+      <div class="buttonLayout">
+        <span class="fill-space"></span>
+        <button id="runStickyAddCommentClear" mat-raised-button type="reset" (click)="cancelAddComment()" class="flex-row justify-end items-stretch content-stretch">Clear</button>
+        <button id="runStickyAddCommentSubmit" mat-raised-button color="primary" focus type="submit" (click)="submitStickyComment()" [disabled]="stickyCommentForm.invalid">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<ng-template #fetchingPlaceholder>
+  <div>Processing Comment...</div>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>
+
+

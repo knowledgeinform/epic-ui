@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>
+  Write a {{commentType | lineEditTypeText}} Line Comment
+</h1>
+<div mat-dialog-content>
+  <app-red-black-line-comment #commentInput [disableForSaving]="disableForSaving" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+</div>
+<div mat-dialog-actions>
+  <button id="clearLineEdit" mat-raised-button type="reset" (click)="clearComment()" class="flex-row justify-end items-stretch content-stretch">Clear Comment</button>
+  <button id="cancelLineEdit" mat-raised-button type="cancel" matTooltip="Clicking this button will cancel your red line change." (click)="cancel()" class="flex-row justify-end items-stretch content-stretch">Cancel</button>
+  <button id="submitRedLine" mat-raised-button color="primary" focus type="submit" (click)="submitLineEditComment()" [disabled]="!commentInput.isValid">Submit {{commentType | lineEditTypeText}} Line</button>
+</div>

@@ -1,0 +1,39 @@
+table {
+  width: 100%;
+}
+
+.approvalTableWrapper {
+  padding: 10px;
+}
+
+.approvals-fieldset {
+  border: solid 2px #6e0f00;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.approvals-legend {
+  color: #6e0f00;
+  padding: 0px 10px; /* To give a bit of padding on the left and right */
+  font-style: italic;
+  font-size: larger;
+}
+
+.status-dash {
+  text-align: right;
+}
+
+.mat-mdc-row:hover {
+  background-color: #efefef;
+  cursor: pointer;
+  /*font-weight: bold;*/
+}
+
+h4 {
+  margin: 0;
+  text-align: center;
+}
+
+.empty-placeholder {
+  text-align: center;
+}
