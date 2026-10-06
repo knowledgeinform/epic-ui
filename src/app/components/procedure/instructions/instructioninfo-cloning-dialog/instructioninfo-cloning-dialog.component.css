@@ -1,0 +1,20 @@
+mat-dialog-content {
+  min-width: 400px;
+}
+
+mat-dialog-content h3 {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+mat-selection-list {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  gap: 8px;
+}
+
+hr {
+  margin: 16px 0;
+}

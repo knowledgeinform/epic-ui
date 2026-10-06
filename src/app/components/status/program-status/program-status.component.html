@@ -1,0 +1,103 @@
+<div class="flex-column flex-100">
+  <!-- Filter Toolbar -->
+  <div class="status-display-toolbar flex-row justify-start items-stretch content-stretch gap-15 flex-10"
+       *ngIf="fetchIsDone; else fetchingPlaceholder">
+    <mat-form-field>
+      <mat-label>Select Program</mat-label>
+      <mat-select [(value)]="selectedProgram" (selectionChange)="onProgramSelected()" required>
+        <mat-option *ngFor="let program of programs" [value]="program">{{program.code}} - {{program.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-icon class="icon-align" matTooltip="Clear All Filters" (click)="clearAllFilters()">clear_all</mat-icon>
+  </div>
+
+  <!-- Status Content Area (shown when program is selected) -->
+  <div *ngIf="showStatusContent" class="status-content-area flex-90 flex-column gap-15">
+    
+    <!-- Fetching Indicator -->
+    <div *ngIf="fetchingRecords">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+
+    <div class="status-content-area flex-90 flex-row gap-15">
+
+      <!-- Procedure Status Section -->
+      <div class="status-section flex-column flex-50">
+        <h3 class="section-title">Procedures</h3>
+        <div class="status-counts-container flex-column gap-10 flex-wrap">
+          <button mat-raised-button color="primary" 
+                  *ngFor="let status of ProcedureStatus | keyvalue"
+                  (click)="onProcedureStatusSelected(status.key)">
+            {{status.value}}: {{procedureStatusCounts[status.key]}}
+          </button>
+        </div>
+      </div>
+
+      <!-- Run Status Section -->
+      <div class="status-section flex-column flex-50">
+        <h3 class="section-title">Runs</h3>
+        <div class="status-counts-container flex-column gap-10 flex-wrap">
+          <button mat-raised-button color="primary"
+                  *ngFor="let status of RunStatus | keyvalue"
+                  (click)="onRunStatusSelected(status.key)">
+            {{status.value}}: {{runStatusCounts[status.key]}}
+          </button>
+      </div>
+      </div>
+
+    </div>
+
+    <!-- Tabbed Table Area -->
+    <div class="table-tabs-area flex-column flex-100">
+      <mat-tab-group [selectedIndex]="selectedTab" class="flex-100" id="statusTabs" #matTabGroup='matTabGroup' color="accent" mat-align-tabs="center" *ngIf="openTabs.length > 0">
+        <mat-tab *ngFor="let tab of openTabs; let i = index" label="{{tab.type === 'procedure' ? 'Procedures - ' + tab.status : 'Runs - ' + tab.status}}">
+          <div class="flex-row justify-end items-end content-end">
+            <mat-icon color="warn" (click)="closeTab(i)" matTooltip="Close This Tab">close</mat-icon>
+          </div>
+          <div class="status-table-container flex-row">
+            <!-- Procedure Table -->
+            <div *ngIf="tab.type === 'procedure'" class="full-width">
+              <ag-grid-angular
+                [rowData]="tab.data"
+                [columnDefs]="procedureColumnDefs"
+                [defaultColDef]="defaultColDef"
+                class="ag-theme-material"
+                style="width: 100%; height: 400px;"
+                (rowClicked)="onRowClick($event)"
+                [rowSelection]="'single'"
+                [tooltipShowDelay]="500"
+                [tooltipShowMode]="'whenTruncated'"
+                (gridReady)="onGridReady($event)">
+              </ag-grid-angular>
+            </div>
+            <!-- Run Table -->
+            <div *ngIf="tab.type === 'run'" class="full-width">
+              <ag-grid-angular
+                [rowData]="tab.data"
+                [columnDefs]="runColumnDefs"
+                [defaultColDef]="defaultColDef"
+                class="ag-theme-material"
+                style="width: 100%; height: 400px;"
+                (rowClicked)="onRowClick($event)"
+                [rowSelection]="'single'"
+                [tooltipShowDelay]="500"
+                [tooltipShowMode]="'whenTruncated'"
+                (gridReady)="onGridReady($event)">
+              </ag-grid-angular>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+      
+      <div *ngIf="openTabs.length === 0" class="no-tabs-message">
+        <p>Select a status above to view the corresponding table</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fetching Placeholder -->
+  <ng-template #fetchingPlaceholder>
+    <div>Setting up status tools...</div>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+</div>

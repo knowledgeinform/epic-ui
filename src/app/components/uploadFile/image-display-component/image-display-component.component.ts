@@ -47,12 +47,17 @@ export class ImageDisplayComponentComponent implements OnInit {
   }
 
   createImageFromBlob(image: Blob) {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => {
-      this.imageToShow = this.sanitizer.bypassSecurityTrustUrl(reader.result.toString());
-    }, false);
+    if (this.imageToShow) {
+      URL.revokeObjectURL(this.imageToShow.toString()); // release previous URL
+    }
     if (image) {
-      reader.readAsDataURL(image);
+      this.imageToShow = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(image));
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.imageToShow) {
+      URL.revokeObjectURL(this.imageToShow.toString());
     }
   }
 }

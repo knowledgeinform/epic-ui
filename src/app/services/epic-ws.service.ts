@@ -29,6 +29,7 @@ import {RunCloseoutComment, RunCloseoutCommentReply, RunCloseoutStickyComment, A
 import {ProcedureListReportingDTO} from '@app/interfaces/procedure-list-reporting-dto';
 import {RunListReportingDTO} from '@app/interfaces/run-list-reporting-dto';
 import {EquipmentDTO} from '@app/interfaces/equipment.dto';
+import { ProgramStatusDTO, ProcedureStatusCounts, RunStatusCounts } from '@app/interfaces/program-status.dto';
 import {Utils} from '@app/utils';
 import { Equipment } from '@app/interfaces/equipment';
 import { StepDef } from '@app/interfaces/step-def.interface';
@@ -43,6 +44,7 @@ import { FindProcedureDTO } from '@app/interfaces/find-procedure-dto';
 import {FindProcedure} from "@app/interfaces/find-procedure";
 import { ProcedureDefAttributesDTO } from '@app/interfaces/procedure-def-attributes.dto';
 import {CommunicationBanner} from "@app/components/admin/communication-banner-config/communication-banner-config.component";
+import { RunEditDTO, RunEditResult } from '@app/interfaces/run-edit.dto';
 
 export const httpJsonOptions = {
   headers: new HttpHeaders({'Content-Type': 'application/json'})
@@ -94,6 +96,14 @@ export class EPICWSService {
     return this.http.get<RunDTO>(`${this.configService.config.apiUrl}/Runs/Run/pk/${runPk}`)
       .pipe(catchError(this.handleError<RunDTO>('getRunByPk')))
       .pipe(map(r => new Run().loadFromDTO(r)));
+  }
+
+  updateRunMetadata(runEditDTO: RunEditDTO): Observable<RunEditResult & ErrMsg> {
+    return this.http.put<RunEditResult>(
+      `${this.configService.config.apiUrl}/Runs/UpdateRunMetadata`,
+      runEditDTO,
+      httpJsonOptions
+    );
   }
 
   getMyApprovals(): Observable<AllApprovalsDTO & ErrMsg> {
@@ -641,6 +651,21 @@ export class EPICWSService {
     return this.httpGet<RunListReportingDTO[]>('Reports/RunsForEquipment', {equipmentPropertyNumber: equipmentPropertyNumber, equipmentSerialNumber: equipmentSerialNumber});
   }
 
+  /* status methods starting here */
+  public getProgramStatus(programPk: number): Promise<ProgramStatusDTO & ErrMsg> {
+    return this.httpGet<ProgramStatusDTO>(`Status/Program/${programPk}`);
+  }
+
+  public getProceduresByStatus(programPk: number, status: string): Promise<ProcedureListReportingDTO[] & ErrMsg> {
+    const params = { programPk: programPk.toString(), status: status };
+    return this.httpGet<ProcedureListReportingDTO[]>('Status/ProceduresByStatus', params);
+  }
+
+  public getRunsByStatus(programPk: number, status: string): Promise<RunListReportingDTO[] & ErrMsg> {
+    const params = { programPk: programPk.toString(), status: status };
+    return this.httpGet<RunListReportingDTO[]>('Status/RunsByStatus', params);
+  }
+
   public getCommunicationBanner(): Observable<CommunicationBanner> {
     return this.http.get<CommunicationBanner>(`${this.configService.config.apiUrl}/Communication/GetBanner`);
   }
@@ -657,7 +682,7 @@ export class EPICWSService {
   private handleError<T>(operation = 'operation', result?: T, duration = 0) {
     return (error: any): Observable<T & ErrMsg> => {
       this.loggerService.error(error);
-      const errMsg = typeof error.error === 'string' ? error.error : (error.error.errorMessage ? error.error.errorMessage : error.message);
+      const errMsg = typeof error.error === 'string' ? error.error : (error.error.errorMessage ? error.error.errorMessage : (error.error.message ? error.error.message : error.message));
       this.messageService.showSnackBar(errMsg, 'CLOSE', duration);
       this.loggerService.error(`${operation} failed:`, errMsg);
       return of(result as T);

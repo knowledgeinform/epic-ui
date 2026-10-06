@@ -6,7 +6,6 @@ import {AppComponent} from '../../app/app.component';
 import {LoginService} from '@app/services/login.service';
 import {ProcedureRunCommonComponent} from './procedure-run-common.component';
 import {MessageService} from '@app/services/message.service';
-import {ErrorDialogComponent} from '@app/components/error-dialog/error-dialog.component';
 import {OfflineService} from '@app/services/offline.service';
 import {ProcedureRevisionService} from '@app/services/procedure-revision.service';
 import {ProcedureDef} from '@app/interfaces/procedure-def.dto';
@@ -26,9 +25,11 @@ import {LoggerService} from '@app/services/logger.service';
 import { RedBlackLineComment } from '@app/interfaces/comment.dto';
 import { LayoutBreakpointService } from '@app/services/layout-breakpoint.service';
 import { BulkValidateDialogComponent } from '@app/components/bulk-validate-dialog/bulk-validate-dialog.component';
-import {StepCloneDialogComponent} from "@app/components/step/step-clone-dialog/step-clone-dialog.component";
 import { LineEditService } from '@app/services/line-edit.service';
 import { LineEditStateService } from '@app/services/line-edit-state.service';
+import { RunEditService } from '@app/services/run-edit.service';
+import { RunEditResult } from '@app/interfaces/run-edit.dto';
+
 
 @Component({
   selector: 'app-procedure-run',
@@ -50,6 +51,11 @@ export class ProcedureRunComponent extends ProcedureRunCommonComponent implement
   public expandSteps: boolean;  // Used to store whether steps should be expanded or collapsed
   public viewNav: boolean;  // Used to store whether the navigation panel should be displayed or not
 
+  // Inline editing state for run name and description
+  public pendingName: string;
+  public pendingDescription: string;
+  public editingField: 'name' | 'description' | null = null;
+
   constructor(
     protected router: Router,
     protected route: ActivatedRoute,
@@ -69,6 +75,7 @@ export class ProcedureRunComponent extends ProcedureRunCommonComponent implement
     protected loggerService: LoggerService,
     public lineEditService: LineEditService,
     protected lineEditStateService: LineEditStateService,
+    private runEditService: RunEditService,
     public readonly media: LayoutBreakpointService,
   ) {
     super(router, route, dialog, app, epicService, jwtService, runValidationService, procedureRevisionService, messageService,
@@ -181,9 +188,11 @@ export class ProcedureRunComponent extends ProcedureRunCommonComponent implement
     this.procedureData = procedureData;
   }
 
-  public refreshValues = () => {
+  public refreshValues = (showMessage = true) => {
     this.loggerService.info('Data refresh clicked, getting information from the server for run procedure details with pk ' + this.procedureData.pk);
-    this.messageService.showSnackBar('Retrieving updated information from the server...', 'CLOSE');
+    if (showMessage) {
+      this.messageService.showSnackBar('Retrieving updated information from the server...', 'CLOSE');
+    }
     this.epicService.getRun(this.runId).subscribe(runOnServer => {
       // TODO: Figure out a solution to EPIC-718. May require web sockets or concurrent editing?
       // _.merge(runOnServer, this.run); // take the current run which should be newer than the server one.
@@ -241,5 +250,191 @@ export class ProcedureRunComponent extends ProcedureRunCommonComponent implement
 
   @HostListener('window:keyup.F8') onF8KeyUp() {
     this.refreshValues();
+  }
+
+  // ============================================================
+  // Inline Editing for Run Name and Description
+  // ============================================================
+
+  /**
+   * Computed property to check if the run is unlocked for metadata editing (i.e. editing name/description).
+   */
+  get isUnlockedForEdit(): boolean {
+    return !this.readOnly && !this.offlineService.offline &&
+      (this.run.status === RunStatus.RUNNING || this.run.status === RunStatus.CORRECTING);
+  }
+
+  /**
+   * Computed property to check if name has been changed from original.
+   */
+  get hasNameChanged(): boolean {
+    return this.pendingName !== null && this.pendingName !== this.run.name;
+  }
+
+  /**
+   * Computed property to check if description has been changed from original.
+   */
+  get hasDescriptionChanged(): boolean {
+    return this.pendingDescription !== null && this.pendingDescription !== this.run.description;
+  }
+
+  /**
+   * Checks if a value is valid for saving:
+   - Not empty
+   - Not whitespace-only
+   - Not exceeding 256 characters
+   */
+  private isValueValid(value: string): boolean {
+    if (!value || value.trim().length === 0) {
+      return false;
+    }
+    if (value.length > 256) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Computed property to check if the name change is valid for saving.
+   * Returns true only if:
+   * - A change has been initiated (pendingName is not null)
+   * - The new name differs from the original
+   * - The new name is not empty or whitespace-only
+   * - The new name does not exceed 256 characters
+   */
+  get isNameValid(): boolean {
+    if (this.pendingName === null || this.pendingName === this.run.name) {
+      return false;
+    }
+    return this.isValueValid(this.pendingName);
+  }
+
+  /**
+   * Computed property to check if the description change is valid for saving.
+   * Returns true only if:
+   * - A change has been initiated (pendingDescription is not null)
+   * - The new description differs from the original
+   * - The new description is not empty or whitespace-only
+   * - The new description does not exceed 256 characters
+   */
+  get isDescriptionValid(): boolean {
+    if (this.pendingDescription === null || this.pendingDescription === this.run.description) {
+      return false;
+    }
+    return this.isValueValid(this.pendingDescription);
+  }
+
+  /**
+   * Handler for name input changes.
+   */
+  onNameInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.pendingName = input.value;
+  }
+
+  /**
+   * Handler for description input changes.
+   */
+  onDescriptionInput(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    this.pendingDescription = textarea.value;
+  }
+
+  /**
+   * Open the blackline comment dialog for the specified field.
+   * This method is called when the user clicks the Save button.
+   */
+  openBlackLineDialog(field: 'name' | 'description'): void {
+    if (!this.run || !this.procedureData) {
+      return;
+    }
+
+    // Set the field being edited
+    this.editingField = field;
+
+    // Update pending values from inputs if not already set
+    if (field === 'name' && this.pendingName === null) {
+      this.pendingName = this.run.name;
+    } else if (field === 'description' && this.pendingDescription === null) {
+      this.pendingDescription = this.run.description;
+    }
+
+    // Open the blackline comment dialog
+    const dialogRef = this.dialog.open<RedBlackLineCommentDialogComponent, RedBlackLineCommentDialogData>(
+      RedBlackLineCommentDialogComponent,
+      {
+        width: '500px',
+        disableClose: true,
+        data: {
+          commentType: CommentType.BLACK_LINE_COMMENT,
+          procedureDetails: this.procedureData.asDTO(),
+        }
+      }
+    );
+
+    dialogRef.afterClosed().subscribe((blackLineComment: RedBlackLineComment | null) => {
+      if (blackLineComment === null) {
+        this.messageService.showSnackBar('Edit Cancelled by User', 'CLOSE');
+        this.editingField = null;
+        return;
+      }
+
+      // Create the black line object
+      const blackLine: BlackLineDto = {
+        blackRedLineSignatures: blackLineComment.blackRedLineSignatures,
+        commentText: blackLineComment.commentText,
+        commentTimestamp: new Date(),
+        commentType: blackLineComment.commentType,
+        pk: null,
+        procedureChangeType: blackLineComment.procedureChangeType,
+        procedureDetails: {
+          pk: this.procedureData.pk,
+        } as ProcedureDetailsDTO,
+        procedureInstruction: null,
+        stepDef: null,
+        stepGroupDef: null,
+        users: null,
+      };
+
+      // Prepare the edit data based on which field is being edited
+      let nameToSave = this.run.name;
+      let descriptionToSave = this.run.description;
+
+      if (field === 'name') {
+        nameToSave = this.pendingName || this.run.name;
+      } else if (field === 'description') {
+        descriptionToSave = this.pendingDescription || this.run.description;
+      }
+
+      // Call the save service
+      this.loggerService.info(`Saving ${field} edit for run pk ${this.run.pk}`);
+
+      this.runEditService.saveEdit(
+        this.run.pk,
+        nameToSave,
+        descriptionToSave,
+        blackLine
+      ).subscribe((result: RunEditResult) => {
+        if (result.success) {
+          this.loggerService.info(`${field} edit saved successfully`);
+          this.messageService.showSnackBar(result.message || 'Run metadata updated successfully', 'CLOSE');
+
+          // Refresh the run data from server
+          this.refreshValues(false);
+
+          // Reset only the pending value for the field that was saved.
+          // The other field may still have unsaved changes.
+          if (field === 'name') {
+            this.pendingName = null;
+          } else {
+            this.pendingDescription = null;
+          }
+          this.editingField = null;
+        } else {
+          this.loggerService.error('Failed to save run metadata edit: ' + result.message);
+          this.messageService.showSnackBar('Failed to update run metadata: ' + result.message, 'CLOSE');
+        }
+      });
+    });
   }
 }

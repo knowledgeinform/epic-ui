@@ -13,6 +13,7 @@
         <div class="flex-row">
           <mat-menu #navMenu="matMenu">
             <a routerLink="/dashboard" mat-menu-item id="navMenuDashboard">Dashboard</a>
+            <a mat-menu-item routerLink="status" id="navMenuStatus">Program Status</a>
             <button mat-menu-item [matMenuTriggerFor]="proceduresMenu" id="navMenuProcedures"
                     [disabled]="offlineService.offline">Procedures
             </button>

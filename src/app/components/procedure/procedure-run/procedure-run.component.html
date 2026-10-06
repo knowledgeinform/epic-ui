@@ -244,11 +244,28 @@
                      aria-readonly="true"
               >
             </mat-form-field>
-
           </div>
-          <div class="flex-row xs:flex-column gap-10"
-               >
-            <mat-form-field class="flex-50 xs:flex-100">
+          <div class="flex-row xs:flex-column gap-10">
+            <mat-form-field class="flex-50 xs:flex-100" *ngIf="run | canEditRunName: jwtService.currentUser: readOnly: offlineService.offline">
+              <mat-label>Name</mat-label>
+              <input
+                matInput
+                #nameInput
+                [value]="run.name"
+                [attr.aria-label]="'The name for this run is ' + run.name"
+                (input)="onNameInput($event)"
+              >
+              <button
+                mat-icon-button
+                matSuffix
+                matTooltip="Save name change"
+                [disabled]="!isNameValid"
+                (click)="openBlackLineDialog('name')"
+                [attr.aria-label]="'Save the name change for this run'">
+                <mat-icon>save</mat-icon>
+              </button>
+            </mat-form-field>
+            <mat-form-field class="flex-50 xs:flex-100" *ngIf="!(run | canEditRunName: jwtService.currentUser: readOnly: offlineService.offline)">
               <mat-label>Name</mat-label>
               <input
                 matInput
@@ -269,11 +286,29 @@
                 [attr.aria-label]="'The run was started by ' + run.user.displayName"
               >
             </mat-form-field>
-
           </div>
-          <div class="flex-row xs:flex-column gap-10 gt-xs:justify-center gt-xs:items-end gt-xs:content-end"
-          >
-            <mat-form-field class="flex-50 xs:flex-100">
+          <div class="flex-row xs:flex-column gap-10 gt-xs:justify-center gt-xs:items-end gt-xs:content-end">
+            <mat-form-field class="flex-50 xs:flex-100" *ngIf="run | canEditRunDescription: jwtService.currentUser: readOnly: offlineService.offline">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                #descInput
+                [value]="run.description"
+                rows="3"
+                [attr.aria-label]="'The description for this run is ' + run.description"
+                (input)="onDescriptionInput($event)"
+              ></textarea>
+              <button
+                mat-icon-button
+                matSuffix
+                matTooltip="Save description change"
+                [disabled]="!isDescriptionValid"
+                (click)="openBlackLineDialog('description')"
+                [attr.aria-label]="'Save the description change for this run'">
+                <mat-icon>save</mat-icon>
+              </button>
+            </mat-form-field>
+            <mat-form-field class="flex-50 xs:flex-100" *ngIf="!(run | canEditRunDescription: jwtService.currentUser: readOnly: offlineService.offline)">
               <mat-label>Description</mat-label>
               <textarea
                 matInput
@@ -294,10 +329,8 @@
                 [attr.aria-label]="'This run was created on ' + (run.createdDate | date: 'medium')"
               >
             </mat-form-field>
-
           </div>
-          <div class="flex-row xs:flex-column gap-10"
-               >
+          <div class="flex-row xs:flex-column gap-10">
             <mat-form-field class="flex-50 xs:flex-100">
               <mat-label>Phase</mat-label>
               <input

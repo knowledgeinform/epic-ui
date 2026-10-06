@@ -1,31 +1,55 @@
 <h2 mat-dialog-title>Clone Instruction Sections from Another Procedure</h2>
-<div *ngIf="searchForProcedure">
-  <app-proceduresearch [isGlobalSearch]="false" [searchStatusType]="'ALL'" (resultSelection)="receiveProcedureSearchSelection($event)"></app-proceduresearch>
-  <br/>
-  <div mat-dialog-actions>
-    <button mat-raised-button align="left" (click)="onCancel()">Cancel</button>
-  </div>
-</div>
-<mat-progress-bar *ngIf="fetching" mode="query"></mat-progress-bar>
-<div *ngIf="!searchForProcedure && !fetching">
-  <h3>Select the instructions to clone into your procedure</h3>
-  <mat-selection-list #instructions [(ngModel)]="selectedInstructions">
-    <mat-list-option *ngFor="let inst of instructionsToClone" [value]="inst.pk">
-      {{inst.sectionName}}
-    </mat-list-option>
-  </mat-selection-list>
-  <div *ngIf="isRedlineAdd">
-    <hr>
-    <app-red-black-line-comment #commentInput [disableForSaving]="disableForSaving" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+
+<mat-dialog-content>
+
+  <div *ngIf="searchForProcedure">
+
+    <app-proceduresearch [isGlobalSearch]="false" [searchStatusType]="'ALL'" (resultSelection)="receiveProcedureSearchSelection($event)"></app-proceduresearch>
+
   </div>
 
-  <div mat-dialog-actions>
-    <button mat-raised-button button *ngIf="isRedlineAdd" (click)="cancelRedline()" [disabled]="disableForSaving">Cancel</button>
-    <button mat-raised-button *ngIf="!isRedlineAdd" [disabled]="disableForSaving" (click)="onCancel()">Cancel</button>
-    <button mat-raised-button (click)="goBackToProcedureSearch()" [disabled]="disableForSaving">Go Back to Search</button>
-    <button mat-raised-button color="primary" focus type="submit"
-            *ngIf="instructions.selectedOptions.selected.length > 0 && (!isRedlineAdd || (isRedlineAdd && comment?.commentText.length))"
-            (click)="submitSelectionsToClone()" [disabled]="disableForSaving">Clone Instructions</button>
+  <mat-progress-bar *ngIf="fetching" mode="query"></mat-progress-bar>
+
+  <div *ngIf="!searchForProcedure && !fetching">
+
+    <h3>Select the instructions to clone into your procedure</h3>
+
+    <mat-selection-list #instructions [(ngModel)]="selectedInstructions">
+
+      <mat-list-option *ngFor="let inst of instructionsToClone" [value]="inst.pk">
+
+        {{inst.sectionName}}
+
+      </mat-list-option>
+
+    </mat-selection-list>
+
+    <div *ngIf="isRedlineAdd">
+
+      <hr>
+
+      <app-red-black-line-comment #commentInput [disableForSaving]="disableForSaving" [comment]="comment" (commentChange)="onCommentChange($event)"></app-red-black-line-comment>
+
+    </div>
+
   </div>
 
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+
+  <button mat-raised-button *ngIf="searchForProcedure" (click)="onCancel()">Cancel</button>
+
+  <ng-container *ngIf="!searchForProcedure && !fetching">
+
+    <button mat-raised-button *ngIf="isRedlineAdd" type="button" (click)="cancelRedline()" [disabled]="disableForSaving">Cancel</button>
+
+    <button mat-raised-button *ngIf="!isRedlineAdd" type="button" [disabled]="disableForSaving" (click)="onCancel()">Cancel</button>
+
+    <button mat-raised-button type="button" (click)="goBackToProcedureSearch()" [disabled]="disableForSaving">Go Back to Search</button>
+
+    <button mat-raised-button color="primary" type="submit" *ngIf="instructions?.selectedOptions?.selected?.length > 0 && (!isRedlineAdd || (isRedlineAdd && comment?.commentText?.length))" (click)="submitSelectionsToClone()" [disabled]="disableForSaving">Clone Instructions</button>
+
+  </ng-container>
+
+</mat-dialog-actions>

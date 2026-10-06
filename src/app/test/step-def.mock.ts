@@ -1,9 +1,10 @@
-import { StepType } from '@app/interfaces/step-type.dto';
 import { EditType } from '@app/interfaces/edit-type.dto';
 import { StepDef } from '@app/interfaces/step-def.interface';
+import { StepTableCell } from '@app/interfaces/step-table-cell';
+import { StepTableRow } from '@app/interfaces/step-table-row';
+import { StepType } from '@app/interfaces/step-type.dto';
 import * as _ from 'lodash';
 import { stepGroupDefMock } from './step-group-def.mock';
-import { StepTableRow } from '@app/interfaces/step-table-row';
 
 const defaults: Partial<StepDef> = {
   pk: 0,
@@ -21,7 +22,7 @@ const defaults: Partial<StepDef> = {
   blackLineComments: []
 };
 
-const secondDefaults: Partial<StepDef> ={
+const secondDefaults: Partial<StepDef> = {
   pk: 1,
   displayOrder: 2,
   esd0: false,
@@ -37,7 +38,7 @@ const secondDefaults: Partial<StepDef> ={
   blackLineComments: [],
   runValueSavedTimestamp: null,
   runValue: null
-}
+};
 
 const thirdDefaults: Partial<StepDef> = {
   pk: 2,
@@ -55,22 +56,25 @@ const thirdDefaults: Partial<StepDef> = {
   blackLineComments: [],
   runValueSavedTimestamp: null,
   stepTableRows: [
-    _.merge(new StepTableRow(1),
+    _.merge(
+      new StepTableRow(1),
       {
         pk: 0,
         stepTableCells: [
-          {
-            pk: 0,
-            cellIndex: 0,
-            editable: true,
-            nonEditableValue: '',
-            optional: false,
-            summerNoteEnabled: true
-          },
-        ]    
-      }),
-    ]
-}
+          _.merge(
+            new StepTableCell(0, ''),
+            {
+              pk: 0,
+              editable: true,
+              optional: false,
+              summerNoteEnabled: true
+            }
+          )
+        ]
+      }
+    )
+  ]
+};
 
 const fourthDefaults: Partial<StepDef> = {
   pk: 0,
@@ -90,7 +94,32 @@ const fourthDefaults: Partial<StepDef> = {
   mandatoryInspectionSecondSignature: null
 };
 
-export const stepDefMock: StepDef = _.merge(new StepDef(), defaults);
-export const stepDefMock2: StepDef = _.merge(new StepDef(), secondDefaults);
-export const stepDefMock3: StepDef = _.merge(new StepDef, thirdDefaults);
-export const stepDefMock4: StepDef = _.merge(new StepDef(), fourthDefaults);
+/**
+ * Factory helpers should be preferred by tests that mutate their input data.
+ * Each call returns a new StepDef object instead of sharing a singleton
+ * between specs.
+ */
+export function createStepDefMock(): StepDef {
+  return _.merge(new StepDef(), _.cloneDeep(defaults));
+}
+
+export function createStepDefMock2(): StepDef {
+  return _.merge(new StepDef(), _.cloneDeep(secondDefaults));
+}
+
+export function createStepDefMock3(): StepDef {
+  return _.merge(new StepDef(), _.cloneDeep(thirdDefaults));
+}
+
+export function createStepDefMock4(): StepDef {
+  return _.merge(new StepDef(), _.cloneDeep(fourthDefaults));
+}
+
+/**
+ * Keep the existing exports for compatibility with specs that already import
+ * these constants. New/updated tests should prefer the factory functions above.
+ */
+export const stepDefMock: StepDef = createStepDefMock();
+export const stepDefMock2: StepDef = createStepDefMock2();
+export const stepDefMock3: StepDef = createStepDefMock3();
+export const stepDefMock4: StepDef = createStepDefMock4();

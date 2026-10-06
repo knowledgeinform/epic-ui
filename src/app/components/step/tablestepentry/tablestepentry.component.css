@@ -46,23 +46,39 @@ mat-form-field, textarea  {
   background: #d6d6d6;
 }
 
-.addRow, .addColumn {
-  color: #6aa9ff;
+.addRow,
+.addColumn,
+.deleteRow,
+.deleteColumn {
   width: 25px;
   height: 25px;
-  line-height: 25px;
+  line-height: 1;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.deleteRow, .deleteColumn {
+.addRow,
+.addColumn {
+  color: #6aa9ff;
+}
+
+.deleteRow,
+.deleteColumn {
   color: #ff786d;
-  width: 25px;
-  height: 25px;
-  line-height: 25px;
 }
 
 td.table-buttons {
   background-color: white;
   white-space: nowrap;
+}
+
+::ng-deep .mat-mdc-icon-button .mat-mdc-button-touch-target {
+  inset: 0;
+  width: auto;
+  height: auto;
+  transform: none;
 }
 
 .is-editableRequired {

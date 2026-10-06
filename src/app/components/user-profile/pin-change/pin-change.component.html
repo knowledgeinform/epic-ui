@@ -1,55 +1,107 @@
 <form [formGroup]="oldPinForm">
-  <div class="flex-row justify-start items-stretch content-stretch">
+
+  <div class="pin-field-row">
+
     <mat-form-field>
+
       <mat-label>Enter Current Pin</mat-label>
+
       <input id="current-pin-id" matInput #currentPin="matInput" formControlName="currentPin" minlength="6" maxlength="6" type="password" (keyup)="checkOldPin()" required>
+
       <mat-hint align="start">Pins must be six numbers.</mat-hint>
+
       <mat-hint align="end">{{currentPin.value?.length || 0}}/6</mat-hint>
+
       <mat-error *ngIf="oldPinForm.get('currentPin').invalid && (oldPinForm.get('currentPin').dirty || oldPinForm.get('currentPin').touched)">Current pin is required.</mat-error>
+
     </mat-form-field>
+
     <mat-icon class="correct-icon" *ngIf="oldPinForm.get('currentPin').valid && oldPinCorrect">done</mat-icon>
-    <button class="incorrect-icon" mat-icon-button *ngIf="!oldPinCorrect" (click)="oldPinForm.get('currentPin').reset()">
+
+    <button class="incorrect-icon" mat-icon-button type="button" *ngIf="!oldPinCorrect" (click)="oldPinForm.get('currentPin').reset()">
+
       <mat-icon color="warn" matTooltip="Wrong pin. Click here to clear.">clear</mat-icon>
+
     </button>
+
     <span class="self-center" *ngIf="!oldPinCorrect">{{oldPinErrorMessage}}</span>
 
   </div>
+
 </form>
+
 <form [formGroup]="newPinForm">
-  <div class="flex-row justify-start items-stretch content-stretch">
+
+  <div class="pin-field-row">
+
     <mat-form-field>
+
       <mat-label>Enter New Pin</mat-label>
-      <input id="new-pin-enter-box" matInput #newPin="matInput" formControlName="newPin" type="password" (keyup)="checkNewPin()" required>
+
+      <input id="new-pin-enter-box" matInput #newPin="matInput" formControlName="newPin" minlength="6" maxlength="6" type="password" (keyup)="checkNewPin()" required>
+
       <mat-hint align="start">Pins must be six numbers.</mat-hint>
+
       <mat-hint align="end">{{newPin.value?.length || 0}}/6</mat-hint>
+
       <mat-error *ngIf="newPinForm.get('newPin').invalid && (newPinForm.get('newPin').dirty || newPinForm.get('newPin').touched)">New pin is required.</mat-error>
+
     </mat-form-field>
+
     <mat-icon class="correct-icon" *ngIf="newPinOK">done</mat-icon>
-    <button class="incorrect-icon" mat-icon-button *ngIf="!newPinOK" (click)="newPinForm.get('newPin').reset()">
+
+    <button class="incorrect-icon" mat-icon-button type="button" *ngIf="!newPinOK" (click)="newPinForm.get('newPin').reset()">
+
       <mat-icon color="warn" matTooltip="Invalid pin. Click here to clear.">clear</mat-icon>
+
     </button>
+
     <span id="new-pin-error-id" class="self-center" *ngIf="!newPinOK">{{newPinErrorMessage}}</span>
+
   </div>
-  <div class="flex-row justify-start items-stretch content-stretch">
+
+  <div class="pin-field-row">
+
     <mat-form-field>
+
       <mat-label>Re-enter New Pin</mat-label>
-      <input id="new-pin-reenter-box" matInput #confirmNewPin="matInput" formControlName="confirmNewPin" type="password" (keyup)="checkConfirmNewPin()" required>
+
+      <input id="new-pin-reenter-box" matInput #confirmNewPin="matInput" formControlName="confirmNewPin" minlength="6" maxlength="6" type="password" (keyup)="checkConfirmNewPin()" required>
+
       <mat-hint align="start">Pins must be six numbers.</mat-hint>
+
       <mat-hint align="end">{{confirmNewPin.value?.length || 0}}/6</mat-hint>
+
       <mat-error *ngIf="newPinForm.get('confirmNewPin').invalid && (newPinForm.get('confirmNewPin').dirty || newPinForm.get('confirmNewPin').touched)">Re-entered new pin is required.</mat-error>
+
     </mat-form-field>
+
     <mat-icon class="correct-icon" *ngIf="confirmNewPinOK">done</mat-icon>
-    <button class="incorrect-icon" mat-icon-button *ngIf="!confirmNewPinOK" (click)="newPinForm.get('confirmNewPin').reset()">
+
+    <button class="incorrect-icon" mat-icon-button type="button" *ngIf="!confirmNewPinOK" (click)="newPinForm.get('confirmNewPin').reset()">
+
       <mat-icon color="warn" matTooltip="Invalid pin. Click here to clear.">clear</mat-icon>
+
     </button>
+
     <span id="confirm-new-pin-error-id" class="self-center" *ngIf="!confirmNewPinOK">{{confirmNewPinErrorMessage}}</span>
+
   </div>
-  <div style="display: flex">
-    <button mat-raised-button (click)="cancelPinChange()" color="primary">
+
+  <div class="pin-action-buttons">
+
+    <button mat-raised-button type="button" (click)="cancelPinChange()" color="primary">
+
       Cancel
+
     </button>
-    <button id="submit-new-pin-button" mat-raised-button [disabled]="!confirmNewPinOK || !oldPinCorrect || !newPinOK" (click)="submitPinChange()">
+
+    <button id="submit-new-pin-button" mat-raised-button type="button" [disabled]="!confirmNewPinOK || !oldPinCorrect || !newPinOK" (click)="submitPinChange()">
+
       Submit New Pin
+
     </button>
+
   </div>
+
 </form>

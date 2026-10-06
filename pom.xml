@@ -6,7 +6,7 @@
 
   <groupId>edu.jhuapl.sd.sig</groupId>
   <artifactId>EPIC-UI</artifactId>
-  <version>1.8.4-SNAPSHOT</version>
+  <version>1.9.2-SNAPSHOT</version>
   <!--  <packaging></packaging>-->
 
   <name>EPIC-UI - Electronic Procedure Implementation Catalog User Interface</name>

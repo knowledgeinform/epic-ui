@@ -1,4 +1,4 @@
-FROM docker-remote.artifactory.jhuapl.edu/library/node:16.14.2-bullseye-slim
+FROM docker-remote.artifactory.jhuapl.edu/library/node:18.20.8-bullseye-slim
 
 # Install APL Root CA cert
 COPY docker/assets/apl-certs/* /usr/local/share/ca-certificates/

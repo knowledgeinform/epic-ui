@@ -14,6 +14,7 @@ import {ReportingContainerComponent} from '@app/components/reporting/reporting-c
 import { ProgramsComponent } from './components/programs/programs.component';
 import { ProgramComponent } from './components/programs/program/program.component';
 import {ProgramExportDownloadComponent} from "@app/components/program-export-download/program-export-download.component";
+import { ProgramStatusComponent } from './components/status/program-status/program-status.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
@@ -29,6 +30,7 @@ const routes: Routes = [
   {path: 'admin', redirectTo: 'admin/0'},
   {path: 'admin/:tabId', component: AdminComponent, canActivate: [AuthGuard, AuthGuardAdmin]},
   {path: 'reporting', component: ReportingContainerComponent, canActivate: [AuthGuard]},
+  {path: 'status', component: ProgramStatusComponent, canActivate: [AuthGuard]},
   {path: 'programs', component: ProgramsComponent, canActivate: [AuthGuard]},
   {path: 'programs/:programCode', redirectTo: 'programs/:programCode/0'},
   {path: 'programs/:programCode/:tabId', component: ProgramComponent, canActivate: [AuthGuard]},

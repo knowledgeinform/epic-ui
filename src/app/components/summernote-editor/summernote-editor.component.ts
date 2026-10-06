@@ -2,17 +2,19 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators} from "@angular/forms";
 import {Subscription} from "rxjs";
 import {Utils} from '@app/utils';
 import * as _ from 'lodash';
 
-import { UntypedFormControl} from '@angular/forms';
 import { MessageService } from '@app/services/message.service';
+import { TablePasteParserService } from '@app/services/table-paste-parser.service';
 
 @Component({
   selector: 'app-summernote-editor',
@@ -20,7 +22,7 @@ import { MessageService } from '@app/services/message.service';
   styleUrls: ['./summernote-editor.component.css'],
 })
 
-export class SummernoteEditorComponent implements OnInit, OnDestroy {
+export class SummernoteEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() text: string = '';
   @Input() disableHints: boolean = false;
   @Input() airMode: boolean = false;
@@ -28,6 +30,12 @@ export class SummernoteEditorComponent implements OnInit, OnDestroy {
   @Input() isProcedureDraft: boolean = true;
   @Output() textChange = new EventEmitter<string>();
   @Output() keydownProxy = new EventEmitter<KeyboardEvent>();
+  @Output() pasteIntercept = new EventEmitter<ClipboardEvent>();
+
+  // Set by parent via @Input to determine if this editor is inside a table context.
+  // When true, multi-cell paste is intercepted and preventDefault() is called.
+  @Input() interceptMultiCellPaste: boolean = false;
+
   maxLength = Utils.getMaxRichTextEditorLength();
   private subscriptions: {[sub: string]: Subscription};
   form: UntypedFormGroup;
@@ -37,6 +45,9 @@ export class SummernoteEditorComponent implements OnInit, OnDestroy {
     tabsize: 2,
     height: '200px',
     disableDragAndDrop: true,
+    callbacks: {
+      paste: (event: ClipboardEvent) => this.onSummernotePaste(event)
+    },
     toolbar: [
       ['view', ['undo', 'redo']],
       ['font', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
@@ -51,6 +62,9 @@ export class SummernoteEditorComponent implements OnInit, OnDestroy {
   configAir = {
     airMode: true,
     disableDragAndDrop: true,
+    callbacks: {
+      paste: (event: ClipboardEvent) => this.onSummernotePaste(event)
+    },
     popover: {
       air: [
         ['fontsize', ['fontname', 'fontsize']],
@@ -61,7 +75,8 @@ export class SummernoteEditorComponent implements OnInit, OnDestroy {
   }
 
   constructor(private formBuilder: UntypedFormBuilder,
-    private messageService: MessageService) {}
+    private messageService: MessageService,
+    private pasteParser: TablePasteParserService) {}
 
   ngOnInit() {
 
@@ -81,6 +96,17 @@ export class SummernoteEditorComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    // When the text input changes externally (e.g., via multi-cell paste),
+    // update the form without emitting textChange back (avoid loop).
+    if (changes.text && !changes.text.firstChange) {
+      const current = this.form.get('html')?.value;
+      if (current !== this.text) {
+        this.form.get('html')?.setValue(this.text, { emitEvent: false });
+      }
+    }
+  }
+
   private debounceText = _.debounce(value => {
     this.textChange.emit(value);
   }, 2000);
@@ -88,6 +114,35 @@ export class SummernoteEditorComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     _.forEach(this.subscriptions, sub => sub.unsubscribe());
   }
+
+  /**
+   * Called by Summernote's callbacks.paste BEFORE it processes the clipboard.
+   * If multi-cell paste is detected and intercept is enabled, prevent Summernote
+   * from processing and emit to the parent table to handle instead.
+   * Returns false to signal Summernote to skip its internal paste processing.
+   */
+  private onSummernotePaste(event: ClipboardEvent): void | boolean {
+    if (!this.interceptMultiCellPaste) {
+      return; // Not in table context — let Summernote handle normally.
+    }
+
+    const clipboardData = event.clipboardData;
+    if (!clipboardData) return;
+
+    const htmlData = clipboardData.getData('text/html');
+    const plainData = clipboardData.getData('text/plain');
+    const grid = this.pasteParser.parse(htmlData, plainData);
+
+    if (grid && this.pasteParser.isMultiCell(grid, htmlData)) {
+      // Multi-cell detected — prevent Summernote from processing this paste.
+      event.preventDefault();
+      event.stopPropagation();
+      this.pasteIntercept.emit(event);
+      return false; // Signal Summernote to skip internal paste handling.
+    }
+    // Single-cell: return undefined — Summernote continues normally.
+  }
+
   /**
    * When text is pasted into the RTE, remove the background and font color styling from the text,
    * but keep the rest of styles.
@@ -166,4 +221,3 @@ export class SummernoteEditorComponent implements OnInit, OnDestroy {
     this.keydownProxy.emit(event);
   }
 }
-

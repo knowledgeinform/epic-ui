@@ -21,7 +21,7 @@ You'll need to run the application once in order for it to cache information. Th
 
 ## Containerization
 
-The prefered container engine to use is Podman.
+The preferred container engine to use is Podman.
 For installing and setting up Podman, please see and follow instruction on the [wiki](https://aplwiki.jhuapl.edu/confluence/spaces/SESSIG/pages/910532943/Podman+Setup).
 
 You can develop within Podman with the following commands:

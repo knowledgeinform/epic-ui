@@ -10,9 +10,6 @@ export class ProcedureStatusColorPipe implements PipeTransform {
       case 'APPROVED': {
         return '#008000';
       }
-      case 'REJECTED': {
-        return '#e40000';
-      }
       case 'WAITING': {
         return '#000';
       }

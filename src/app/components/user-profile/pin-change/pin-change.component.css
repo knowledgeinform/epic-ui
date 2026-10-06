@@ -1,3 +1,14 @@
+.pin-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pin-field-row mat-form-field {
+  min-width: 260px;
+}
+
 .correct-icon {
   align-self: center;
   color: green;
@@ -5,4 +16,11 @@
 
 .incorrect-icon {
   align-self: center;
+}
+
+.pin-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
 }

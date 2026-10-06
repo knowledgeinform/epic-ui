@@ -38,7 +38,9 @@ import { SummernoteEditorCountPercentagePipe } from '@app/pipes/summernote-edito
 import {RunDescriptionPipe} from "@app/pipes/run-description.pipe";
 import {ProcedureDescriptionPipe} from "@app/pipes/procedure-description-pipe";
 import {SearchResultCountTextPipe} from "@app/pipes/search-result-count-text.pipe";
-import {CanEditApproversPipe} from "@app/pipes/can-edit-approvers.pipe";
+import { CanEditApproversPipe } from "@app/pipes/can-edit-approvers.pipe";
+import { CanEditRunNamePipe } from "@app/pipes/can-edit-run-name.pipe";
+import { CanEditRunDescriptionPipe } from "@app/pipes/can-edit-run-description.pipe";
 import {ApproverChipTooltipPipe} from "@app/pipes/approver-chip-tooltip.pipe";
 import {ApproverChipDisabledTooltipPipe} from "@app/pipes/approver-chip-disabled-tooltip.pipe";
 import { BlacklineCommentDialogContentPipe } from '@app/pipes/blackline-comment-dialog-content.pipe';
@@ -90,6 +92,8 @@ const importsAndExports = [
   ProcedureDescriptionPipe,
   SearchResultCountTextPipe,
   CanEditApproversPipe,
+  CanEditRunNamePipe,
+  CanEditRunDescriptionPipe,
   ApproverChipTooltipPipe,
   ApproverChipDisabledTooltipPipe,
   BlacklineCommentDialogContentPipe,

@@ -1,34 +1,59 @@
 <!-- list of existing comments -->
+
 <div class="comment-section-title">
+
   Comments
+
 </div>
+
 <div class="commentDiv" *ngFor="let comment of step.runStepComments">
+
   <app-generic-comment-history-display [addBorder]="false" [arrayOfCommentsOrHistories]="[comment]"></app-generic-comment-history-display>
+
   <mat-checkbox disabled [checked]="comment.isNonconformance" color="accent">Non-conformance</mat-checkbox>
+
 </div>
+
 <!-- add a new comment here -->
+
 <ng-container *ngIf="!isReadOnly">
+
   <div class="commentDiv new-comment-border" *ngIf="fetchIsDone; else fetchingPlaceholder">
+
     <form [formGroup]="valueCommentForm">
+
       <mat-checkbox [disabled]="isReadOnly" color="accent" formControlName="nonconformance">Non-Conformance (include AR/PFR number in comment if applicable)</mat-checkbox>
+
       <mat-form-field class="comment-form-field">
+
         <mat-label>Enter a new comment here.</mat-label>
+
         <textarea [readonly]="isReadOnly" #commentText maxlength="2048" matInput cdkTextareaAutosize formControlName="commentText"></textarea>
+
         <mat-hint align="end">{{commentText.value?.length || 0}}/2048</mat-hint>
+
       </mat-form-field>
+
       <div class="buttonLayout">
+
         <span class="fill-space"></span>
-        <button id="runAddCommentClear" [disabled]="isReadOnly" mat-raised-button color="" type="reset" (click)="cancelAddComment()" class="flex-row justify-end items-stretch content-stretch">Clear</button>
-        <button id="runAddCommentSubmit" mat-raised-button color="primary" focus type="submit" (click)="submitValueComment()" [disabled]="valueCommentForm.invalid || isReadOnly">Submit</button>
+
+        <button id="runAddCommentClear" [disabled]="isReadOnly" mat-raised-button type="reset" (click)="cancelAddComment()">Clear</button>
+
+        <button id="runAddCommentSubmit" mat-raised-button color="primary" type="submit" (click)="submitValueComment()" [disabled]="valueCommentForm.invalid || isReadOnly">Submit</button>
+
       </div>
+
     </form>
+
   </div>
+
 </ng-container>
 
-
 <ng-template #fetchingPlaceholder>
+
   <div>Processing Comment...</div>
+
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+
 </ng-template>
-
-

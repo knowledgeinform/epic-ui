@@ -1,10 +1,12 @@
 import {
   AfterViewInit,
+  AfterViewChecked,
   Component,
   ElementRef,
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -29,6 +31,7 @@ import { RunDataEntryService } from '@app/services/run-data-entry.service';
 import { StepDisplayOrderPipe } from '@app/pipes/step-display-order.pipe';
 import { EditType } from '@app/interfaces/edit-type.dto';
 import { TableNavigatorService } from '@app/services/table-navigator.service';
+import { TablePasteParserService } from '@app/services/table-paste-parser.service';
 
 class TableCellQueueObject {
   cell: StepTableCell;
@@ -45,7 +48,7 @@ class TableCellQueueObject {
   templateUrl: './tablestepentry.component.html',
   styleUrls: ['./tablestepentry.component.css']
 })
-export class TablestepentryComponent implements OnInit, OnChanges, AfterViewInit {
+export class TablestepentryComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   @ViewChild(MatMenuTrigger, /* TODO: add static flag */ {})
   contextMenu: MatMenuTrigger;
@@ -68,6 +71,8 @@ export class TablestepentryComponent implements OnInit, OnChanges, AfterViewInit
   displayOrder: number;
 
   private cellSaveDelay: number = 2000;
+  private tablePasteCaptureHandler: ((event: ClipboardEvent) => void) | null = null;
+  private pasteListenerAttached: boolean = false;
 
   @Input() procedureData: any;
 
@@ -111,7 +116,8 @@ export class TablestepentryComponent implements OnInit, OnChanges, AfterViewInit
               private runValidationService: RunValidationService,
               private loggerService: LoggerService,
               private runDataEntryService: RunDataEntryService,
-              private tableNavigator: TableNavigatorService
+              private tableNavigator: TableNavigatorService,
+              private pasteParser: TablePasteParserService
   ) {}
 
   ngOnInit() {
@@ -163,8 +169,39 @@ export class TablestepentryComponent implements OnInit, OnChanges, AfterViewInit
     }
 
     var moreElements = document.getElementsByClassName('note-dropzone');
-    while(moreElements.length > 0){
+    while(moreElements.length > 0) {
       moreElements[0].parentNode.removeChild(moreElements[0]);
+    }
+
+    // Register paste listener (capture phase) for the current table.
+    // Use a short timeout to ensure the table element exists when we first attach.
+    setTimeout(() => this.registerPasteListener(), 0);
+  }
+
+  /**
+   * Attach a capture‑phase paste listener to the current table element.
+   * This method can be called after the view is initialized and also after a
+   * new table is created (e.g., via the "Create Table" button).
+   */
+  private registerPasteListener(): void {
+    const table = this.getInputTable();
+    if (!table) return;
+
+    // Remove any previous listener to avoid duplicates.
+    if (this.tablePasteCaptureHandler && this.pasteListenerAttached) {
+      table.removeEventListener('paste', this.tablePasteCaptureHandler, true);
+    }
+
+    this.tablePasteCaptureHandler = (event: ClipboardEvent) => this.onCellPaste(event);
+    table.addEventListener('paste', this.tablePasteCaptureHandler, true);
+    this.pasteListenerAttached = true;
+  }
+
+  ngOnDestroy(): void {
+    if (this.tablePasteCaptureHandler && this.pasteListenerAttached) {
+      const table = this.getInputTable();
+      table?.removeEventListener('paste', this.tablePasteCaptureHandler, true);
+      this.pasteListenerAttached = false;
     }
   }
 
@@ -365,6 +402,133 @@ export class TablestepentryComponent implements OnInit, OnChanges, AfterViewInit
       }
     }
     this.sendTableIsGone();
+  }
+
+  /**
+   * Capture-phase paste handler on the table element.
+   * Intercepts multi-cell paste from Excel and distributes values across cells.
+   * Single-cell paste passes through to Summernote for rich text support.
+   */
+  onCellPaste(event: ClipboardEvent): void {
+    // Only active in procedure authoring mode — not in readOnly or fillable (run) mode
+    if (this.readOnly || this.fillable) return;
+    if (!this.currentTable?.stepTableRows?.length) return;
+
+    const cell = this.resolvePasteCell(event);
+    if (!cell) return;
+
+    const clipboardData = event.clipboardData;
+    if (!clipboardData) return;
+
+    const htmlData = clipboardData.getData('text/html');
+    const plainData = clipboardData.getData('text/plain');
+
+    const grid = this.pasteParser.parse(htmlData, plainData);
+
+    // No table data found — let Summernote handle it
+    if (!grid || grid.length === 0) return;
+
+    // Single-cell paste — let Summernote handle (rich text support)
+    if (!this.pasteParser.isMultiCell(grid, htmlData)) return;
+
+    const coords = this.tableNavigator.getCellCoordinates(cell);
+    if (!coords) return;
+
+    const tableCols = this.currentTable.stepTableRows[0]?.stepTableCells.length ?? 0;
+    const fits = this.validatePasteFit(coords.col, grid[0].length, tableCols);
+    if (!fits) {
+      // Paste doesn't fit — block it entirely (don't let Summernote insert into one cell)
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    // Multi-cell paste fits — take over
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.performMultiCellPaste(coords.row, coords.col, grid);
+  }
+
+  /**
+   * Resolve the table cell that contains the paste event target.
+   */
+  private resolvePasteCell(event: ClipboardEvent): HTMLTableCellElement | null {
+    const target = event.target as HTMLElement | null;
+    if (!target || !target.closest) return null;
+    return target.closest('td, th') as HTMLTableCellElement | null;
+  }
+
+  /**
+   * Check if paste columns would exceed the right edge of the table.
+   * Warns the user and returns false if not.
+   */
+  validatePasteFit(startCol: number, pasteCols: number, tableCols: number): boolean {
+    const endCol = startCol + pasteCols;
+    if (endCol > tableCols) {
+      this.messageService.showSnackBar(
+        `Cannot paste: selection extends beyond table boundary (${pasteCols} columns starting at column ${startCol + 1} exceeds ${tableCols} columns).`,
+        'CLOSE',
+        5000
+      );
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Distribute paste values across cells, auto-expanding table as needed.
+   */
+  private performMultiCellPaste(startRow: number, startCol: number, pasteGrid: string[][]): void {
+    this.pushCurrentTableOnStack();
+
+    pasteGrid.forEach((rowValues, rowOffset) => {
+      const targetRow = startRow + rowOffset;
+
+      // Auto-add rows if paste extends below current table
+      while (this.currentTable.stepTableRows.length <= targetRow) {
+        const colCount = this.currentTable.stepTableRows[0]?.stepTableCells.length ?? 1;
+        const newRow = new StepTableRow(this.currentTable.stepTableRows.length);
+        for (let c = 0; c < colCount; c++) {
+          newRow.stepTableCells.push(new StepTableCell(c, ''));
+        }
+        this.currentTable.stepTableRows.push(newRow);
+      }
+
+      // Auto-add columns if paste extends beyond current column count
+      const targetRowData = this.currentTable.stepTableRows[targetRow];
+      while (targetRowData.stepTableCells.length < pasteGrid[0].length) {
+        const colIndex = targetRowData.stepTableCells.length;
+        targetRowData.stepTableCells.push(new StepTableCell(colIndex, ''));
+      }
+
+      // Update cell values (overwrite existing content)
+      rowValues.forEach((value, colOffset) => {
+        const targetCol = startCol + colOffset;
+        targetRowData.stepTableCells[targetCol].nonEditableValue = value;
+      });
+    });
+
+    this.reindexTable();
+    this.sendTableIsGone();
+  }
+
+  /**
+   * Reindex all row and cell indices after table expansion.
+   */
+  private reindexTable(): void {
+    this.currentTable.stepTableRows.forEach((row, rowIndex) => {
+      row.rowNumber = rowIndex;
+      row.stepTableCells.forEach((cell, cellIndex) => {
+        cell.cellIndex = cellIndex;
+      });
+    });
+  }
+
+  ngAfterViewChecked(): void {
+    if (!this.pasteListenerAttached) {
+      this.registerPasteListener();
+    }
   }
 
   onContextMenu(event: MouseEvent): void {
@@ -766,6 +930,13 @@ export class TablestepentryComponent implements OnInit, OnChanges, AfterViewInit
     const oldValue = cell.nonEditableValue;
     if (oldValue === newText)
       return;
+
+    // Update the model immediately so the template binding stays in sync
+    // with the Summernote editor while the async server call is in flight.
+    // Without this, ngOnChanges on Summernote can detect a stale
+    // nonEditableValue and call setValue() with the old value, clearing
+    // what the user just typed.
+    cell.nonEditableValue = newText;
 
     const clonedCell = _.cloneDeep(cell);
 

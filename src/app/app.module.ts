@@ -107,6 +107,7 @@ import {RunCloseoutCompletedComponent} from './components/run/run-closeout/run-c
 import {StepChangeTypeDialogComponent} from './components/step/step-change-type-dialog/step-change-type-dialog.component';
 import {RunCloseoutStickyCommentComponent} from './components/run/run-closeout/run-closeout-sticky-comment/run-closeout-sticky-comment.component';
 import {RunCloseoutStickyCommentSummaryComponent} from './components/run/run-closeout/run-closeout-sticky-comment-summary/run-closeout-sticky-comment-summary.component';
+import { ProgramStatusComponent } from './components/status/program-status/program-status.component';
 import {AgGridModule} from 'ag-grid-angular';
 import { ReportingProcedureStatusComponent } from './components/reporting/reporting-procedure-status/reporting-procedure-status.component';
 import { ReportingContainerComponent } from './components/reporting/reporting-container/reporting-container.component';
@@ -282,6 +283,7 @@ export function initializeConfig(appConfigService: AppConfigService) {
         CommunicationBannerComponent,
         SpinnerComponent,
         EquipmentEntryItemDialogComponent,
+        ProgramStatusComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         FormsModule,

@@ -10,9 +10,6 @@ export class ProcedureStatusIconPipe implements PipeTransform {
       case 'APPROVED': {
         return 'approval';
       }
-      case 'REJECTED': {
-        return 'cancel';
-      }
       case 'WAITING': {
         return 'watch_later';
       }

@@ -112,9 +112,11 @@
                         [text]="cell.nonEditableValue"
                         (textChange)="receiveTextChange($event, cell)"
                         (keydownProxy)="navigateCells($event)"
+                        (pasteIntercept)="onCellPaste($event)"
                         [disableHints]="true"
                         [airMode]="true"
-                        [isProcedureDraft]="procedureData.editType === EditType.ORIGINAL || redliningEnabled">
+                        [isProcedureDraft]="procedureData.editType === EditType.ORIGINAL || redliningEnabled"
+                        [interceptMultiCellPaste]="true">
                       </app-summernote-editor>
                     </ng-container>
                     <ng-template #viewTHSummernoteOnly>
@@ -161,9 +163,11 @@
                         [text]="cell.nonEditableValue"
                         (textChange)="receiveTextChange($event, cell)"
                         (keydownProxy)="navigateCells($event)"
+                        (pasteIntercept)="onCellPaste($event)"
                         [disableHints]="true"
                         [airMode]="true"
-                        [isProcedureDraft]="procedureData.editType === EditType.ORIGINAL || redliningEnabled">
+                        [isProcedureDraft]="procedureData.editType === EditType.ORIGINAL || redliningEnabled"
+                        [interceptMultiCellPaste]="true">
                       </app-summernote-editor>
                     </ng-container>
                     <ng-template #viewSummernoteOnly>

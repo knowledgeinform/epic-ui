@@ -1,11 +1,18 @@
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  waitForAsync,
+  ComponentFixture,
+  TestBed
+} from '@angular/core/testing';
+
 import { AppTestingModule } from '@app/app-testing-module';
-import { procedureDetailsLockedRunMock } from '@app/test/procedure-details.mock';
-import { stepDefMock } from '@app/test/step-def.mock';
+import { ProcedureDetails } from '@app/interfaces/procedure-details';
+import { procedureDetailsDTOLockedRunMock } from '@app/test/procedure-details-dto.mock';
+import { createStepDefMock } from '@app/test/step-def.mock';
+import * as _ from 'lodash';
+
 import { CommentChangeTypeSelectComponent } from '../comment-change-type-select/comment-change-type-select.component';
 import { RedBlackLineCommentComponent } from '../red-black-line-comment/red-black-line-comment.component';
 import { ManualStepValidationDialogComponent } from './manual-step-validation-dialog.component';
-
 
 describe('ManualStepValidationDialogComponent', () => {
   let component: ManualStepValidationDialogComponent;
@@ -13,21 +20,36 @@ describe('ManualStepValidationDialogComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ AppTestingModule ],
+      imports: [
+        AppTestingModule
+      ],
       declarations: [
         ManualStepValidationDialogComponent,
         RedBlackLineCommentComponent,
-        CommentChangeTypeSelectComponent,
+        CommentChangeTypeSelectComponent
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ManualStepValidationDialogComponent);
+    fixture = TestBed.createComponent(
+      ManualStepValidationDialogComponent
+    );
+
     component = fixture.componentInstance;
-    component.target = [stepDefMock];
-    component.procedureData = procedureDetailsLockedRunMock;
+
+    // Give every test a fresh StepDef instance.
+    component.target = [
+      createStepDefMock()
+    ];
+
+    // Rebuild ProcedureDetails from a fresh copy of the DTO so this spec
+    // cannot inherit mutations made by another test.
+    component.procedureData = new ProcedureDetails().loadFromDTO(
+      _.cloneDeep(procedureDetailsDTOLockedRunMock)
+    );
+
     fixture.detectChanges();
   });
 

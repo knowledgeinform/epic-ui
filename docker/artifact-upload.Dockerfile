@@ -1,4 +1,4 @@
-FROM maven:3.6.3-openjdk-8-slim
+FROM maven:3.8.6-openjdk-8-slim
 WORKDIR /workspace
 
 # Install APL Root CA cert to system CA store. (Required for package installation.)
