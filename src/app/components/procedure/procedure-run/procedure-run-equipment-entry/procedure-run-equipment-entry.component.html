@@ -52,7 +52,7 @@
         mat-icon-button
         color="primary"
         class="delete-button flex-no-grow"
-        (click)="openEquipmentEntryItemDialog(fa.controls[i], i, control.value)"
+        (click)="openEquipmentEntryItemDialog(fa.controls[i], i)"
         *ngIf="!offlineService.offline && !readOnly"
         [disabled]="!control.value.pk"
         matTooltip="Edit equipment entry"
@@ -154,8 +154,8 @@
           <div class="desc">
             <div>Property Number: {{ equipment.propertyNumber }}</div>
             <div>Serial Number: {{ equipment.serialNumber }}</div>
-            <div>Calibrated Last: {{ equipment.calibrationDate | date:'longDate' }}</div>
-            <div>Calibration Due: {{ equipment.calibrationDueDate | date:'longDate' }}</div>
+            <div>Calibrated Last: {{ equipment.calibrationDate | utcDate }}</div>
+            <div>Calibration Due: {{ equipment.calibrationDueDate | utcDate }}</div>
           </div>
         </mat-option>
       </mat-autocomplete>

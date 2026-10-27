@@ -61,20 +61,16 @@ const thirdDefaults: Partial<StepDef> = {
       {
         pk: 0,
         stepTableCells: [
-          _.merge(
-            new StepTableCell(0, ''),
-            {
-              pk: 0,
-              editable: true,
-              optional: false,
-              summerNoteEnabled: true
-            }
-          )
+          _.merge(new StepTableCell(0, ''), {
+            pk: 0,
+            editable: true,
+            optional: false,
+            summerNoteEnabled: true
+          }),
         ]
-      }
-    )
-  ]
-};
+      }),
+    ]
+}
 
 const fourthDefaults: Partial<StepDef> = {
   pk: 0,

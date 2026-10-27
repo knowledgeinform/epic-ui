@@ -6,8 +6,10 @@ export class EquipmentDTO {
   name: string = '';
   serialNumber: string = '';
   propertyNumber: string = '';
-  calibrationDate: number = null; // Date
-  calibrationDueDate: number = null; // Date
+  // Date on the wire: ISO calendar date string ("yyyy-MM-dd", current) or epoch millis (legacy).
+  // Equipment.loadFromDTO handles both via moment.utc().
+  calibrationDate: number | string = null;
+  calibrationDueDate: number | string = null;
   run?: RunDTO;
   steps?: StepDefDTO[];
 

@@ -48,6 +48,7 @@ import { BulkSignTypePipe } from '@app/pipes/bulk-sign-type.pipe';
 import { BulkLineDisplayNamePipe } from '@app/pipes/bulk-line-display-name.pipe';
 import { SignatureButtonDisableConditionPipe } from '@app/pipes/signature-button-disable-condition.pipe'
 import { ShowApproverCommentsPipe } from '@app/pipes/show-approver-comments.pipe';
+import { UtcDatePipe } from '@app/pipes/utc-date.pipe';
 
 const importsAndExports = [
   JoinPropPipe,
@@ -101,6 +102,7 @@ const importsAndExports = [
   BulkLineDisplayNamePipe,
   SignatureButtonDisableConditionPipe,
   ShowApproverCommentsPipe,
+  UtcDatePipe,
 ];
 
 @NgModule({
